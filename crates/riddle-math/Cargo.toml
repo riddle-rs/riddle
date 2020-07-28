@@ -1,0 +1,11 @@
+[package]
+name = "riddle-math"
+version = "0.1.0"
+authors = ["vickles <vicklesort@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+mint = "0.5"
+glam = {version= "0.9", features=["mint"]}

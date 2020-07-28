@@ -1,0 +1,22 @@
+[package]
+name = "riddle"
+version = "0.1.0"
+authors = ["vickles <vicklesort@gmail.com>"]
+edition = "2018"
+
+[features]
+default = []
+
+[dependencies]
+riddle-audio = {version = "0.1", path = "crates/riddle-audio"}
+riddle-common = {version = "0.1", path = "crates/riddle-common"}
+riddle-font = {version = "0.1", path = "crates/riddle-font"}
+riddle-image = {version = "0.1", path = "crates/riddle-image"}
+riddle-input = {version = "0.1", path = "crates/riddle-input"}
+riddle-macros = {version = "0.1", path = "crates/riddle-macros"}
+riddle-math = {version = "0.1", path = "crates/riddle-math"}
+riddle-renderer-wgpu = {version = "0.1", path = "crates/riddle-renderer-wgpu"}
+riddle-time = {version = "0.1", path = "crates/riddle-time"}
+riddle-window-winit = {version = "0.1", path = "crates/riddle-window-winit"}
+
+thiserror = "1.0"

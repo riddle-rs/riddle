@@ -1,0 +1,22 @@
+[package]
+name = "riddle-window-winit"
+version = "0.1.0"
+authors = ["vickles <vicklesort@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+riddle-common = {path = "../riddle-common"}
+riddle-window-common = {path = "../riddle-window-common"}
+
+raw-window-handle = "0.3"
+thiserror = "1.0"
+
+winit = { version="0.22", git = "https://github.com/vickles/winit/", branch="windows-multibyte-scancodes" }
+
+#[target.'cfg(target = "wasm32-unknown-unknown")'.dependencies]
+#winit = {version = "0.22", git = "https://github.com/rust-windowing/winit", branch = "master", features=["web-sys"]}
+
+#[target.'cfg(not(target = "wasm32-unknown-unknown"))'.dependencies]
+#winit = {version = "0.22", git = "https://github.com/rust-windowing/winit", branch = "master"}

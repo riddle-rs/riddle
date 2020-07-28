@@ -1,0 +1,13 @@
+[package]
+name = "riddle-input"
+version = "0.1.0"
+authors = ["vickles <vicklesort@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+riddle-common = {path = "../riddle-common"}
+riddle-window-common = {path = "../riddle-window-common"}
+
+thiserror = "1.0"
