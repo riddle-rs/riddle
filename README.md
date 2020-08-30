@@ -1,6 +1,6 @@
-![Build](https://github.com/vickles/riddle/workflows/Build/badge.svg)
-
 # About Riddle
+
+![Build](https://github.com/vickles/riddle/workflows/Build/badge.svg)
 
 Riddle is a Rust media library in the vein of SDL, building as far as possible
 on the most active/standard rust libraries (winit, wgpu, image, etc). Riddle
@@ -64,7 +64,7 @@ fn main() -> Result<(), RiddleError> {
         match rdl.event() {
             SystemEvent::Window(WindowEvent::WindowClose(_)) => rdl.quit(),
             _ => (),
-         }
+        }
     })
 }
 ```

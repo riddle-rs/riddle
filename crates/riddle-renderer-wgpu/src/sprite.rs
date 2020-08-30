@@ -61,7 +61,7 @@ impl Sprite {
         }
     }
 
-    pub fn render(&self, args: &SpriteRenderArgs) -> Result<(), RendererError> {
+    pub fn render(&self, args: &SpriteRenderCommand) -> Result<(), RendererError> {
         let rot: glam::Mat2 = glam::Mat2::from_angle((args.angle / 180.0) * std::f32::consts::PI);
         let Vector2 {
             x: tex_width,
@@ -120,7 +120,7 @@ impl Sprite {
     }
 
     pub fn render_at<P: Into<Vector2<f32>>>(&self, location: P) -> Result<(), RendererError> {
-        self.render(&SpriteRenderArgs {
+        self.render(&SpriteRenderCommand {
             location: location.into(),
             ..Default::default()
         })
@@ -139,7 +139,7 @@ impl Sprite {
 }
 
 #[derive(Clone, Debug)]
-pub struct SpriteRenderArgs {
+pub struct SpriteRenderCommand {
     pub location: Vector2<f32>,
     pub pivot: Vector2<f32>,
     pub scale: Vector2<f32>,
@@ -147,7 +147,7 @@ pub struct SpriteRenderArgs {
     pub diffuse_color: [f32; 4],
 }
 
-impl SpriteRenderArgs {
+impl SpriteRenderCommand {
     pub fn new<T: Into<Vector2<f32>>>(location: T) -> Self {
         let mut args = Self::default();
         args.at(location);
@@ -185,9 +185,9 @@ impl SpriteRenderArgs {
     }
 }
 
-impl Default for SpriteRenderArgs {
+impl Default for SpriteRenderCommand {
     fn default() -> Self {
-        SpriteRenderArgs {
+        SpriteRenderCommand {
             location: [0.0, 0.0].into(),
             pivot: [0.0, 0.0].into(),
             angle: 0.0,

@@ -41,7 +41,7 @@ such as `mint`, and `raw-window-handle`.
 
 Add a git dependency in your cargo.toml _[note 2]_.
 
-```ignore
+```text
 [dependency.riddle]
 version = 0.1
 git = "https://github.com/vickles/riddle/"
