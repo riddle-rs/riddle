@@ -95,7 +95,7 @@ impl DemoState {
         self.sprite.render_at(rdl.input().mouse_pos(&self.window))?;
 
         self.subsprite.render_at([60.0, 60.0])?;
-        self.label_sprite.render(&SpriteRenderArgs {
+        self.label_sprite.render(&SpriteRenderCommand {
             location: [10.0, 100.0].into(),
             diffuse_color: [0.0, 0.0, 1.0, 1.0],
             ..Default::default()
