@@ -64,7 +64,7 @@ fn main() -> Result<(), RiddleError> {
         match rdl.event() {
             SystemEvent::Window(WindowEvent::WindowClose(_)) => rdl.quit(),
             _ => (),
-         }
+        }
     })
 }
 ```
