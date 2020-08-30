@@ -41,10 +41,12 @@ such as `mint`, and `raw-window-handle`.
 
 Add a git dependency in your cargo.toml _[note 2]_.
 
-    [dependency.riddle]
-    version = 0.1
-    git = "https://github.com/vickles/riddle/"
-    branch = "master"
+```ignore
+[dependency.riddle]
+version = 0.1
+git = "https://github.com/vickles/riddle/"
+branch = "master"
+```
 
 Place the following in main.rs:
 
@@ -53,7 +55,7 @@ use riddle::{*, window::*};
 
 fn main() -> Result<(), RiddleError> {
     let rdl = RiddleApp::new()?;
-    let window = WindowBuilder::new().build(&rdl.context())?;
+    let window = WindowBuilder::new().build(rdl.context())?;
 
     rdl.run(move |rdl| {
         match rdl.event() {

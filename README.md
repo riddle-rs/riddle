@@ -1,3 +1,5 @@
+![Build](https://github.com/vickles/riddle/workflows/Build/badge.svg)
+
 # About Riddle
 
 Riddle is a Rust media library in the vein of SDL, building as far as possible
@@ -56,7 +58,7 @@ use riddle::{*, window::*};
 
 fn main() -> Result<(), RiddleError> {
     let rdl = RiddleApp::new()?;
-    let window = WindowBuilder::new().build(&rdl.context())?;
+    let window = WindowBuilder::new().build(rdl.context())?;
 
     rdl.run(move |rdl| {
         match rdl.event() {
