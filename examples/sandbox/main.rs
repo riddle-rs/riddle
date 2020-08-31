@@ -131,6 +131,12 @@ fn main() -> Result<(), RiddleError> {
                 window::Scancode::P => {
                     state.music_player.resume();
                 }
+                window::Scancode::Down => {
+                    state.music_player.set_volume(0.5);
+                }
+                window::Scancode::Up => {
+                    state.music_player.set_volume(1.0);
+                }
                 _ => (),
             }
             println!("KeyDown: {:?}", scancode);

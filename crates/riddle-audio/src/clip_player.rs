@@ -4,43 +4,60 @@ use rodio::source::Source;
 use std::rc::Rc;
 
 pub struct ClipPlayer {
-    _audio: Rc<AudioSystem>,
+    audio: Rc<AudioSystem>,
     clip: Clip,
-    sink: rodio::Sink,
+    sink: Option<Rc<rodio::Sink>>,
 }
 
 impl ClipPlayer {
     pub(crate) fn new(audio: Rc<AudioSystem>, clip: Clip) -> Self {
         Self {
-            _audio: audio.clone(),
+            audio: audio.clone(),
             clip: clip,
-            sink: rodio::Sink::new(&audio.device),
+            sink: None,
         }
     }
 
     fn play(&mut self, mode: PlayMode) -> Result<(), AudioError> {
+        let sink: Rc<rodio::Sink> = rodio::Sink::new(&self.audio.device).into();
         let source = rodio::decoder::Decoder::new(std::io::Cursor::new(self.clip.data.clone()))
             .map_err(|_| AudioError::UnknownError)?;
 
         match mode {
-            PlayMode::OneShot => self.sink.append(source),
-            PlayMode::Loop => self.sink.append(source.repeat_infinite()),
+            PlayMode::OneShot => sink.append(source),
+            PlayMode::Loop => sink.append(source.repeat_infinite()),
         }
+
+        self.sink = Some(sink);
 
         Ok(())
     }
 
-    pub fn detach(self) {
-        self.sink.detach();
+    pub fn set_volume(&mut self, volume: f32) {
+        match &self.sink {
+            Some(sink) => {
+                //TODO: Use the fader
+                sink.set_volume(volume)
+            }
+            _ => (),
+        }
     }
 
     pub fn pause(&mut self) {
-        self.sink.pause();
+        match &self.sink {
+            Some(sink) => sink.pause(),
+            _ => (),
+        }
     }
 
     pub fn resume(&mut self) {
-        if self.sink.is_paused() {
-            self.sink.play()
+        match &self.sink {
+            Some(sink) => {
+                if sink.is_paused() {
+                    sink.play()
+                }
+            }
+            _ => (),
         }
     }
 
