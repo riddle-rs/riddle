@@ -27,6 +27,7 @@ impl RiddleApp {
             match ctx.event() {
                 window::SystemEvent::ProcessFrame => {
                     self.state.time.process_frame();
+                    self.state.audio.process_frame();
                 }
                 _ => (),
             };
