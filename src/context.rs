@@ -27,6 +27,7 @@ impl<'a> RiddleContext<'a> {
         &self.window_ctx.event()
     }
 
+    #[cfg(feature = "riddle-audio")]
     pub fn audio(&self) -> Rc<audio::AudioSystem> {
         self.state.audio.clone()
     }
@@ -40,6 +41,7 @@ impl<'a> RiddleContext<'a> {
     }
 }
 
+#[cfg(feature = "riddle-audio")]
 impl<'a> Borrow<Rc<audio::AudioSystem>> for RiddleContext<'a> {
     fn borrow(&self) -> &Rc<audio::AudioSystem> {
         &self.state.audio
