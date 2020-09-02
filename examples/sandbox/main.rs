@@ -14,6 +14,7 @@ struct DemoState {
 
     clip: audio::Clip,
     music_player: audio::ClipPlayer,
+    blip_player: Option<audio::ClipPlayer>,
 }
 
 impl DemoState {
@@ -72,6 +73,7 @@ impl DemoState {
 
             clip,
             music_player,
+            blip_player: None,
         })
     }
 
@@ -105,11 +107,12 @@ impl DemoState {
         Ok(())
     }
 
-    pub fn on_mouse_down(&self, rdl: &RiddleContext) -> Result<(), RiddleError> {
-        audio::ClipPlayerBuilder::new()
-            .with_mode(audio::PlayMode::OneShot)
-            .play(rdl.audio(), self.clip.clone())?
-            .detach();
+    pub fn on_mouse_down(&mut self, rdl: &RiddleContext) -> Result<(), RiddleError> {
+        self.blip_player = Some(
+            audio::ClipPlayerBuilder::new()
+                .with_mode(audio::PlayMode::OneShot)
+                .play(rdl.audio(), self.clip.clone())?,
+        );
         Ok(())
     }
 }
@@ -130,6 +133,12 @@ fn main() -> Result<(), RiddleError> {
                 }
                 window::Scancode::P => {
                     state.music_player.resume();
+                }
+                window::Scancode::Down => {
+                    state.music_player.set_volume(0.5);
+                }
+                window::Scancode::Up => {
+                    state.music_player.set_volume(1.0);
                 }
                 _ => (),
             }

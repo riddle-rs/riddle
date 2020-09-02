@@ -1,50 +1,90 @@
 use crate::*;
 
-use rodio::source::Source;
-use std::rc::Rc;
+use rodio::{decoder::Decoder, source::Source, Sink};
+use std::{io::Cursor, rc::Rc, time::Duration};
+
+const QUICK_FADE_DURATION_SECONDS: f32 = 0.2;
 
 pub struct ClipPlayer {
-    _audio: Rc<AudioSystem>,
+    audio: Rc<AudioSystem>,
     clip: Clip,
-    sink: rodio::Sink,
+    sink: Option<Rc<Sink>>,
+
+    volume: f32,
 }
 
 impl ClipPlayer {
     pub(crate) fn new(audio: Rc<AudioSystem>, clip: Clip) -> Self {
         Self {
-            _audio: audio.clone(),
+            audio: audio.clone(),
             clip: clip,
-            sink: rodio::Sink::new(&audio.device),
+            sink: None,
+            volume: 1.0,
         }
     }
 
     fn play(&mut self, mode: PlayMode) -> Result<(), AudioError> {
-        let source = rodio::decoder::Decoder::new(std::io::Cursor::new(self.clip.data.clone()))
+        let sink: Rc<Sink> = Sink::new(&self.audio.device).into();
+        sink.set_volume(self.volume);
+        let source = Decoder::new(Cursor::new(self.clip.data.clone()))
             .map_err(|_| AudioError::UnknownError)?;
 
         match mode {
-            PlayMode::OneShot => self.sink.append(source),
-            PlayMode::Loop => self.sink.append(source.repeat_infinite()),
+            PlayMode::OneShot => sink.append(source),
+            PlayMode::Loop => sink.append(source.repeat_infinite()),
         }
+
+        self.sink = Some(sink);
 
         Ok(())
     }
 
-    pub fn detach(self) {
-        self.sink.detach();
+    pub fn fade_volume(&mut self, volume: f32, duration: Duration) {
+        self.volume = volume;
+        self.fade_volume_with_type(self.volume, duration, FadeType::AlterVolume);
+    }
+
+    pub fn set_volume(&mut self, volume: f32) {
+        self.fade_volume(volume, Duration::from_secs_f32(QUICK_FADE_DURATION_SECONDS))
     }
 
     pub fn pause(&mut self) {
-        self.sink.pause();
+        self.fade_volume_with_type(
+            0.0,
+            Duration::from_secs_f32(QUICK_FADE_DURATION_SECONDS),
+            FadeType::Pause,
+        );
     }
 
     pub fn resume(&mut self) {
-        if self.sink.is_paused() {
-            self.sink.play()
+        match &self.sink {
+            Some(sink) => {
+                if sink.is_paused() {
+                    sink.play();
+                    self.fade_volume_with_type(
+                        self.volume,
+                        Duration::from_secs_f32(QUICK_FADE_DURATION_SECONDS),
+                        FadeType::Resume,
+                    );
+                }
+            }
+            _ => (),
         }
     }
 
-    pub fn stop(self) -> () {}
+    pub fn stop(mut self) -> () {
+        self.pause();
+    }
+
+    fn fade_volume_with_type(&mut self, volume: f32, duration: Duration, fade_type: FadeType) {
+        match &self.sink {
+            Some(sink) => {
+                let fade = Fade::new(sink.clone(), volume, duration, fade_type);
+                self.audio.register_fade(fade);
+            }
+            _ => (),
+        }
+    }
 }
 
 #[derive(Copy, Clone)]
