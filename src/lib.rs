@@ -35,7 +35,10 @@ such as `mint`, and `raw-window-handle`.
 
 # Cargo Features
 
-* **default** - All features are enabled
+* `renderer` - The `riddle-renderer-wgpu` renderer will be enabled.
+* `audio`- The `riddle-audio`subsystem will be enabled.
+* `font` - The `riddle-font` crate will be included, and reexported through `riddle::font`
+* **default** - All features are enabled.
 
 # Getting started
 
@@ -82,15 +85,21 @@ mod context;
 mod error;
 mod state;
 
-pub use riddle_audio as audio;
 pub use riddle_common as common;
-pub use riddle_font as font;
 pub use riddle_image as image;
 pub use riddle_input as input;
 pub use riddle_math as math;
-pub use riddle_renderer_wgpu as renderer;
 pub use riddle_time as time;
 pub use riddle_window_winit as window;
+
+#[cfg(feature = "riddle-audio")]
+pub use riddle_audio as audio;
+
+#[cfg(feature = "riddle-renderer-wgpu")]
+pub use riddle_renderer_wgpu as renderer;
+
+#[cfg(feature = "riddle-font")]
+pub use riddle_font as font;
 
 pub use app::*;
 pub use context::*;

@@ -1,5 +1,6 @@
+#[cfg(feature = "riddle-audio")]
+use crate::audio::AudioSystem;
 use crate::{
-    audio::AudioSystem,
     input::InputSystem,
     time::TimeSystem,
     window::{Window, WindowSystem},
@@ -11,22 +12,28 @@ use std::rc::Rc;
 pub(crate) struct RiddleState {
     pub window: Rc<WindowSystem>,
     pub input: Rc<InputSystem<Rc<Window>>>,
-    pub audio: Rc<AudioSystem>,
     pub time: Rc<TimeSystem>,
+
+    #[cfg(feature = "riddle-audio")]
+    pub audio: Rc<AudioSystem>,
 }
 
 impl RiddleState {
     pub fn new() -> Result<Self, RiddleError> {
         let window = WindowSystem::new();
         let input = InputSystem::new(window.event_pub())?;
-        let audio = AudioSystem::new()?;
         let time = TimeSystem::new();
+
+        #[cfg(feature = "riddle-audio")]
+        let audio = AudioSystem::new()?;
 
         Ok(RiddleState {
             window: window.into(),
             input: input.into(),
-            audio: audio.into(),
             time: time.into(),
+
+            #[cfg(feature = "riddle-audio")]
+            audio: audio.into(),
         })
     }
 }

@@ -6,17 +6,20 @@ edition = "2018"
 license = "MIT OR Apache-2.0"
 
 [features]
-default = []
+default = ["renderer", "audio", "font"]
+renderer = ["riddle-renderer-wgpu"]
+audio = ["riddle-audio"]
+font = ["riddle-font"]
 
 [dependencies]
-riddle-audio = {version = "0.1", path = "crates/riddle-audio"}
+riddle-audio = {version = "0.1", path = "crates/riddle-audio", optional = true}
 riddle-common = {version = "0.1", path = "crates/riddle-common"}
-riddle-font = {version = "0.1", path = "crates/riddle-font"}
+riddle-font = {version = "0.1", path = "crates/riddle-font", optional = true}
 riddle-image = {version = "0.1", path = "crates/riddle-image"}
 riddle-input = {version = "0.1", path = "crates/riddle-input"}
 riddle-macros = {version = "0.1", path = "crates/riddle-macros"}
 riddle-math = {version = "0.1", path = "crates/riddle-math"}
-riddle-renderer-wgpu = {version = "0.1", path = "crates/riddle-renderer-wgpu"}
+riddle-renderer-wgpu = {version = "0.1", path = "crates/riddle-renderer-wgpu", optional = true}
 riddle-time = {version = "0.1", path = "crates/riddle-time"}
 riddle-window-winit = {version = "0.1", path = "crates/riddle-window-winit"}
 

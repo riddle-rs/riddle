@@ -36,15 +36,17 @@ where types from other crates are exposed through Riddle's public API are
 where those crates have become defacto standards for cross crate integration,
 such as `mint`, and `raw-window-handle`.
 
-## Cargo Features
+# Cargo Features
 
-* **default** - All features are enabled
+* `renderer` - The `riddle-renderer-wgpu` renderer will be enabled.
+* `audio`- The `riddle-audio`subsystem will be enabled.
+* **default** - All features are enabled.
 
-## Getting started
+# Getting started
 
 Add a git dependency in your cargo.toml _[note 2]_.
 
-```toml
+```text
 [dependency.riddle]
 version = 0.1
 git = "https://github.com/vickles/riddle/"
@@ -53,7 +55,7 @@ branch = "master"
 
 Place the following in main.rs:
 
-```rust
+```no_run
 use riddle::{*, window::*};
 
 fn main() -> Result<(), RiddleError> {
@@ -64,7 +66,7 @@ fn main() -> Result<(), RiddleError> {
         match rdl.event() {
             SystemEvent::Window(WindowEvent::WindowClose(_)) => rdl.quit(),
             _ => (),
-        }
+         }
     })
 }
 ```
