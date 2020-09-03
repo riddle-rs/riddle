@@ -1,9 +1,7 @@
 use crate::*;
 
-use std::rc::Rc;
-
 pub struct RiddleApp {
-    pub(crate) state: Rc<RiddleState>,
+    pub(crate) state: RiddleState,
 }
 
 impl RiddleApp {
@@ -21,7 +19,7 @@ impl RiddleApp {
         window::WindowSystem::run(window_system, move |window_ctx| {
             let ctx = RiddleContext {
                 window_ctx,
-                state: self.state.clone(),
+                state: &self.state,
             };
 
             match ctx.event() {
@@ -40,8 +38,12 @@ impl RiddleApp {
     }
 
     pub fn context(&self) -> RiddleContext {
-        let state = self.state.clone();
+        let state = &self.state;
         let window_ctx = window::WindowSystem::borrow_context(&self.state.window).unwrap();
         RiddleContext { state, window_ctx }
+    }
+
+    pub fn state(&self) -> &RiddleState {
+        &self.state
     }
 }

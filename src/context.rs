@@ -8,7 +8,7 @@ use std::{borrow::Borrow, rc::Rc};
 /// A context is used for creating root resources like [`Window`].
 pub struct RiddleContext<'a> {
     pub(crate) window_ctx: window::WindowContext<'a>,
-    pub(crate) state: Rc<RiddleState>,
+    pub(crate) state: &'a RiddleState,
 }
 
 impl<'a> RiddleContext<'a> {
@@ -25,6 +25,10 @@ impl<'a> RiddleContext<'a> {
     /// Get the event associated with this context
     pub fn event(&self) -> &window::SystemEvent<Rc<window::Window>> {
         &self.window_ctx.event()
+    }
+
+    pub fn state(&self) -> &RiddleState {
+        &self.state
     }
 
     #[cfg(feature = "riddle-audio")]
