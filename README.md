@@ -47,7 +47,7 @@ such as `mint`, and `raw-window-handle`.
 
 Add a git dependency in your cargo.toml _[note 2]_.
 
-```text
+```toml
 [dependency.riddle]
 version = 0.1
 git = "https://github.com/vickles/riddle/"
@@ -56,7 +56,7 @@ branch = "master"
 
 Place the following in main.rs:
 
-```no_run
+```rust
 use riddle::{*, window::*};
 
 fn main() -> Result<(), RiddleError> {
