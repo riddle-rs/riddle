@@ -40,6 +40,7 @@ such as `mint`, and `raw-window-handle`.
 
 * `renderer` - The `riddle-renderer-wgpu` renderer will be enabled.
 * `audio`- The `riddle-audio`subsystem will be enabled.
+* `font` - The `riddle-font` crate will be included, and reexported through `riddle::font`
 * **default** - All features are enabled.
 
 # Getting started
