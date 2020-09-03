@@ -1,5 +1,5 @@
 //use input::InputEvent;
-use riddle::{math::*, renderer::*, *};
+use riddle::{common::Color, math::*, renderer::*, *};
 use window::WindowBuilder;
 
 use std::rc::Rc;
@@ -78,7 +78,7 @@ impl DemoState {
     }
 
     pub fn render_frame(&self, rdl: &RiddleContext) -> Result<(), RiddleError> {
-        self.renderer.clear()?;
+        self.renderer.clear(Color::rgb(0.0, 1.0, 0.0))?;
         self.renderer.fill_rect(
             &Rect {
                 location: [100.0, 100.0].into(),

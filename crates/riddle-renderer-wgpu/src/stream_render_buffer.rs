@@ -72,7 +72,11 @@ impl StreamRenderBuffer {
         args: &StreamRenderArgs,
     ) -> Result<(), RendererError> {
         let device = &renderer.device;
-        let FrameRenderState { encoder, frame } = &mut *(renderer.get_frame_state()?);
+        let FrameRenderState {
+            encoder,
+            frame,
+            pending_clear_color,
+        } = &mut *(renderer.get_frame_state()?);
 
         let vertex_buf = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: None,
@@ -90,9 +94,22 @@ impl StreamRenderBuffer {
             .shader
             .bind_params(device, renderer.camera_size(), &args.texture);
 
+        let load_op = match pending_clear_color {
+            Some(c) => wgpu::LoadOp::Clear(wgpu::Color {
+                r: c[0] as f64,
+                g: c[1] as f64,
+                b: c[2] as f64,
+                a: c[3] as f64,
+            }),
+            None => wgpu::LoadOp::Load,
+        };
+        *pending_clear_color = None;
+
         // Scope render pass so that the render is encoded before the buffers are cleared.
         {
-            let mut rpass = args.shader.begin_render_pass(&frame.output.view, encoder);
+            let mut rpass = args
+                .shader
+                .begin_render_pass(&frame.output.view, encoder, load_op);
 
             rpass.set_bind_group(0, &bind_group, &[]);
 
