@@ -27,11 +27,11 @@ impl Shader {
             std::borrow::Cow::from(bytemuck::cast_slice(&vs_buf)),
         ));
 
-        let mut fs_buf = vec![];
-        fs.read_to_end(&mut fs_buf)
+        let mut fs_string = String::new();
+        fs.read_to_string(&mut fs_string)
             .map_err(|_| RendererError::Unknown)?;
-        let fs_module = device.create_shader_module(wgpu::ShaderModuleSource::SpirV(
-            std::borrow::Cow::from(bytemuck::cast_slice(&fs_buf)),
+        let fs_module = device.create_shader_module(wgpu::ShaderModuleSource::Wgsl(
+            std::borrow::Cow::from(fs_string.as_str()),
         ));
 
         let vertex_size = std::mem::size_of::<Vertex>();

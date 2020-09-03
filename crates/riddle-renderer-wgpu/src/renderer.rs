@@ -67,7 +67,7 @@ impl Renderer {
         let swap_chain = device.create_swap_chain(&surface, &sc_desc);
 
         let vs = include_bytes!("shaders/default.vert.spv");
-        let fs = include_bytes!("shaders/default.frag.spv");
+        let fs = include_bytes!("shaders/default.frag.wgsl");
         let sprite_shader = Shader::from_readers(
             &device,
             std::io::Cursor::new(&vs[..]),
