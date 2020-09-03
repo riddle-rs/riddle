@@ -1,6 +1,9 @@
 use thiserror::Error;
 
+mod color;
 pub mod eventpub;
+
+pub use color::*;
 
 #[derive(Debug, Error)]
 pub enum CommonError {

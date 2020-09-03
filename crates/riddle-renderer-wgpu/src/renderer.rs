@@ -1,6 +1,6 @@
 use crate::{math::*, window::*, *};
 
-use riddle_common::eventpub::EventSub;
+use riddle_common::{eventpub::EventSub, Color};
 
 use std::{cell::RefCell, rc::Rc};
 
@@ -28,6 +28,7 @@ pub struct Renderer {
 pub(super) struct FrameRenderState {
     pub encoder: wgpu::CommandEncoder,
     pub frame: wgpu::SwapChainFrame,
+    pub pending_clear_color: Option<[f32; 4]>,
 }
 
 impl Renderer {
@@ -121,7 +122,11 @@ impl Renderer {
                 .frame_state
                 .try_borrow_mut()
                 .map_err(|_| RendererError::Unknown)?;
-            *fs = Some(FrameRenderState { encoder, frame });
+            *fs = Some(FrameRenderState {
+                encoder,
+                frame,
+                pending_clear_color: None,
+            });
         }
 
         Ok(std::cell::RefMut::map(self.frame_state.borrow_mut(), |s| {
@@ -129,8 +134,22 @@ impl Renderer {
         }))
     }
 
-    /// Clear the output frame
-    pub fn clear(&self) -> Result<(), RendererError> {
+    /// Set the clear color and mark the frame buffer for clearing. The actual clear operation
+    /// will be performed when the next batched render happens, or when `present` is called,
+    /// whichever comes first.
+    pub fn clear(&self, color: Color) -> Result<(), RendererError> {
+        self.stream_buffer.borrow_mut().flush(self)?;
+
+        let FrameRenderState {
+            pending_clear_color,
+            ..
+        } = &mut *(self.get_frame_state()?);
+
+        *pending_clear_color = Some(color.into());
+        Ok(())
+    }
+
+    fn clear_immediate(&self, color: Color) -> Result<(), RendererError> {
         self.stream_buffer.borrow_mut().flush(self)?;
 
         let FrameRenderState { encoder, frame, .. } = &mut *(self.get_frame_state()?);
@@ -140,7 +159,12 @@ impl Renderer {
                 attachment: &frame.output.view,
                 resolve_target: None,
                 ops: wgpu::Operations {
-                    load: wgpu::LoadOp::Clear(wgpu::Color::GREEN),
+                    load: wgpu::LoadOp::Clear(wgpu::Color {
+                        r: color.r as f64,
+                        g: color.g as f64,
+                        b: color.b as f64,
+                        a: color.a as f64,
+                    }),
                     store: true,
                 },
             }],
@@ -176,6 +200,12 @@ impl Renderer {
 
     pub fn present(&self) -> Result<(), RendererError> {
         self.stream_buffer.borrow_mut().flush(self)?;
+
+        let pending_clear_color = self.get_frame_state()?.pending_clear_color;
+
+        if pending_clear_color.is_some() {
+            self.clear_immediate(pending_clear_color.unwrap().into())?;
+        }
 
         let fs = self
             .frame_state
