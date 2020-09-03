@@ -6,6 +6,7 @@ use std::rc::Rc;
 
 struct DemoState {
     window: Rc<window::Window>,
+    state: RiddleState,
 
     renderer: Rc<renderer::Renderer>,
     sprite: renderer::Sprite,
@@ -61,10 +62,11 @@ impl DemoState {
 
         let music_player = audio::ClipPlayerBuilder::new()
             .with_mode(audio::PlayMode::Loop)
-            .play(rdl.context().audio(), music)?;
+            .play(rdl.state().audio(), music)?;
 
         Ok(Self {
             window,
+            state: rdl.state().clone(),
 
             renderer,
             sprite,
@@ -77,7 +79,7 @@ impl DemoState {
         })
     }
 
-    pub fn render_frame(&self, rdl: &RiddleContext) -> Result<(), RiddleError> {
+    pub fn render_frame(&self) -> Result<(), RiddleError> {
         self.renderer.clear(Color::rgb(0.0, 1.0, 0.0))?;
         self.renderer.fill_rect(
             &Rect {
@@ -94,7 +96,8 @@ impl DemoState {
             [1.0, 1.0, 1.0, 1.0],
         )?;
 
-        self.sprite.render_at(rdl.input().mouse_pos(&self.window))?;
+        self.sprite
+            .render_at(self.state.input().mouse_pos(&self.window))?;
 
         self.subsprite.render_at([60.0, 60.0])?;
         self.label_sprite.render(&SpriteRenderCommand {
@@ -107,11 +110,11 @@ impl DemoState {
         Ok(())
     }
 
-    pub fn on_mouse_down(&mut self, rdl: &RiddleContext) -> Result<(), RiddleError> {
+    pub fn on_mouse_down(&mut self) -> Result<(), RiddleError> {
         self.blip_player = Some(
             audio::ClipPlayerBuilder::new()
                 .with_mode(audio::PlayMode::OneShot)
-                .play(rdl.audio(), self.clip.clone())?,
+                .play(self.state.audio(), self.clip.clone())?,
         );
         Ok(())
     }
@@ -124,7 +127,7 @@ fn main() -> Result<(), RiddleError> {
     rdl.run(move |rdl| match rdl.event() {
         window::SystemEvent::Window(window::WindowEvent::WindowClose(_)) => rdl.quit(),
         window::SystemEvent::Input(window::InputEvent::MouseButtonDown { .. }) => {
-            state.on_mouse_down(rdl).unwrap();
+            state.on_mouse_down().unwrap();
         }
         window::SystemEvent::Input(window::InputEvent::KeyDown { scancode, .. }) => {
             match scancode {
@@ -148,7 +151,7 @@ fn main() -> Result<(), RiddleError> {
             println!("KeyUp: {:?}", scancode);
         }
         window::SystemEvent::ProcessFrame => {
-            state.render_frame(rdl).unwrap();
+            state.render_frame().unwrap();
         }
         _ => (),
     })

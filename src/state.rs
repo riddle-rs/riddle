@@ -9,7 +9,8 @@ use crate::{
 
 use std::rc::Rc;
 
-pub(crate) struct RiddleState {
+#[derive(Clone)]
+pub struct RiddleState {
     pub window: Rc<WindowSystem>,
     pub input: Rc<InputSystem<Rc<Window>>>,
     pub time: Rc<TimeSystem>,
@@ -35,5 +36,21 @@ impl RiddleState {
             #[cfg(feature = "riddle-audio")]
             audio: audio.into(),
         })
+    }
+
+    pub fn window(&self) -> Rc<WindowSystem> {
+        self.window.clone()
+    }
+
+    pub fn input(&self) -> Rc<InputSystem<Rc<Window>>> {
+        self.input.clone()
+    }
+
+    pub fn time(&self) -> Rc<TimeSystem> {
+        self.time.clone()
+    }
+
+    pub fn audio(&self) -> Rc<AudioSystem> {
+        self.audio.clone()
     }
 }
