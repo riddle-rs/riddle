@@ -144,11 +144,14 @@ impl Shader {
         &self,
         device: &wgpu::Device,
         camera_size: Vector2<f32>,
+        view_matrix: mint::ColumnMatrix4<f32>,
         texture: &Texture,
     ) -> wgpu::BindGroup {
         let ortho_matrix =
             glam::Mat4::orthographic_lh(0.0, camera_size.x, camera_size.y, 0.0, 0.0, 1.0);
-        let matrix_arr: &[f32; 16] = ortho_matrix.as_ref();
+        let view_matrix: glam::Mat4 = view_matrix.into();
+        let result_matrix = ortho_matrix * view_matrix;
+        let matrix_arr: &[f32; 16] = result_matrix.as_ref();
 
         let camera_uniform = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: None,
