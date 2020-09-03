@@ -16,14 +16,22 @@ impl Sprite {
     /// Construct a new sprite from an image. The image contents are copied to a texture
     /// in RGBA8 format. The entire image will be used
     pub fn new_from_image(
-        renderer: &Rc<Renderer>,
+        renderer: Rc<Renderer>,
         img: image::Image,
+        mag_filter: FilterMode,
+        min_filter: FilterMode,
     ) -> Result<Sprite, RendererError> {
-        let texture = Texture::from_image(&renderer.device, &renderer.queue, img)?;
+        let texture = Texture::from_image(
+            &renderer.device,
+            &renderer.queue,
+            img,
+            mag_filter,
+            min_filter,
+        )?;
         Ok(Self::from_texture(renderer, texture.into()))
     }
 
-    pub(super) fn from_texture(renderer: &Rc<Renderer>, texture: Rc<Texture>) -> Sprite {
+    pub(super) fn from_texture(renderer: Rc<Renderer>, texture: Rc<Texture>) -> Sprite {
         let dimensions = texture.dimensions.convert();
         Self::from_texture_with_bounds(
             renderer,
@@ -36,7 +44,7 @@ impl Sprite {
     }
 
     pub(super) fn from_texture_with_bounds(
-        renderer: &Rc<Renderer>,
+        renderer: Rc<Renderer>,
         texture: Rc<Texture>,
         source_rect: Rect<f32>,
     ) -> Sprite {
@@ -194,5 +202,31 @@ impl Default for SpriteRenderCommand {
             scale: [1.0, 1.0].into(),
             diffuse_color: [1.0; 4],
         }
+    }
+}
+
+pub struct SpriteBuilder {
+    img: image::Image,
+    mag_filter: FilterMode,
+    min_filter: FilterMode,
+}
+
+impl SpriteBuilder {
+    pub fn new(img: image::Image) -> Self {
+        Self {
+            img,
+            mag_filter: Default::default(),
+            min_filter: Default::default(),
+        }
+    }
+
+    pub fn with_filter_modes(mut self, mag_filter: FilterMode, min_filter: FilterMode) -> Self {
+        self.mag_filter = mag_filter;
+        self.min_filter = min_filter;
+        self
+    }
+
+    pub fn build(self, renderer: Rc<Renderer>) -> Result<Sprite, RendererError> {
+        Sprite::new_from_image(renderer, self.img, self.mag_filter, self.min_filter)
     }
 }

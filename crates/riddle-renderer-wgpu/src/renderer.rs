@@ -79,7 +79,14 @@ impl Renderer {
 
         let mut white_img = image::Image::new(1, 1).map_err(|_| RendererError::Unknown)?;
         white_img.set_pixel(0, 0, [0xFF; 4]);
-        let white_tex = Texture::from_image(&device, &queue, white_img)?.into();
+        let white_tex = Texture::from_image(
+            &device,
+            &queue,
+            white_img,
+            FilterMode::Nearest,
+            FilterMode::Nearest,
+        )?
+        .into();
 
         let camera_size = window.logical_size();
 
