@@ -5,6 +5,9 @@ use std::rc::Rc;
 pub struct SpriteAtlasBuilder<'a> {
     images: Vec<(image::Image, &'a mut Option<Sprite>)>,
 
+    mag_filter: FilterMode,
+    min_filter: FilterMode,
+
     max_height: u32,
     total_width: u32,
 }
@@ -15,6 +18,8 @@ impl<'a> SpriteAtlasBuilder<'a> {
             images: vec![],
             max_height: 0,
             total_width: 0,
+            mag_filter: Default::default(),
+            min_filter: Default::default(),
         }
     }
 
@@ -25,7 +30,13 @@ impl<'a> SpriteAtlasBuilder<'a> {
         self
     }
 
-    pub fn build(self, renderer: &Rc<Renderer>) -> Result<(), RendererError> {
+    pub fn with_filter_modes(mut self, mag_filter: FilterMode, min_filter: FilterMode) -> Self {
+        self.mag_filter = mag_filter;
+        self.min_filter = min_filter;
+        self
+    }
+
+    pub fn build(self, renderer: Rc<Renderer>) -> Result<(), RendererError> {
         let mut atlas = image::Image::new(self.total_width, self.max_height)?;
         let mut sprite_bounds = vec![];
         let mut x = 0;
@@ -45,11 +56,13 @@ impl<'a> SpriteAtlasBuilder<'a> {
             &renderer.device,
             &renderer.queue,
             atlas,
+            self.mag_filter,
+            self.min_filter,
         )?);
 
         for (bounds, sprite) in sprite_bounds {
             *sprite = Some(Sprite::from_texture_with_bounds(
-                renderer,
+                renderer.clone(),
                 texture.clone(),
                 bounds.convert(),
             ));

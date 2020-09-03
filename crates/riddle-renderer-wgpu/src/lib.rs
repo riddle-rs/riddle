@@ -11,10 +11,10 @@ pub use error::*;
 pub use renderer::*;
 pub use sprite::*;
 pub use sprite_atlas::*;
+pub use texture::*;
 
 use shader::*;
 use stream_render_buffer::*;
-use texture::*;
 use vertex::*;
 
 use riddle_image as image;

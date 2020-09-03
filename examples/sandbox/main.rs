@@ -52,7 +52,7 @@ impl DemoState {
         SpriteAtlasBuilder::new()
             .with_image(label, &mut label_sprite)
             .with_image(img, &mut sprite)
-            .build(&renderer)?;
+            .build(renderer.clone())?;
 
         let sprite = sprite.unwrap();
         let subsprite = sprite.subsprite(&Rect {

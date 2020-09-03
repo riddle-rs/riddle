@@ -13,6 +13,8 @@ impl Texture {
         device: &wgpu::Device,
         queue: &wgpu::Queue,
         image: image::Image,
+        mag_filter: FilterMode,
+        min_filter: FilterMode,
     ) -> Result<Texture, RendererError> {
         let texture_extent = wgpu::Extent3d {
             width: image.width(),
@@ -50,8 +52,8 @@ impl Texture {
             address_mode_u: wgpu::AddressMode::ClampToEdge,
             address_mode_v: wgpu::AddressMode::ClampToEdge,
             address_mode_w: wgpu::AddressMode::ClampToEdge,
-            mag_filter: wgpu::FilterMode::Nearest,
-            min_filter: wgpu::FilterMode::Linear,
+            mag_filter: mag_filter.into(),
+            min_filter: min_filter.into(),
             ..Default::default()
         });
 
@@ -61,5 +63,25 @@ impl Texture {
             dimensions: image.dimensions(),
         }
         .into())
+    }
+}
+
+pub enum FilterMode {
+    Nearest,
+    Linear,
+}
+
+impl From<FilterMode> for wgpu::FilterMode {
+    fn from(f: FilterMode) -> Self {
+        match f {
+            FilterMode::Nearest => wgpu::FilterMode::Nearest,
+            FilterMode::Linear => wgpu::FilterMode::Linear,
+        }
+    }
+}
+
+impl Default for FilterMode {
+    fn default() -> Self {
+        FilterMode::Nearest
     }
 }
