@@ -24,3 +24,7 @@ riddle-time = {version = "0.1", path = "crates/riddle-time"}
 riddle-window-winit = {version = "0.1", path = "crates/riddle-window-winit"}
 
 thiserror = "1.0"
+
+[dev-dependencies]
+mint = "0.5"
+glam = {version= "0.9", features=["mint"]}

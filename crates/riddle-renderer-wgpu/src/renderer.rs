@@ -29,6 +29,7 @@ pub(super) struct FrameRenderState {
     pub encoder: wgpu::CommandEncoder,
     pub frame: wgpu::SwapChainFrame,
     pub pending_clear_color: Option<[f32; 4]>,
+    pub view_matrix_stack: Vec<mint::ColumnMatrix4<f32>>,
 }
 
 impl Renderer {
@@ -103,6 +104,44 @@ impl Renderer {
         })
     }
 
+    pub fn set_transform(&self, transform: mint::ColumnMatrix4<f32>) -> Result<(), RendererError> {
+        self.stream_buffer.borrow_mut().flush(self)?;
+
+        let FrameRenderState {
+            view_matrix_stack, ..
+        } = &mut *(self.get_frame_state()?);
+
+        match view_matrix_stack.last_mut() {
+            Some(last) => *last = transform,
+            _ => (),
+        }
+
+        Ok(())
+    }
+
+    pub fn push_transform(&self, transform: mint::ColumnMatrix4<f32>) -> Result<(), RendererError> {
+        self.stream_buffer.borrow_mut().flush(self)?;
+
+        let FrameRenderState {
+            view_matrix_stack, ..
+        } = &mut *(self.get_frame_state()?);
+
+        view_matrix_stack.push(transform);
+        Ok(())
+    }
+
+    pub fn pop_transform(&self) -> Result<(), RendererError> {
+        self.stream_buffer.borrow_mut().flush(self)?;
+
+        let FrameRenderState {
+            view_matrix_stack, ..
+        } = &mut *(self.get_frame_state()?);
+
+        view_matrix_stack.pop();
+
+        Ok(())
+    }
+
     pub(super) fn get_frame_state(
         &self,
     ) -> Result<std::cell::RefMut<FrameRenderState>, RendererError> {
@@ -117,6 +156,7 @@ impl Renderer {
             let encoder = self
                 .device
                 .create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
+            let identity: mint::ColumnMatrix4<f32> = glam::Mat4::identity().into();
 
             let mut fs = self
                 .frame_state
@@ -126,6 +166,7 @@ impl Renderer {
                 encoder,
                 frame,
                 pending_clear_color: None,
+                view_matrix_stack: vec![identity],
             });
         }
 

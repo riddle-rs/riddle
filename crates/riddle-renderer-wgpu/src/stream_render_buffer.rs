@@ -76,6 +76,7 @@ impl StreamRenderBuffer {
             encoder,
             frame,
             pending_clear_color,
+            view_matrix_stack,
         } = &mut *(renderer.get_frame_state()?);
 
         let vertex_buf = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
@@ -90,9 +91,14 @@ impl StreamRenderBuffer {
             usage: wgpu::BufferUsage::INDEX,
         });
 
-        let bind_group = args
-            .shader
-            .bind_params(device, renderer.camera_size(), &args.texture);
+        let view_matrix = view_matrix_stack
+            .last()
+            .map(|m| m.clone())
+            .unwrap_or_else(|| glam::Mat4::identity().into());
+
+        let bind_group =
+            args.shader
+                .bind_params(device, renderer.camera_size(), view_matrix, &args.texture);
 
         let load_op = match pending_clear_color {
             Some(c) => wgpu::LoadOp::Clear(wgpu::Color {

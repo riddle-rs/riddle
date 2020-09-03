@@ -81,6 +81,10 @@ impl DemoState {
 
     pub fn render_frame(&self) -> Result<(), RiddleError> {
         self.renderer.clear(Color::rgb(0.0, 1.0, 0.0))?;
+
+        self.renderer
+            .push_transform(glam::Mat4::from_scale(glam::vec3(2.0, 2.0, 1.0)).into())?;
+
         self.renderer.fill_rect(
             &Rect {
                 location: [100.0, 100.0].into(),
@@ -96,15 +100,17 @@ impl DemoState {
             [1.0, 1.0, 1.0, 1.0],
         )?;
 
-        self.sprite
-            .render_at(self.state.input().mouse_pos(&self.window))?;
-
         self.subsprite.render_at([60.0, 60.0])?;
         self.label_sprite.render(&SpriteRenderCommand {
             location: [10.0, 100.0].into(),
             diffuse_color: [0.0, 0.0, 1.0, 1.0],
             ..Default::default()
         })?;
+
+        self.renderer.pop_transform()?;
+
+        self.sprite
+            .render_at(self.state.input().mouse_pos(&self.window))?;
 
         self.renderer.present()?;
         Ok(())
