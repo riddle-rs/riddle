@@ -36,14 +36,14 @@ where types from other crates are exposed through Riddle's public API are
 where those crates have become defacto standards for cross crate integration,
 such as `mint`, and `raw-window-handle`.
 
-# Cargo Features
+## Cargo Features
 
 * `renderer` - The `riddle-renderer-wgpu` renderer will be enabled.
 * `audio`- The `riddle-audio`subsystem will be enabled.
 * `font` - The `riddle-font` crate will be included, and reexported through `riddle::font`
 * **default** - All features are enabled.
 
-# Getting started
+## Getting started
 
 Add a git dependency in your cargo.toml _[note 2]_.
 
