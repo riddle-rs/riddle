@@ -79,4 +79,4 @@ fn main() -> Result<(), RiddleError> {
 2. Currently Riddle depends on some patches to underlying libraries, which are
    being maintained in forked git repositories until the changes are
    integrated upstream. This means Riddle can't be uploaded to crates.io at
-   the moment.
+   the moment. [Tracking issue](https://github.com/vickles/riddle/issues/23)
