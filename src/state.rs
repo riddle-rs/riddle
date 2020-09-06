@@ -1,18 +1,13 @@
 #[cfg(feature = "riddle-audio")]
 use crate::audio::AudioSystem;
-use crate::{
-    input::InputSystem,
-    time::TimeSystem,
-    window::{Window, WindowSystem},
-    *,
-};
+use crate::{input::InputSystem, time::TimeSystem, window::WindowSystem, *};
 
 use std::rc::Rc;
 
 #[derive(Clone)]
 pub struct RiddleState {
     pub window: Rc<WindowSystem>,
-    pub input: Rc<InputSystem<Rc<Window>>>,
+    pub input: Rc<InputSystem>,
     pub time: Rc<TimeSystem>,
 
     #[cfg(feature = "riddle-audio")]
@@ -42,7 +37,7 @@ impl RiddleState {
         self.window.clone()
     }
 
-    pub fn input(&self) -> Rc<InputSystem<Rc<Window>>> {
+    pub fn input(&self) -> Rc<InputSystem> {
         self.input.clone()
     }
 

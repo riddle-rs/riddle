@@ -1,49 +1,49 @@
-use crate::{traits::WindowHandle, *};
+use crate::*;
 
 #[derive(Eq, PartialEq, Clone)]
-pub enum WindowEvent<W: WindowHandle> {
-    WindowClose(W),
-    WindowResize(W),
+pub enum WindowEvent {
+    WindowClose(WindowId),
+    WindowResize(WindowId),
 }
 
 #[derive(Eq, PartialEq, Clone)]
-pub enum InputEvent<W: WindowHandle> {
+pub enum InputEvent {
     CursorMove {
-        window: W,
+        window: WindowId,
         position: LogicalPosition,
     },
     MouseButtonDown {
-        window: W,
+        window: WindowId,
     },
     MouseButtonUp {
-        window: W,
+        window: WindowId,
     },
     KeyDown {
-        window: W,
+        window: WindowId,
         scancode: Scancode,
     },
     KeyUp {
-        window: W,
+        window: WindowId,
         scancode: Scancode,
     },
 }
 
 #[derive(Eq, PartialEq, Clone)]
-pub enum SystemEvent<W: WindowHandle> {
-    Window(WindowEvent<W>),
-    Input(InputEvent<W>),
+pub enum SystemEvent {
+    Window(WindowEvent),
+    Input(InputEvent),
     ProcessFrame,
     Unknown,
 }
 
-impl<W: WindowHandle> From<WindowEvent<W>> for SystemEvent<W> {
-    fn from(e: WindowEvent<W>) -> Self {
+impl From<WindowEvent> for SystemEvent {
+    fn from(e: WindowEvent) -> Self {
         SystemEvent::Window(e)
     }
 }
 
-impl<W: WindowHandle> From<InputEvent<W>> for SystemEvent<W> {
-    fn from(e: InputEvent<W>) -> Self {
+impl From<InputEvent> for SystemEvent {
+    fn from(e: InputEvent) -> Self {
         SystemEvent::Input(e)
     }
 }

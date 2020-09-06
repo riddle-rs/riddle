@@ -86,6 +86,7 @@ mod app;
 mod context;
 mod error;
 mod state;
+mod event;
 
 pub use riddle_common as common;
 pub use riddle_image as image;
@@ -107,3 +108,4 @@ pub use app::*;
 pub use context::*;
 pub use error::*;
 pub use state::*;
+pub use event::*;

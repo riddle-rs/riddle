@@ -1,4 +1,4 @@
-use crate::traits::Window;
+use crate::traits::WindowExt;
 
 use riddle_math::Vector2;
 
@@ -21,7 +21,7 @@ pub struct LogicalVec2 {
 }
 
 impl LogicalSize {
-    pub fn into_physical<W: Window>(self, window: &W) -> (u32, u32) {
+    pub fn into_physical<W: WindowExt>(self, window: &W) -> (u32, u32) {
         window.logical_to_physical(self)
     }
 }
@@ -54,7 +54,7 @@ impl From<LogicalSize> for Vector2<f32> {
 }
 
 impl LogicalPosition {
-    pub fn into_physical<W: Window>(self, window: &W) -> (u32, u32) {
+    pub fn into_physical<W: WindowExt>(self, window: &W) -> (u32, u32) {
         window.logical_to_physical(self)
     }
 }
@@ -87,7 +87,7 @@ impl From<LogicalPosition> for Vector2<f32> {
 }
 
 impl LogicalVec2 {
-    pub fn into_physical<W: Window>(self, window: &W) -> (u32, u32) {
+    pub fn into_physical<W: WindowExt>(self, window: &W) -> (u32, u32) {
         window.logical_to_physical(self)
     }
 }

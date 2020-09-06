@@ -3,19 +3,22 @@ use crate::*;
 use riddle_common::eventpub::*;
 
 use raw_window_handle::{HasRawWindowHandle, RawWindowHandle};
+use riddle_window_common::traits::WindowExt;
 use std::{borrow::Borrow, rc::Rc};
 
 pub struct Window {
     window_system: Rc<WindowSystem>,
     winit_window: winit::window::Window,
-    event_sub: EventSub<SystemEvent<Rc<Window>>>,
-    event_pub: EventPub<WindowEvent<Rc<Window>>>,
+    event_sub: EventSub<SystemEvent>,
+    event_pub: EventPub<WindowEvent>,
+
+    id: riddle_window_common::WindowId,
 }
 
-#[derive(Eq, PartialEq, Hash)]
+/*#[derive(Eq, PartialEq, Hash)]
 pub struct WindowId {
     id: winit::window::WindowId,
-}
+}*/
 
 pub struct WindowBuilder {
     width: u32,
@@ -78,7 +81,9 @@ impl WindowBuilder {
 impl Window {
     fn new_shared(ctx: &WindowContext, args: &WindowBuilder) -> Result<Rc<Window>, WindowError> {
         let window: Rc<Window> = Window::new(ctx, args)?.into();
-        ctx.system.register_window(&window);
+        ctx.system
+            .borrow_window_map_mut()
+            .register_window(window.clone());
         Ok(window)
     }
 
@@ -120,6 +125,7 @@ impl Window {
             winit_window: winit_window,
             event_sub,
             event_pub: EventPub::new(),
+            id: system.borrow_window_map_mut().take_next_window_id(),
         };
 
         Ok(window)
@@ -145,14 +151,8 @@ impl Window {
         self.winit_window.set_title(title)
     }
 
-    pub fn subscribe_to_events(&self, sub: &EventSub<WindowEvent<Rc<Window>>>) {
+    pub fn subscribe_to_events(&self, sub: &EventSub<WindowEvent>) {
         self.event_pub.attach(sub);
-    }
-
-    pub fn window_id(&self) -> WindowId {
-        WindowId {
-            id: self.winit_window.id(),
-        }
     }
 
     pub(crate) fn update(&self) {
@@ -164,7 +164,11 @@ impl Window {
         }
     }
 
-    fn event_filter(event: &SystemEvent<Rc<Window>>) -> bool {
+    pub(crate) fn winit_window_id(&self) -> winit::window::WindowId {
+        self.winit_window.id()
+    }
+
+    fn event_filter(event: &SystemEvent) -> bool {
         match event {
             SystemEvent::Window(WindowEvent::WindowResize(_)) => true,
             _ => false,
@@ -172,17 +176,15 @@ impl Window {
     }
 }
 
-impl riddle_window_common::traits::Window for Window {
-    type Id = WindowId;
-
+impl WindowExt for Window {
     fn logical_to_physical<L: Into<LogicalVec2>>(&self, vec2: L) -> (u32, u32) {
         let winit_pos = dimensions::logical_vec_to_winit(vec2.into());
         let physical_size = winit_pos.to_physical(self.scale_factor());
         (physical_size.x, physical_size.y)
     }
 
-    fn window_id(&self) -> Self::Id {
-        self.window_id()
+    fn window_id(&self) -> WindowId {
+        self.id
     }
 }
 
@@ -196,20 +198,14 @@ impl std::cmp::Eq for Window {}
 
 impl Drop for Window {
     fn drop(&mut self) {
-        self.window_system.unregister_window(&self.window_id());
+        self.window_system
+            .borrow_window_map_mut()
+            .unregister_window(&self);
     }
 }
 
 unsafe impl HasRawWindowHandle for Window {
     fn raw_window_handle(&self) -> RawWindowHandle {
         self.winit_window.raw_window_handle()
-    }
-}
-
-impl riddle_window_common::traits::WindowId for WindowId {}
-
-impl From<winit::window::WindowId> for WindowId {
-    fn from(id: winit::window::WindowId) -> Self {
-        WindowId { id }
     }
 }

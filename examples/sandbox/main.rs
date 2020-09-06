@@ -1,6 +1,6 @@
 //use input::InputEvent;
 use riddle::{common::Color, math::*, renderer::*, *};
-use window::WindowBuilder;
+use window::{traits::WindowExt, WindowBuilder};
 
 use std::rc::Rc;
 
@@ -110,7 +110,7 @@ impl DemoState {
         self.renderer.pop_transform()?;
 
         self.sprite
-            .render_at(self.state.input().mouse_pos(&self.window))?;
+            .render_at(self.state.input().mouse_pos(self.window.window_id()))?;
 
         self.renderer.present()?;
         Ok(())

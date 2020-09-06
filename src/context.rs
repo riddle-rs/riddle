@@ -23,7 +23,7 @@ impl<'a> RiddleContext<'a> {
     }
 
     /// Get the event associated with this context
-    pub fn event(&self) -> &window::SystemEvent<Rc<window::Window>> {
+    pub fn event(&self) -> &window::SystemEvent {
         &self.window_ctx.event()
     }
 
@@ -36,7 +36,7 @@ impl<'a> RiddleContext<'a> {
         self.state.audio.clone()
     }
 
-    pub fn input(&self) -> &input::InputSystem<Rc<window::Window>> {
+    pub fn input(&self) -> &input::InputSystem {
         &self.state.input
     }
 

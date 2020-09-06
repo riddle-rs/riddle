@@ -20,7 +20,7 @@ pub struct Renderer {
     swap_chain: RefCell<wgpu::SwapChain>,
     camera_size: RefCell<Vector2<f32>>,
 
-    window_event_sub: EventSub<window::WindowEvent<Rc<Window>>>,
+    window_event_sub: EventSub<window::WindowEvent>,
 
     pub(crate) stream_buffer: RefCell<StreamRenderBuffer>,
 }
