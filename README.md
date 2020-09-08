@@ -57,7 +57,7 @@ branch = "master"
 Place the following in main.rs:
 
 ```rust
-use riddle::{*, window::*};
+use riddle::{*, platform::*};
 
 fn main() -> Result<(), RiddleError> {
     let rdl = RiddleApp::new()?;
@@ -65,7 +65,7 @@ fn main() -> Result<(), RiddleError> {
 
     rdl.run(move |rdl| {
         match rdl.event() {
-            SystemEvent::Window(WindowEvent::WindowClose(_)) => rdl.quit(),
+            Event::Platform(PlatformEvent::WindowClose(_)) => rdl.quit(),
             _ => (),
          }
     })

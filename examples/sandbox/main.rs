@@ -137,11 +137,11 @@ fn main() -> Result<(), RiddleError> {
     let mut state = DemoState::new(&rdl)?;
 
     rdl.run(move |rdl| match rdl.event() {
-        Event::PlatformEvent(PlatformEvent::WindowClose(_)) => rdl.quit(),
-        Event::PlatformEvent(PlatformEvent::MouseButtonDown { .. }) => {
+        Event::Platform(PlatformEvent::WindowClose(_)) => rdl.quit(),
+        Event::Platform(PlatformEvent::MouseButtonDown { .. }) => {
             state.on_mouse_down().unwrap();
         }
-        Event::InputEvent(InputEvent::KeyDown {
+        Event::Input(InputEvent::KeyDown {
             vkey: Some(vkey),
             modifiers: KeyboardModifiers { ctrl, .. },
             ..
@@ -163,7 +163,7 @@ fn main() -> Result<(), RiddleError> {
             }
             println!("KeyDown: {:?}", vkey);
         }
-        Event::InputEvent(InputEvent::KeyUp { vkey, .. }) => {
+        Event::Input(InputEvent::KeyUp { vkey, .. }) => {
             println!("KeyUp: {:?}", vkey);
         }
         Event::ProcessFrame => {

@@ -31,7 +31,7 @@ impl RiddleApp {
 
             let event = match platform_ctx.event() {
                 platform::PlatformEvent::EventQueueEmpty => Event::ProcessFrame,
-                _ => Event::PlatformEvent(platform_ctx.event().clone()),
+                _ => Event::Platform(platform_ctx.event().clone()),
             };
 
             let mut ctx = RiddleContext {
@@ -43,7 +43,7 @@ impl RiddleApp {
 
             let input_events = self.state.input.take_input_events();
             for input_event in input_events {
-                ctx.event = Event::InputEvent(input_event);
+                ctx.event = Event::Input(input_event);
                 update(&ctx);
             }
         })
@@ -55,7 +55,7 @@ impl RiddleApp {
         RiddleContext {
             state,
             window_ctx: platform_ctx,
-            event: Event::PreRunNullEvent,
+            event: Event::PreRunPlaceholder,
         }
     }
 
