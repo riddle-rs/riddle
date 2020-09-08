@@ -40,12 +40,14 @@ fn convert_winit_window_event(
                 ),
             })
         }
-        winit::event::WindowEvent::MouseInput { state, .. } => match state {
+        winit::event::WindowEvent::MouseInput { state, button, .. } => match state {
             winit::event::ElementState::Pressed => Some(PlatformEvent::MouseButtonDown {
                 window: window.window_id(),
+                button: winit_mousebutton_to_mousebutton(button),
             }),
             winit::event::ElementState::Released => Some(PlatformEvent::MouseButtonUp {
                 window: window.window_id(),
+                button: winit_mousebutton_to_mousebutton(button),
             }),
         },
         winit::event::WindowEvent::KeyboardInput {
@@ -158,5 +160,14 @@ fn winit_vkey_to_vkey(vk: winit::event::VirtualKeyCode) -> Option<VirtualKey> {
         winit::event::VirtualKeyCode::RShift => Some(VirtualKey::RightShift),
         winit::event::VirtualKeyCode::LControl => Some(VirtualKey::LeftControl),
         _ => None,
+    }
+}
+
+fn winit_mousebutton_to_mousebutton(button: winit::event::MouseButton) -> MouseButton {
+    match button {
+        winit::event::MouseButton::Left => MouseButton::Left,
+        winit::event::MouseButton::Right => MouseButton::Right,
+        winit::event::MouseButton::Middle => MouseButton::Middle,
+        winit::event::MouseButton::Other(b) => MouseButton::Other(b as u32),
     }
 }

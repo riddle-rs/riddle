@@ -7,7 +7,7 @@ use riddle::{
     *,
 };
 
-use input::KeyboardModifiers;
+use input::{KeyboardModifiers, MouseButton};
 use std::rc::Rc;
 
 struct DemoState {
@@ -138,7 +138,10 @@ fn main() -> Result<(), RiddleError> {
 
     rdl.run(move |rdl| match rdl.event() {
         Event::Platform(PlatformEvent::WindowClose(_)) => rdl.quit(),
-        Event::Platform(PlatformEvent::MouseButtonDown { .. }) => {
+        Event::Input(InputEvent::MouseButtonDown {
+            button: MouseButton::Left,
+            ..
+        }) => {
             state.on_mouse_down().unwrap();
         }
         Event::Input(InputEvent::KeyDown {
