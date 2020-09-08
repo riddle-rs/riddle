@@ -1,11 +1,17 @@
-//use input::InputEvent;
-use riddle::{common::Color, math::*, renderer::*, *};
-use window::{traits::WindowExt, WindowBuilder};
+use riddle::{
+    common::Color,
+    input::{InputEvent, VirtualKey},
+    math::*,
+    platform::{PlatformEvent, WindowBuilder},
+    renderer::*,
+    *,
+};
 
+use input::KeyboardModifiers;
 use std::rc::Rc;
 
 struct DemoState {
-    window: Rc<window::Window>,
+    window: Rc<platform::Window>,
     state: RiddleState,
 
     renderer: Rc<renderer::Renderer>,
@@ -131,32 +137,36 @@ fn main() -> Result<(), RiddleError> {
     let mut state = DemoState::new(&rdl)?;
 
     rdl.run(move |rdl| match rdl.event() {
-        window::SystemEvent::Window(window::WindowEvent::WindowClose(_)) => rdl.quit(),
-        window::SystemEvent::Input(window::InputEvent::MouseButtonDown { .. }) => {
+        Event::PlatformEvent(PlatformEvent::WindowClose(_)) => rdl.quit(),
+        Event::PlatformEvent(PlatformEvent::MouseButtonDown { .. }) => {
             state.on_mouse_down().unwrap();
         }
-        window::SystemEvent::Input(window::InputEvent::KeyDown { scancode, .. }) => {
-            match scancode {
-                window::Scancode::M => {
+        Event::InputEvent(InputEvent::KeyDown {
+            vkey: Some(vkey),
+            modifiers: KeyboardModifiers { ctrl, .. },
+            ..
+        }) => {
+            match (vkey, ctrl) {
+                (VirtualKey::M, true) => {
                     state.music_player.pause();
                 }
-                window::Scancode::P => {
+                (VirtualKey::P, true) => {
                     state.music_player.resume();
                 }
-                window::Scancode::Down => {
+                (VirtualKey::Down, _) => {
                     state.music_player.set_volume(0.5);
                 }
-                window::Scancode::Up => {
+                (VirtualKey::Up, _) => {
                     state.music_player.set_volume(1.0);
                 }
                 _ => (),
             }
-            println!("KeyDown: {:?}", scancode);
+            println!("KeyDown: {:?}", vkey);
         }
-        window::SystemEvent::Input(window::InputEvent::KeyUp { scancode, .. }) => {
-            println!("KeyUp: {:?}", scancode);
+        Event::InputEvent(InputEvent::KeyUp { vkey, .. }) => {
+            println!("KeyUp: {:?}", vkey);
         }
-        window::SystemEvent::ProcessFrame => {
+        Event::ProcessFrame => {
             state.render_frame().unwrap();
         }
         _ => (),

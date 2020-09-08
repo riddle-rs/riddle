@@ -1,13 +1,10 @@
 use crate::*;
 
 #[derive(Eq, PartialEq, Clone)]
-pub enum WindowEvent {
+pub enum PlatformEvent {
     WindowClose(WindowId),
     WindowResize(WindowId),
-}
 
-#[derive(Eq, PartialEq, Clone)]
-pub enum InputEvent {
     CursorMove {
         window: WindowId,
         position: LogicalPosition,
@@ -20,30 +17,17 @@ pub enum InputEvent {
     },
     KeyDown {
         window: WindowId,
+        platform_scancode: u32,
         scancode: Scancode,
+        vkey: Option<VirtualKey>,
     },
     KeyUp {
         window: WindowId,
+        platform_scancode: u32,
         scancode: Scancode,
+        vkey: Option<VirtualKey>,
     },
-}
 
-#[derive(Eq, PartialEq, Clone)]
-pub enum SystemEvent {
-    Window(WindowEvent),
-    Input(InputEvent),
-    ProcessFrame,
+    EventQueueEmpty,
     Unknown,
-}
-
-impl From<WindowEvent> for SystemEvent {
-    fn from(e: WindowEvent) -> Self {
-        SystemEvent::Window(e)
-    }
-}
-
-impl From<InputEvent> for SystemEvent {
-    fn from(e: InputEvent) -> Self {
-        SystemEvent::Input(e)
-    }
 }

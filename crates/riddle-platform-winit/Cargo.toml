@@ -1,5 +1,5 @@
 [package]
-name = "riddle-window-winit"
+name = "riddle-platform-winit"
 version = "0.1.0"
 authors = ["vickles <vicklesort@gmail.com>"]
 edition = "2018"
@@ -8,7 +8,7 @@ edition = "2018"
 
 [dependencies]
 riddle-common = {path = "../riddle-common"}
-riddle-window-common = {path = "../riddle-window-common"}
+riddle-platform-common = {path = "../riddle-platform-common"}
 
 raw-window-handle = "0.3"
 thiserror = "1.0"

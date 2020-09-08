@@ -1,4 +1,3 @@
-use crate::traits::WindowExt;
 use crate::*;
 
 use std::{

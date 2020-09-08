@@ -1,6 +1,8 @@
 use crate::*;
 
 pub enum Event {
-    WindowEvent(window::WindowEvent),
-    InputEvent(),
+    PlatformEvent(platform::PlatformEvent),
+    InputEvent(input::InputEvent),
+    PreRunNullEvent,
+    ProcessFrame,
 }

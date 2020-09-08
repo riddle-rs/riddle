@@ -1,5 +1,5 @@
 [package]
-name = "riddle-window-common"
+name = "riddle-platform-common"
 version = "0.1.0"
 authors = ["vickles <vicklesort@gmail.com>"]
 edition = "2018"

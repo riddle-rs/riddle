@@ -1,4 +1,4 @@
-use riddle_window_common::*;
+use crate::*;
 
 pub(crate) fn logical_size_from_winit(size: winit::dpi::LogicalSize<u32>) -> LogicalSize {
     LogicalSize {

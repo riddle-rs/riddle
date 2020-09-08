@@ -21,7 +21,7 @@ riddle-macros = {version = "0.1", path = "crates/riddle-macros"}
 riddle-math = {version = "0.1", path = "crates/riddle-math"}
 riddle-renderer-wgpu = {version = "0.1", path = "crates/riddle-renderer-wgpu", optional = true}
 riddle-time = {version = "0.1", path = "crates/riddle-time"}
-riddle-window-winit = {version = "0.1", path = "crates/riddle-window-winit"}
+riddle-platform-winit = {version = "0.1", path = "crates/riddle-platform-winit"}
 
 thiserror = "1.0"
 

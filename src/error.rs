@@ -23,7 +23,7 @@ pub enum RiddleError {
     RendererError(#[from] renderer::RendererError),
 
     #[error(transparent)]
-    WindowError(#[from] window::WindowError),
+    WindowError(#[from] platform::WindowError),
 }
 
 impl From<RiddleError> for riddle_common::CommonError {

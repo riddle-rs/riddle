@@ -19,4 +19,4 @@ use vertex::*;
 
 use riddle_image as image;
 use riddle_math as math;
-use riddle_window_winit as window;
+use riddle_platform_winit as platform;

@@ -1,12 +1,12 @@
 #[cfg(feature = "riddle-audio")]
 use crate::audio::AudioSystem;
-use crate::{input::InputSystem, time::TimeSystem, window::WindowSystem, *};
+use crate::{input::InputSystem, platform::PlatformSystem, time::TimeSystem, *};
 
 use std::rc::Rc;
 
 #[derive(Clone)]
 pub struct RiddleState {
-    pub window: Rc<WindowSystem>,
+    pub window: Rc<PlatformSystem>,
     pub input: Rc<InputSystem>,
     pub time: Rc<TimeSystem>,
 
@@ -16,7 +16,7 @@ pub struct RiddleState {
 
 impl RiddleState {
     pub fn new() -> Result<Self, RiddleError> {
-        let window = WindowSystem::new();
+        let window = PlatformSystem::new();
         let input = InputSystem::new(window.event_pub())?;
         let time = TimeSystem::new();
 
@@ -33,7 +33,7 @@ impl RiddleState {
         })
     }
 
-    pub fn window(&self) -> Rc<WindowSystem> {
+    pub fn window(&self) -> Rc<PlatformSystem> {
         self.window.clone()
     }
 

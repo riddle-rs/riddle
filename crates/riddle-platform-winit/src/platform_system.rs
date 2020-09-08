@@ -8,27 +8,27 @@ use std::{
     rc::Rc,
 };
 
-pub struct WindowSystem {
+pub struct PlatformSystem {
     event_loop: RefCell<Option<winit::event_loop::EventLoop<InternalEvent>>>,
     event_proxy: winit::event_loop::EventLoopProxy<InternalEvent>,
 
     window_map: RefCell<WindowMap>,
 
-    event_pub: EventPub<SystemEvent>,
+    event_pub: EventPub<PlatformEvent>,
 }
 
-pub struct WindowContext<'a> {
-    pub(crate) system: Rc<WindowSystem>,
+pub struct PlatformContext<'a> {
+    pub(crate) system: Rc<PlatformSystem>,
     event_loop: Option<&'a winit::event_loop::EventLoopWindowTarget<InternalEvent>>,
-    triggering_event: SystemEvent,
+    triggering_event: PlatformEvent,
 }
 
-impl WindowSystem {
-    pub fn borrow_context(this: &Rc<WindowSystem>) -> Result<WindowContext, WindowError> {
-        Ok(WindowContext {
+impl PlatformSystem {
+    pub fn borrow_context(this: &Rc<PlatformSystem>) -> Result<PlatformContext, WindowError> {
+        Ok(PlatformContext {
             system: this.clone(),
             event_loop: None,
-            triggering_event: SystemEvent::Unknown,
+            triggering_event: PlatformEvent::Unknown,
         })
     }
 
@@ -39,7 +39,7 @@ impl WindowSystem {
     /// If run has already been invoked, then this function will panic.
     pub fn run<F>(this: Rc<Self>, main_loop: F) -> !
     where
-        F: FnMut(WindowContext) + 'static,
+        F: FnMut(PlatformContext) + 'static,
     {
         let el = std::mem::replace(&mut *this.event_loop.borrow_mut(), None).unwrap();
         let mut main_loop = main_loop;
@@ -53,7 +53,7 @@ impl WindowSystem {
 
             match event::convert_winit_event(&this, event) {
                 Some(system_event) => {
-                    let ctx = WindowContext {
+                    let ctx = PlatformContext {
                         system: this.clone(),
                         event_loop: Some(el),
                         triggering_event: system_event.clone(),
@@ -69,10 +69,10 @@ impl WindowSystem {
         })
     }
 
-    pub fn new() -> WindowSystem {
+    pub fn new() -> PlatformSystem {
         let event_loop = winit::event_loop::EventLoop::with_user_event();
         let event_proxy = event_loop.create_proxy();
-        WindowSystem {
+        PlatformSystem {
             event_loop: RefCell::new(event_loop.into()),
             event_proxy,
 
@@ -82,7 +82,7 @@ impl WindowSystem {
         }
     }
 
-    pub fn event_pub(&self) -> &EventPub<SystemEvent> {
+    pub fn event_pub(&self) -> &EventPub<PlatformEvent> {
         &self.event_pub
     }
 
@@ -106,13 +106,13 @@ impl WindowSystem {
     }
 }
 
-impl riddle_window_common::traits::WindowSystem for WindowSystem {
-    fn event_pub(&self) -> &EventPub<riddle_window_common::SystemEvent> {
+impl riddle_platform_common::traits::WindowSystem for PlatformSystem {
+    fn event_pub(&self) -> &EventPub<riddle_platform_common::PlatformEvent> {
         &self.event_pub
     }
 }
 
-impl<'a> WindowContext<'a> {
+impl<'a> PlatformContext<'a> {
     pub(crate) fn with_event_loop<T, F>(&self, f: F) -> Result<T, WindowError>
     where
         F: FnOnce(
@@ -139,7 +139,7 @@ impl<'a> WindowContext<'a> {
             .map_err(|_| WindowError::Unknown)
     }
 
-    pub fn event(&self) -> &SystemEvent {
+    pub fn event(&self) -> &PlatformEvent {
         &self.triggering_event
     }
 }

@@ -3,83 +3,20 @@ use crate::*;
 use riddle_common::eventpub::*;
 
 use raw_window_handle::{HasRawWindowHandle, RawWindowHandle};
-use riddle_window_common::traits::WindowExt;
+use riddle_platform_common::traits::WindowExt;
 use std::{borrow::Borrow, rc::Rc};
 
 pub struct Window {
-    window_system: Rc<WindowSystem>,
+    window_system: Rc<PlatformSystem>,
     winit_window: winit::window::Window,
-    event_sub: EventSub<SystemEvent>,
-    event_pub: EventPub<WindowEvent>,
+    event_sub: EventSub<PlatformEvent>,
+    event_pub: EventPub<PlatformEvent>,
 
-    id: riddle_window_common::WindowId,
-}
-
-/*#[derive(Eq, PartialEq, Hash)]
-pub struct WindowId {
-    id: winit::window::WindowId,
-}*/
-
-pub struct WindowBuilder {
-    width: u32,
-    height: u32,
-    title: String,
-    resizeable: bool,
-    cursor_visible: bool,
-}
-
-impl Default for WindowBuilder {
-    fn default() -> Self {
-        WindowBuilder {
-            width: 800,
-            height: 600,
-            title: String::from("Riddle Window"),
-            resizeable: true,
-            cursor_visible: true,
-        }
-    }
-}
-
-impl WindowBuilder {
-    pub fn new() -> Self {
-        Self::default()
-    }
-
-    pub fn dimensions(&mut self, width: u32, height: u32) -> &mut Self {
-        self.width = width;
-        self.height = height;
-        self
-    }
-
-    pub fn resizeable(&mut self, resizeable: bool) -> &mut Self {
-        self.resizeable = resizeable;
-        self
-    }
-
-    pub fn title<S: Into<String>>(&mut self, title: S) -> &mut Self {
-        self.title = title.into();
-        self
-    }
-
-    pub fn cursor_visible(&mut self, cursor_visible: bool) -> &mut Self {
-        self.cursor_visible = cursor_visible;
-        self
-    }
-
-    pub fn build<'a, C>(&self, ctx: C) -> Result<Rc<Window>, WindowError>
-    where
-        C: Borrow<WindowContext<'a>>,
-    {
-        Window::new_shared(ctx.borrow(), self)
-    }
-
-    fn configure_window(&self, window: &winit::window::Window) {
-        window.set_cursor_visible(self.cursor_visible);
-    }
+    id: WindowId,
 }
 
 impl Window {
-    fn new_shared(ctx: &WindowContext, args: &WindowBuilder) -> Result<Rc<Window>, WindowError> {
+    fn new_shared(ctx: &PlatformContext, args: &WindowBuilder) -> Result<Rc<Window>, WindowError> {
         let window: Rc<Window> = Window::new(ctx, args)?.into();
         ctx.system
             .borrow_window_map_mut()
@@ -87,7 +24,7 @@ impl Window {
         Ok(window)
     }
 
-    fn new(ctx: &WindowContext, args: &WindowBuilder) -> Result<Self, WindowError> {
+    fn new(ctx: &PlatformContext, args: &WindowBuilder) -> Result<Self, WindowError> {
         let system = ctx.system.clone();
 
         #[cfg(target_os = "windows")]
@@ -151,16 +88,17 @@ impl Window {
         self.winit_window.set_title(title)
     }
 
-    pub fn subscribe_to_events(&self, sub: &EventSub<WindowEvent>) {
+    pub fn subscribe_to_events(&self, sub: &EventSub<PlatformEvent>) {
         self.event_pub.attach(sub);
+    }
+
+    pub fn window_id(&self) -> WindowId {
+        self.id
     }
 
     pub(crate) fn update(&self) {
         for event in self.event_sub.collect() {
-            match event {
-                SystemEvent::Window(event) => self.event_pub.dispatch(&event),
-                _ => (),
-            }
+            self.event_pub.dispatch(&event);
         }
     }
 
@@ -168,9 +106,9 @@ impl Window {
         self.winit_window.id()
     }
 
-    fn event_filter(event: &SystemEvent) -> bool {
+    fn event_filter(event: &PlatformEvent) -> bool {
         match event {
-            SystemEvent::Window(WindowEvent::WindowResize(_)) => true,
+            PlatformEvent::WindowResize(_) => true,
             _ => false,
         }
     }
@@ -181,10 +119,6 @@ impl WindowExt for Window {
         let winit_pos = dimensions::logical_vec_to_winit(vec2.into());
         let physical_size = winit_pos.to_physical(self.scale_factor());
         (physical_size.x, physical_size.y)
-    }
-
-    fn window_id(&self) -> WindowId {
-        self.id
     }
 }
 
@@ -207,5 +141,63 @@ impl Drop for Window {
 unsafe impl HasRawWindowHandle for Window {
     fn raw_window_handle(&self) -> RawWindowHandle {
         self.winit_window.raw_window_handle()
+    }
+}
+
+pub struct WindowBuilder {
+    width: u32,
+    height: u32,
+    title: String,
+    resizeable: bool,
+    cursor_visible: bool,
+}
+
+impl Default for WindowBuilder {
+    fn default() -> Self {
+        WindowBuilder {
+            width: 800,
+            height: 600,
+            title: String::from("Riddle Window"),
+            resizeable: true,
+            cursor_visible: true,
+        }
+    }
+}
+
+impl WindowBuilder {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn dimensions(&mut self, width: u32, height: u32) -> &mut Self {
+        self.width = width;
+        self.height = height;
+        self
+    }
+
+    pub fn resizeable(&mut self, resizeable: bool) -> &mut Self {
+        self.resizeable = resizeable;
+        self
+    }
+
+    pub fn title<S: Into<String>>(&mut self, title: S) -> &mut Self {
+        self.title = title.into();
+        self
+    }
+
+    pub fn cursor_visible(&mut self, cursor_visible: bool) -> &mut Self {
+        self.cursor_visible = cursor_visible;
+        self
+    }
+
+    pub fn build<'a, C>(&self, ctx: C) -> Result<Rc<Window>, WindowError>
+    where
+        C: Borrow<PlatformContext<'a>>,
+    {
+        Window::new_shared(ctx.borrow(), self)
+    }
+
+    fn configure_window(&self, window: &winit::window::Window) {
+        window.set_cursor_visible(self.cursor_visible);
     }
 }

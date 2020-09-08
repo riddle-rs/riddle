@@ -1,6 +1,6 @@
 #[repr(u16)]
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
-pub enum Scancode {
+pub enum VirtualKey {
     Unknown,
     Escape,
     One,
