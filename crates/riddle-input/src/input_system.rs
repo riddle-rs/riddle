@@ -56,6 +56,13 @@ impl InputSystem {
         state.modifiers()
     }
 
+    pub fn is_gamepad_button_down(&self, gamepad: GamePadId, button: GamePadButton) -> bool {
+        self.gilrs
+            .borrow()
+            .gamepad(gamepad.into())
+            .is_pressed(button.into())
+    }
+
     fn get_window_state<'a>(&'a self, window: WindowId) -> Ref<'a, WindowInputState> {
         let mut ms = self.window_states.borrow_mut();
         if !ms.contains_key(&window) {
