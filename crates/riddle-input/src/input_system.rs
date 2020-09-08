@@ -1,21 +1,15 @@
 use crate::*;
 
 use riddle_common::eventpub::{EventPub, EventSub};
-use riddle_platform_common as window;
-use window::{LogicalPosition, PlatformEvent, WindowId};
+use riddle_platform_common::{LogicalPosition, PlatformEvent, WindowId};
 
 use std::{
     cell::{Ref, RefCell, RefMut},
     collections::HashMap,
 };
 
-struct WindowMouseState {
-    logical_position: LogicalPosition,
-    pressed: bool,
-}
-
 struct WindowInputState {
-    mouse: WindowMouseState,
+    mouse: MouseState,
     keyboard: KeyboardState,
 }
 
@@ -41,16 +35,16 @@ impl InputSystem {
     pub fn update(&self) {
         for event in self.event_sub.collect() {
             match event {
-                window::PlatformEvent::CursorMove { window, position } => {
+                PlatformEvent::CursorMove { window, position } => {
                     self.cursor_moved(window, position);
                 }
-                window::PlatformEvent::MouseButtonUp { window } => {
-                    self.mouse_up(window);
+                PlatformEvent::MouseButtonUp { window, button } => {
+                    self.mouse_up(window, button);
                 }
-                window::PlatformEvent::MouseButtonDown { window } => {
-                    self.mouse_down(window);
+                PlatformEvent::MouseButtonDown { window, button } => {
+                    self.mouse_down(window, button);
                 }
-                window::PlatformEvent::KeyUp {
+                PlatformEvent::KeyUp {
                     window,
                     scancode,
                     vkey,
@@ -58,7 +52,7 @@ impl InputSystem {
                 } => {
                     self.key_up(window, scancode, vkey);
                 }
-                window::PlatformEvent::KeyDown {
+                PlatformEvent::KeyDown {
                     window,
                     scancode,
                     vkey,
@@ -77,7 +71,7 @@ impl InputSystem {
 
     pub fn mouse_pos(&self, window: WindowId) -> LogicalPosition {
         let state = self.get_mouse_state(window);
-        state.logical_position
+        state.position()
     }
 
     pub fn keyboard_modifiers(&self, window: WindowId) -> KeyboardModifiers {
@@ -102,7 +96,7 @@ impl InputSystem {
         RefMut::map(ms, |ms| ms.get_mut(&window).unwrap())
     }
 
-    fn get_mouse_state<'a>(&'a self, window: WindowId) -> RefMut<'a, WindowMouseState> {
+    fn get_mouse_state<'a>(&'a self, window: WindowId) -> RefMut<'a, MouseState> {
         RefMut::map(self.get_window_state_mut(window), |state| &mut state.mouse)
     }
 
@@ -118,21 +112,23 @@ impl InputSystem {
 
     fn cursor_moved(&self, window: WindowId, logical_position: LogicalPosition) {
         let mut state = self.get_mouse_state(window);
-        state.logical_position = logical_position;
+        state.set_position(logical_position);
         self.send_input_event(InputEvent::CursorMove {
             window,
             position: logical_position,
         });
     }
 
-    fn mouse_down(&self, window: WindowId) {
+    fn mouse_down(&self, window: WindowId, button: MouseButton) {
         let mut state = self.get_mouse_state(window);
-        state.pressed = true;
+        state.button_down(button);
+        self.send_input_event(InputEvent::MouseButtonDown { window, button });
     }
 
-    fn mouse_up(&self, window: WindowId) {
+    fn mouse_up(&self, window: WindowId, button: MouseButton) {
         let mut state = self.get_mouse_state(window);
-        state.pressed = false;
+        state.button_up(button);
+        self.send_input_event(InputEvent::MouseButtonUp { window, button });
     }
 
     fn key_down(&self, window: WindowId, scancode: Scancode, vkey: Option<VirtualKey>) {
@@ -159,26 +155,17 @@ impl InputSystem {
 
     fn event_filter(event: &PlatformEvent) -> bool {
         match event {
-            window::PlatformEvent::CursorMove { .. } => true,
-            window::PlatformEvent::MouseButtonUp { .. } => true,
-            window::PlatformEvent::MouseButtonDown { .. } => true,
-            window::PlatformEvent::KeyUp { .. } => true,
-            window::PlatformEvent::KeyDown { .. } => true,
+            PlatformEvent::CursorMove { .. } => true,
+            PlatformEvent::MouseButtonUp { .. } => true,
+            PlatformEvent::MouseButtonDown { .. } => true,
+            PlatformEvent::KeyUp { .. } => true,
+            PlatformEvent::KeyDown { .. } => true,
             _ => false,
         }
     }
 
     fn send_input_event(&self, event: InputEvent) {
         self.outgoing_input_events.borrow_mut().push(event);
-    }
-}
-
-impl Default for WindowMouseState {
-    fn default() -> Self {
-        Self {
-            logical_position: LogicalPosition { x: 0, y: 0 },
-            pressed: false,
-        }
     }
 }
 

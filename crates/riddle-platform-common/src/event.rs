@@ -11,9 +11,11 @@ pub enum PlatformEvent {
     },
     MouseButtonDown {
         window: WindowId,
+        button: MouseButton,
     },
     MouseButtonUp {
         window: WindowId,
+        button: MouseButton,
     },
     KeyDown {
         window: WindowId,
