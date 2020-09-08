@@ -16,14 +16,9 @@ impl RiddleApp {
         F: FnMut(&RiddleContext) -> () + 'static,
     {
         let window_system = self.state.window.clone();
-        window::WindowSystem::run(window_system, move |window_ctx| {
-            let ctx = RiddleContext {
-                window_ctx,
-                state: &self.state,
-            };
-
-            match ctx.event() {
-                window::SystemEvent::ProcessFrame => {
+        platform::PlatformSystem::run(window_system, move |platform_ctx| {
+            match platform_ctx.event() {
+                platform::PlatformEvent::EventQueueEmpty => {
                     self.state.time.process_frame();
 
                     #[cfg(feature = "riddle-audio")]
@@ -33,14 +28,35 @@ impl RiddleApp {
             };
 
             self.state.input.update();
+
+            let event = match platform_ctx.event() {
+                platform::PlatformEvent::EventQueueEmpty => Event::ProcessFrame,
+                _ => Event::Platform(platform_ctx.event().clone()),
+            };
+
+            let mut ctx = RiddleContext {
+                window_ctx: platform_ctx,
+                state: &self.state,
+                event,
+            };
             update(&ctx);
+
+            let input_events = self.state.input.take_input_events();
+            for input_event in input_events {
+                ctx.event = Event::Input(input_event);
+                update(&ctx);
+            }
         })
     }
 
     pub fn context(&self) -> RiddleContext {
         let state = &self.state;
-        let window_ctx = window::WindowSystem::borrow_context(&self.state.window).unwrap();
-        RiddleContext { state, window_ctx }
+        let platform_ctx = platform::PlatformSystem::borrow_context(&self.state.window).unwrap();
+        RiddleContext {
+            state,
+            window_ctx: platform_ctx,
+            event: Event::PreRunPlaceholder,
+        }
     }
 
     pub fn state(&self) -> &RiddleState {

@@ -1,4 +1,4 @@
-use crate::{math::*, window::*, *};
+use crate::{math::*, platform::*, *};
 
 use riddle_common::{eventpub::EventSub, Color};
 
@@ -20,7 +20,7 @@ pub struct Renderer {
     swap_chain: RefCell<wgpu::SwapChain>,
     camera_size: RefCell<Vector2<f32>>,
 
-    window_event_sub: EventSub<window::WindowEvent<Rc<Window>>>,
+    window_event_sub: EventSub<PlatformEvent>,
 
     pub(crate) stream_buffer: RefCell<StreamRenderBuffer>,
 }
@@ -275,7 +275,7 @@ impl Renderer {
         let mut dirty_swap_chain = false;
         for event in self.window_event_sub.collect().iter() {
             match event {
-                WindowEvent::WindowResize(_) => dirty_swap_chain = true,
+                PlatformEvent::WindowResize(_) => dirty_swap_chain = true,
                 _ => (),
             }
         }

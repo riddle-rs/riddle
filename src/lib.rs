@@ -56,7 +56,7 @@ branch = "master"
 Place the following in main.rs:
 
 ```no_run
-use riddle::{*, window::*};
+use riddle::{*, platform::*};
 
 fn main() -> Result<(), RiddleError> {
     let rdl = RiddleApp::new()?;
@@ -64,7 +64,7 @@ fn main() -> Result<(), RiddleError> {
 
     rdl.run(move |rdl| {
         match rdl.event() {
-            SystemEvent::Window(WindowEvent::WindowClose(_)) => rdl.quit(),
+            Event::Platform(PlatformEvent::WindowClose(_)) => rdl.quit(),
             _ => (),
          }
     })
@@ -85,14 +85,15 @@ fn main() -> Result<(), RiddleError> {
 mod app;
 mod context;
 mod error;
+mod event;
 mod state;
 
 pub use riddle_common as common;
 pub use riddle_image as image;
 pub use riddle_input as input;
 pub use riddle_math as math;
+pub use riddle_platform_winit as platform;
 pub use riddle_time as time;
-pub use riddle_window_winit as window;
 
 #[cfg(feature = "riddle-audio")]
 pub use riddle_audio as audio;
@@ -106,4 +107,5 @@ pub use riddle_font as font;
 pub use app::*;
 pub use context::*;
 pub use error::*;
+pub use event::*;
 pub use state::*;

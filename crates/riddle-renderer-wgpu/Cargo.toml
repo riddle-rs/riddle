@@ -10,7 +10,7 @@ edition = "2018"
 riddle-common = {path = "../riddle-common"}
 riddle-image = {path = "../riddle-image"}
 riddle-math = {path = "../riddle-math"}
-riddle-window-winit = {path = "../riddle-window-winit"}
+riddle-platform-winit = {path = "../riddle-platform-winit"}
 
 bytemuck = "1.3"
 glam = {version= "0.9", features=["mint"]}

@@ -8,6 +8,7 @@ edition = "2018"
 
 [dependencies]
 riddle-common = {path = "../riddle-common"}
-riddle-window-common = {path = "../riddle-window-common"}
+riddle-platform-common = {path = "../riddle-platform-common"}
 
+bitflags = "1.2.1"
 thiserror = "1.0"

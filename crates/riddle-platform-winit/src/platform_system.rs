@@ -3,31 +3,32 @@ use crate::{event::InternalEvent, *};
 use riddle_common::eventpub::EventPub;
 
 use std::{
-    cell::RefCell,
-    collections::HashMap,
+    cell::{Ref, RefCell, RefMut},
     ops::Deref,
-    rc::{Rc, Weak},
+    rc::Rc,
 };
 
-pub struct WindowSystem {
+pub struct PlatformSystem {
     event_loop: RefCell<Option<winit::event_loop::EventLoop<InternalEvent>>>,
     event_proxy: winit::event_loop::EventLoopProxy<InternalEvent>,
-    windows: RefCell<HashMap<WindowId, Weak<Window>>>,
-    event_pub: EventPub<SystemEvent<Rc<Window>>>,
+
+    window_map: RefCell<WindowMap>,
+
+    event_pub: EventPub<PlatformEvent>,
 }
 
-pub struct WindowContext<'a> {
-    pub(crate) system: Rc<WindowSystem>,
+pub struct PlatformContext<'a> {
+    pub(crate) system: Rc<PlatformSystem>,
     event_loop: Option<&'a winit::event_loop::EventLoopWindowTarget<InternalEvent>>,
-    triggering_event: SystemEvent<Rc<Window>>,
+    triggering_event: PlatformEvent,
 }
 
-impl WindowSystem {
-    pub fn borrow_context(this: &Rc<WindowSystem>) -> Result<WindowContext, WindowError> {
-        Ok(WindowContext {
+impl PlatformSystem {
+    pub fn borrow_context(this: &Rc<PlatformSystem>) -> Result<PlatformContext, WindowError> {
+        Ok(PlatformContext {
             system: this.clone(),
             event_loop: None,
-            triggering_event: SystemEvent::Unknown,
+            triggering_event: PlatformEvent::Unknown,
         })
     }
 
@@ -38,7 +39,7 @@ impl WindowSystem {
     /// If run has already been invoked, then this function will panic.
     pub fn run<F>(this: Rc<Self>, main_loop: F) -> !
     where
-        F: FnMut(WindowContext) + 'static,
+        F: FnMut(PlatformContext) + 'static,
     {
         let el = std::mem::replace(&mut *this.event_loop.borrow_mut(), None).unwrap();
         let mut main_loop = main_loop;
@@ -52,7 +53,7 @@ impl WindowSystem {
 
             match event::convert_winit_event(&this, event) {
                 Some(system_event) => {
-                    let ctx = WindowContext {
+                    let ctx = PlatformContext {
                         system: this.clone(),
                         event_loop: Some(el),
                         triggering_event: system_event.clone(),
@@ -68,57 +69,50 @@ impl WindowSystem {
         })
     }
 
-    pub fn new() -> WindowSystem {
+    pub fn new() -> PlatformSystem {
         let event_loop = winit::event_loop::EventLoop::with_user_event();
         let event_proxy = event_loop.create_proxy();
-        WindowSystem {
+        PlatformSystem {
             event_loop: RefCell::new(event_loop.into()),
             event_proxy,
-            windows: RefCell::new(HashMap::new()),
+
+            window_map: WindowMap::new().into(),
+
             event_pub: EventPub::new(),
         }
     }
 
-    pub fn event_pub(&self) -> &EventPub<SystemEvent<Rc<Window>>> {
+    pub fn event_pub(&self) -> &EventPub<PlatformEvent> {
         &self.event_pub
     }
 
-    pub(crate) fn register_window(&self, window: &Rc<Window>) {
-        self.windows
-            .borrow_mut()
-            .insert(window.window_id(), Rc::downgrade(window));
+    pub(crate) fn borrow_window_map(&self) -> Ref<WindowMap> {
+        self.window_map.borrow()
     }
 
-    pub(crate) fn unregister_window(&self, window_id: &WindowId) {
-        self.windows.borrow_mut().remove(window_id);
+    pub(crate) fn borrow_window_map_mut(&self) -> RefMut<WindowMap> {
+        self.window_map.borrow_mut()
     }
 
-    pub fn lookup_window(&self, window_id: &WindowId) -> Option<Rc<Window>> {
-        self.windows
-            .borrow()
-            .get(window_id)
-            .and_then(|weak| weak.upgrade().map(|rc| rc.into()))
+    pub fn lookup_window(&self, window_id: WindowId) -> Option<Rc<Window>> {
+        self.window_map.borrow().lookup_window(window_id)
     }
 
     fn update_windows(&self) {
-        for (_, window) in self.windows.borrow().iter() {
-            match window.upgrade() {
-                Some(window) => window.update(),
-                _ => (),
-            }
+        let windows = self.window_map.borrow().windows();
+        for window in windows {
+            window.update()
         }
     }
 }
 
-impl riddle_window_common::traits::WindowSystem for WindowSystem {
-    type WindowHandle = Rc<Window>;
-
-    fn event_pub(&self) -> &EventPub<riddle_window_common::SystemEvent<Self::WindowHandle>> {
+impl riddle_platform_common::traits::WindowSystem for PlatformSystem {
+    fn event_pub(&self) -> &EventPub<riddle_platform_common::PlatformEvent> {
         &self.event_pub
     }
 }
 
-impl<'a> WindowContext<'a> {
+impl<'a> PlatformContext<'a> {
     pub(crate) fn with_event_loop<T, F>(&self, f: F) -> Result<T, WindowError>
     where
         F: FnOnce(
@@ -145,28 +139,7 @@ impl<'a> WindowContext<'a> {
             .map_err(|_| WindowError::Unknown)
     }
 
-    pub fn event(&self) -> &SystemEvent<Rc<Window>> {
+    pub fn event(&self) -> &PlatformEvent {
         &self.triggering_event
     }
 }
-/*
-impl RiddleModule for WindowSystem {
-    fn handle_event(
-        &self,
-        event: &winit::event::Event<InternalEvent>,
-        _: &RiddleState,
-    ) -> RdlResult<Option<RdlEvent>> {
-        match event {
-            winit::event::Event::WindowEvent { window_id, event } => {
-                let window = self.lookup_window(&window_id.clone().into());
-                match window {
-                    Some(window) => Window::handle_event(&window, event)
-                        .map(|we| we.map(|we| RdlEvent::Window(we))),
-                    _ => Ok(None),
-                }
-            }
-            _ => Ok(None),
-        }
-    }
-}
-*/
