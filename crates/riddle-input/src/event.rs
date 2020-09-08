@@ -15,6 +15,7 @@ pub enum InputEvent {
         window: WindowId,
         button: MouseButton,
     },
+
     KeyDown {
         window: WindowId,
         scancode: Scancode,
@@ -26,5 +27,21 @@ pub enum InputEvent {
         scancode: Scancode,
         vkey: Option<VirtualKey>,
         modifiers: KeyboardModifiers,
+    },
+
+    GamePadConnected(GamePadId),
+    GamePadDisconnected(GamePadId),
+    GamePadButtonDown {
+        gamepad: GamePadId,
+        button: GamePadButton,
+    },
+    GamePadButtonUp {
+        gamepad: GamePadId,
+        button: GamePadButton,
+    },
+    GamePadAxisChanged {
+        gamepad: GamePadId,
+        axis: GamePadAxis,
+        value: f32,
     },
 }

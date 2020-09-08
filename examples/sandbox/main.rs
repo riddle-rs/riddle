@@ -169,6 +169,15 @@ fn main() -> Result<(), RiddleError> {
         Event::Input(InputEvent::KeyUp { vkey, .. }) => {
             println!("KeyUp: {:?}", vkey);
         }
+        Event::Input(InputEvent::GamePadButtonDown { button, .. }) => {
+            println!("Gamepad Down {:?}", button);
+        }
+        Event::Input(InputEvent::GamePadButtonUp { button, .. }) => {
+            println!("Gamepad Up {:?}", button);
+        }
+        Event::Input(InputEvent::GamePadAxisChanged { axis, value, .. }) => {
+            println!("Gamepad Up {:?} {:?}", axis, value);
+        }
         Event::ProcessFrame => {
             state.render_frame().unwrap();
         }
