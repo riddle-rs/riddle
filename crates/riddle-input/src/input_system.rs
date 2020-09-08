@@ -17,6 +17,8 @@ pub struct InputSystem {
     window_states: RefCell<HashMap<WindowId, WindowInputState>>,
     event_sub: EventSub<PlatformEvent>,
 
+    gilrs: RefCell<gilrs::Gilrs>,
+
     outgoing_input_events: RefCell<Vec<InputEvent>>,
 }
 
@@ -25,44 +27,19 @@ impl InputSystem {
         let event_sub = EventSub::new_with_filter(Self::event_filter);
         sys_events.attach(&event_sub);
 
+        let gilrs = gilrs::Gilrs::new().map_err(|_| InputError::Unknown)?;
+
         Ok(InputSystem {
             window_states: RefCell::new(HashMap::new()),
             event_sub,
+            gilrs: RefCell::new(gilrs),
             outgoing_input_events: RefCell::new(vec![]),
         })
     }
 
     pub fn update(&self) {
-        for event in self.event_sub.collect() {
-            match event {
-                PlatformEvent::CursorMove { window, position } => {
-                    self.cursor_moved(window, position);
-                }
-                PlatformEvent::MouseButtonUp { window, button } => {
-                    self.mouse_up(window, button);
-                }
-                PlatformEvent::MouseButtonDown { window, button } => {
-                    self.mouse_down(window, button);
-                }
-                PlatformEvent::KeyUp {
-                    window,
-                    scancode,
-                    vkey,
-                    ..
-                } => {
-                    self.key_up(window, scancode, vkey);
-                }
-                PlatformEvent::KeyDown {
-                    window,
-                    scancode,
-                    vkey,
-                    ..
-                } => {
-                    self.key_down(window, scancode, vkey);
-                }
-                _ => (),
-            }
-        }
+        self.process_platform_events();
+        self.process_gilrs_events();
     }
 
     pub fn take_input_events(&self) -> Vec<InputEvent> {
@@ -77,6 +54,13 @@ impl InputSystem {
     pub fn keyboard_modifiers(&self, window: WindowId) -> KeyboardModifiers {
         let state = self.get_keyboard_state(window);
         state.modifiers()
+    }
+
+    pub fn is_gamepad_button_down(&self, gamepad: GamePadId, button: GamePadButton) -> bool {
+        self.gilrs
+            .borrow()
+            .gamepad(gamepad.into())
+            .is_pressed(button.into())
     }
 
     fn get_window_state<'a>(&'a self, window: WindowId) -> Ref<'a, WindowInputState> {
@@ -161,6 +145,81 @@ impl InputSystem {
             PlatformEvent::KeyUp { .. } => true,
             PlatformEvent::KeyDown { .. } => true,
             _ => false,
+        }
+    }
+
+    fn process_platform_events(&self) {
+        for event in self.event_sub.collect() {
+            match event {
+                PlatformEvent::CursorMove { window, position } => {
+                    self.cursor_moved(window, position);
+                }
+                PlatformEvent::MouseButtonUp { window, button } => {
+                    self.mouse_up(window, button);
+                }
+                PlatformEvent::MouseButtonDown { window, button } => {
+                    self.mouse_down(window, button);
+                }
+                PlatformEvent::KeyUp {
+                    window,
+                    scancode,
+                    vkey,
+                    ..
+                } => {
+                    self.key_up(window, scancode, vkey);
+                }
+                PlatformEvent::KeyDown {
+                    window,
+                    scancode,
+                    vkey,
+                    ..
+                } => {
+                    self.key_down(window, scancode, vkey);
+                }
+                _ => (),
+            }
+        }
+    }
+
+    fn process_gilrs_events(&self) {
+        while let Some(gilrs::Event { event, id, .. }) = self.gilrs.borrow_mut().next_event() {
+            use std::convert::TryFrom;
+            match event {
+                gilrs::EventType::ButtonPressed(button, _) => {
+                    if let Ok(button) = GamePadButton::try_from(button) {
+                        self.send_input_event(InputEvent::GamePadButtonDown {
+                            gamepad: id.into(),
+                            button,
+                        });
+                    }
+                }
+                gilrs::EventType::ButtonRepeated(_, _) => {}
+                gilrs::EventType::ButtonReleased(button, _) => {
+                    if let Ok(button) = GamePadButton::try_from(button) {
+                        self.send_input_event(InputEvent::GamePadButtonUp {
+                            gamepad: id.into(),
+                            button,
+                        });
+                    }
+                }
+                gilrs::EventType::ButtonChanged(_, _, _) => {}
+                gilrs::EventType::AxisChanged(axis, value, _) => {
+                    if let Ok(axis) = GamePadAxis::try_from(axis) {
+                        self.send_input_event(InputEvent::GamePadAxisChanged {
+                            gamepad: id.into(),
+                            axis,
+                            value,
+                        });
+                    }
+                }
+                gilrs::EventType::Connected => {
+                    self.send_input_event(InputEvent::GamePadConnected(id.into()));
+                }
+                gilrs::EventType::Disconnected => {
+                    self.send_input_event(InputEvent::GamePadDisconnected(id.into()));
+                }
+                _ => {}
+            }
         }
     }
 
