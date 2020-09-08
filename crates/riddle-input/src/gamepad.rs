@@ -35,6 +35,8 @@ impl std::convert::TryFrom<gilrs::Button> for GamePadButton {
 pub enum GamePadAxis {
     LeftStickX,
     LeftStickY,
+    RightStickX,
+    RightStickY,
 }
 
 impl std::convert::TryFrom<gilrs::Axis> for GamePadAxis {
@@ -44,6 +46,8 @@ impl std::convert::TryFrom<gilrs::Axis> for GamePadAxis {
         Ok(match axis {
             gilrs::Axis::LeftStickX => GamePadAxis::LeftStickX,
             gilrs::Axis::LeftStickY => GamePadAxis::LeftStickY,
+            gilrs::Axis::RightStickX => GamePadAxis::RightStickX,
+            gilrs::Axis::RightStickY => GamePadAxis::RightStickY,
             _ => Err(axis)?,
         })
     }
