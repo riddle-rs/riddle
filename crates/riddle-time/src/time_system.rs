@@ -1,18 +1,23 @@
+use crate::*;
+
 use std::cell::RefCell;
 
 pub struct TimeSystem {
     frame_time: RefCell<FrameTime>,
+    timers: TimerSet,
 }
 
 impl TimeSystem {
     pub fn new() -> Self {
         Self {
             frame_time: RefCell::new(FrameTime::new()),
+            timers: TimerSet::new(),
         }
     }
 
     pub fn process_frame(&self) {
         self.frame_time.borrow_mut().update();
+        self.timers.update(self.frame_time.borrow().frame_delta);
     }
 
     pub fn fps(&self) -> f32 {
@@ -21,6 +26,13 @@ impl TimeSystem {
 
     pub fn frame_instant(&self) -> std::time::Instant {
         self.frame_time.borrow().frame_instant
+    }
+
+    pub fn register_timer<F>(&self, duration: std::time::Duration, callback: F) -> TimerHandle
+    where
+        F: FnOnce() + 'static,
+    {
+        self.timers.register_timer(duration, Box::new(callback))
     }
 }
 

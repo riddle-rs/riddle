@@ -144,6 +144,15 @@ fn main() -> Result<(), RiddleError> {
         }) => {
             state.on_mouse_down().unwrap();
         }
+        Event::Input(InputEvent::MouseButtonDown {
+            button: MouseButton::Right,
+            ..
+        }) => {
+            rdl.time()
+                .register_timer(std::time::Duration::from_secs(2), || {
+                    println!("Timer Done");
+                });
+        }
         Event::Input(InputEvent::KeyDown {
             vkey: Some(vkey),
             modifiers: KeyboardModifiers { ctrl, .. },
