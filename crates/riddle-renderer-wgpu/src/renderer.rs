@@ -78,7 +78,7 @@ impl Renderer {
         )?;
 
         let mut white_img = image::Image::new(1, 1).map_err(|_| RendererError::Unknown)?;
-        white_img.set_pixel(0, 0, [0xFF; 4]);
+        white_img.set_pixel(0, 0, Color::from([0xFF; 4]));
         let white_tex = Texture::from_image(
             &device,
             &queue,
@@ -185,7 +185,7 @@ impl Renderer {
     /// Set the clear color and mark the frame buffer for clearing. The actual clear operation
     /// will be performed when the next batched render happens, or when `present` is called,
     /// whichever comes first.
-    pub fn clear(&self, color: Color) -> Result<(), RendererError> {
+    pub fn clear(&self, color: Color<f32>) -> Result<(), RendererError> {
         self.stream_buffer.borrow_mut().flush(self)?;
 
         let FrameRenderState {
@@ -197,7 +197,7 @@ impl Renderer {
         Ok(())
     }
 
-    fn clear_immediate(&self, color: Color) -> Result<(), RendererError> {
+    fn clear_immediate(&self, color: Color<f32>) -> Result<(), RendererError> {
         self.stream_buffer.borrow_mut().flush(self)?;
 
         let FrameRenderState { encoder, frame, .. } = &mut *(self.get_frame_state()?);

@@ -2,6 +2,7 @@ use crate::*;
 
 use riddle_math::*;
 
+use riddle_common::{Color, ColorElementConversion};
 use std::io::{Read, Seek};
 
 /// A representation of an image stored in RAM. Can be loaded from and saved to
@@ -27,7 +28,14 @@ impl Image {
         Ok(Image { img })
     }
 
-    pub fn set_pixel(&mut self, x: u32, y: u32, color: [u8; 4]) {
+    pub fn get_pixel(&self, x: u32, y: u32) -> Color<u8> {
+        let c: ::image::Rgba<u8> = self.img.get_pixel(x, y).clone();
+        Color::rgba(c[0], c[1], c[2], c[3])
+    }
+
+    pub fn set_pixel<C: ColorElementConversion<Color<u8>>>(&mut self, x: u32, y: u32, color: C) {
+        let color: Color<u8> = color.convert();
+        let color: [u8; 4] = color.into();
         self.img.put_pixel(x, y, color.into());
     }
 

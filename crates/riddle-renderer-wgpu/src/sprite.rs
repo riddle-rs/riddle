@@ -1,5 +1,7 @@
 use crate::{math::*, *};
 
+use riddle_common::Color;
+
 use std::rc::Rc;
 
 /// A sprite represents an image texture, along with an axis aligned rect to select which
@@ -183,8 +185,8 @@ impl SpriteRenderCommand {
         self
     }
 
-    pub fn with_color(&mut self, color: [f32; 4]) -> &mut Self {
-        self.diffuse_color = color;
+    pub fn with_color(&mut self, color: Color<f32>) -> &mut Self {
+        self.diffuse_color = color.into();
         self
     }
 

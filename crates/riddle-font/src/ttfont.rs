@@ -1,5 +1,6 @@
 use crate::*;
 
+use riddle_common::Color;
 use riddle_image::Image;
 
 use std::io::Read;
@@ -43,7 +44,7 @@ impl TTFont {
                 img.set_pixel(
                     (bb.min.x + x as i32) as u32,
                     (base_line + bb.min.y + (y as i32)) as u32,
-                    [255, 255, 255, b],
+                    Color::rgba(255, 255, 255, b),
                 );
             })
         }
