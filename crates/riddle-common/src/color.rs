@@ -1,80 +1,155 @@
-#[repr(C)]
-pub struct Color {
-    pub r: f32,
-    pub g: f32,
-    pub b: f32,
-    pub a: f32,
+pub trait ColorElement: Copy {
+    const ZERO: Self;
+    const SATURATED: Self;
 }
 
-impl Color {
+pub trait ColorElementConversion<T> {
+    fn convert(&self) -> T;
+}
+
+impl ColorElement for u8 {
+    const ZERO: u8 = 0;
+    const SATURATED: u8 = 255;
+}
+
+impl ColorElementConversion<f32> for u8 {
+    #[inline]
+    fn convert(&self) -> f32 {
+        (*self as f32) / 255.0
+    }
+}
+
+impl ColorElementConversion<u8> for u8 {
+    #[inline]
+    fn convert(&self) -> Self {
+        *self
+    }
+}
+
+impl ColorElement for f32 {
+    const ZERO: f32 = 0.0;
+    const SATURATED: f32 = 1.0;
+}
+
+impl ColorElementConversion<u8> for f32 {
+    #[inline]
+    fn convert(&self) -> u8 {
+        (self / 255.0) as u8
+    }
+}
+
+impl ColorElementConversion<f32> for f32 {
+    #[inline]
+    fn convert(&self) -> Self {
+        *self
+    }
+}
+
+#[repr(C)]
+pub struct Color<E> {
+    pub r: E,
+    pub g: E,
+    pub b: E,
+    pub a: E,
+}
+
+impl<E> Color<E> {
+    #[inline]
+    pub fn rgba(r: E, g: E, b: E, a: E) -> Self {
+        Self { r, g, b, a }
+    }
+}
+
+impl<E: ColorElement> Color<E> {
     pub const RED: Self = Self {
-        r: 1.0,
-        g: 0.0,
-        b: 0.0,
-        a: 0.0,
+        r: E::SATURATED,
+        g: E::ZERO,
+        b: E::ZERO,
+        a: E::SATURATED,
+    };
+
+    pub const GREEN: Self = Self {
+        r: E::ZERO,
+        g: E::SATURATED,
+        b: E::ZERO,
+        a: E::SATURATED,
+    };
+
+    pub const BLUE: Self = Self {
+        r: E::ZERO,
+        g: E::ZERO,
+        b: E::SATURATED,
+        a: E::SATURATED,
+    };
+
+    pub const BLACK: Self = Self {
+        r: E::ZERO,
+        g: E::ZERO,
+        b: E::ZERO,
+        a: E::SATURATED,
+    };
+
+    pub const WHITE: Self = Self {
+        r: E::SATURATED,
+        g: E::SATURATED,
+        b: E::SATURATED,
+        a: E::SATURATED,
+    };
+
+    pub const TRANSPARENT_BLACK: Self = Self {
+        r: E::ZERO,
+        g: E::ZERO,
+        b: E::ZERO,
+        a: E::ZERO,
     };
 
     #[inline]
-    pub fn rgba(r: f32, g: f32, b: f32, a: f32) -> Self {
-        Self { r, g, b, a }
-    }
-
-    #[inline]
-    pub fn rgb(r: f32, g: f32, b: f32) -> Self {
-        Self { r, g, b, a: 1.0 }
+    pub fn rgb(r: E, g: E, b: E) -> Self {
+        Self {
+            r,
+            g,
+            b,
+            a: E::SATURATED,
+        }
     }
 }
 
-impl From<[f32; 4]> for Color {
+impl<T: ColorElement, F: ColorElementConversion<T>> ColorElementConversion<Color<T>> for Color<F> {
     #[inline]
-    fn from(c: [f32; 4]) -> Self {
+    fn convert(&self) -> Color<T> {
+        Color::rgba(
+            self.r.convert(),
+            self.g.convert(),
+            self.b.convert(),
+            self.a.convert(),
+        )
+    }
+}
+
+impl<E: Copy> From<[E; 4]> for Color<E> {
+    #[inline]
+    fn from(c: [E; 4]) -> Self {
         Self::rgba(c[0], c[1], c[2], c[3])
     }
 }
 
-impl From<[f32; 3]> for Color {
+impl<E: ColorElement> From<[E; 3]> for Color<E> {
     #[inline]
-    fn from(c: [f32; 3]) -> Self {
+    fn from(c: [E; 3]) -> Self {
         Self::rgb(c[0], c[1], c[2])
     }
 }
 
-impl From<[u8; 4]> for Color {
+impl<E: Copy> From<Color<E>> for [E; 4] {
     #[inline]
-    fn from(c: [u8; 4]) -> Self {
-        Self::rgba(
-            c[0] as f32 / 255.0,
-            c[1] as f32 / 255.0,
-            c[2] as f32 / 255.0,
-            c[3] as f32 / 255.0,
-        )
-    }
-}
-
-impl From<[u8; 3]> for Color {
-    #[inline]
-    fn from(c: [u8; 3]) -> Self {
-        Self::rgb(
-            c[0] as f32 / 255.0,
-            c[1] as f32 / 255.0,
-            c[2] as f32 / 255.0,
-        )
-    }
-}
-
-impl From<Color> for [f32; 4] {
-    fn from(c: Color) -> Self {
+    fn from(c: Color<E>) -> Self {
         [c.r, c.g, c.b, c.a]
     }
 }
 
-impl From<Color> for [u8; 4] {
-    fn from(c: Color) -> Self {
-        [
-            (c.r * 255.0) as u8,
-            (c.g * 255.0) as u8,
-            (c.b * 255.0) as u8,
-            (c.a * 255.0) as u8,
-        ]
+impl<E: Copy> From<Color<E>> for [E; 3] {
+    #[inline]
+    fn from(c: Color<E>) -> Self {
+        [c.r, c.g, c.b]
     }
 }
