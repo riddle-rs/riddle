@@ -1,7 +1,7 @@
 use crate::{math::*, *};
 
+use riddle_common::clone_handle::CloneHandle;
 use riddle_common::Color;
-
 use std::rc::Rc;
 
 /// A sprite represents an image texture, along with an axis aligned rect to select which
@@ -18,7 +18,7 @@ impl Sprite {
     /// Construct a new sprite from an image. The image contents are copied to a texture
     /// in RGBA8 format. The entire image will be used
     pub fn new_from_image(
-        renderer: Rc<Renderer>,
+        renderer: &Renderer,
         img: image::Image,
         mag_filter: FilterMode,
         min_filter: FilterMode,
@@ -30,10 +30,13 @@ impl Sprite {
             mag_filter,
             min_filter,
         )?;
-        Ok(Self::from_texture(renderer, texture.into()))
+        Self::from_texture(renderer, texture.into())
     }
 
-    pub(super) fn from_texture(renderer: Rc<Renderer>, texture: Rc<Texture>) -> Sprite {
+    pub(super) fn from_texture(
+        renderer: &Renderer,
+        texture: Rc<Texture>,
+    ) -> Result<Sprite, RendererError> {
         let dimensions = texture.dimensions.convert();
         Self::from_texture_with_bounds(
             renderer,
@@ -46,15 +49,15 @@ impl Sprite {
     }
 
     pub(super) fn from_texture_with_bounds(
-        renderer: Rc<Renderer>,
+        renderer: &Renderer,
         texture: Rc<Texture>,
         source_rect: Rect<f32>,
-    ) -> Sprite {
-        Sprite {
-            renderer: renderer.clone(),
+    ) -> Result<Sprite, RendererError> {
+        Ok(Sprite {
+            renderer: renderer.clone_handle().ok_or(RendererError::Unknown)?,
             texture: texture,
             source_rect,
-        }
+        })
     }
 
     pub fn subsprite(&self, source_rect: &Rect<f32>) -> Sprite {
@@ -228,7 +231,7 @@ impl SpriteBuilder {
         self
     }
 
-    pub fn build(self, renderer: Rc<Renderer>) -> Result<Sprite, RendererError> {
+    pub fn build(self, renderer: &Renderer) -> Result<Sprite, RendererError> {
         Sprite::new_from_image(renderer, self.img, self.mag_filter, self.min_filter)
     }
 }

@@ -1,3 +1,5 @@
+#![feature(arc_new_cyclic)]
+
 mod error;
 mod renderer;
 mod shader;

@@ -1,12 +1,16 @@
 use crate::*;
 
-use riddle_common::eventpub::*;
+use riddle_common::{clone_handle::CloneHandle, eventpub::*};
 
 use raw_window_handle::{HasRawWindowHandle, RawWindowHandle};
 use riddle_platform_common::traits::WindowExt;
-use std::{borrow::Borrow, rc::Rc};
+use std::{
+    borrow::Borrow,
+    rc::{Rc, Weak},
+};
 
 pub struct Window {
+    weak_self: Weak<Window>,
     window_system: Rc<PlatformSystem>,
     winit_window: winit::window::Window,
     event_sub: EventSub<PlatformEvent>,
@@ -16,15 +20,7 @@ pub struct Window {
 }
 
 impl Window {
-    fn new_shared(ctx: &PlatformContext, args: &WindowBuilder) -> Result<Rc<Window>, WindowError> {
-        let window: Rc<Window> = Window::new(ctx, args)?.into();
-        ctx.system
-            .borrow_window_map_mut()
-            .register_window(window.clone());
-        Ok(window)
-    }
-
-    fn new(ctx: &PlatformContext, args: &WindowBuilder) -> Result<Self, WindowError> {
+    fn new_shared(ctx: &PlatformContext, args: &WindowBuilder) -> Result<Rc<Self>, WindowError> {
         let system = ctx.system.clone();
 
         #[cfg(target_os = "windows")]
@@ -57,13 +53,18 @@ impl Window {
         let event_sub = EventSub::new_with_filter(Self::event_filter);
         system.event_pub().attach(&event_sub);
 
-        let window = Self {
+        let window = Rc::new_cyclic(|weak_self| Self {
+            weak_self: weak_self.clone(),
             window_system: system.clone(),
             winit_window: winit_window,
             event_sub,
             event_pub: EventPub::new(),
             id: system.borrow_window_map_mut().take_next_window_id(),
-        };
+        });
+
+        ctx.system
+            .borrow_window_map_mut()
+            .register_window(window.clone());
 
         Ok(window)
     }
@@ -141,6 +142,12 @@ impl Drop for Window {
 unsafe impl HasRawWindowHandle for Window {
     fn raw_window_handle(&self) -> RawWindowHandle {
         self.winit_window.raw_window_handle()
+    }
+}
+
+impl CloneHandle for Window {
+    fn clone_weak_handle(&self) -> Weak<Self> {
+        self.weak_self.clone()
     }
 }
 

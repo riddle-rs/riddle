@@ -1,3 +1,5 @@
+#![feature(arc_new_cyclic)]
+
 mod dimensions;
 mod error;
 mod event;

@@ -36,7 +36,7 @@ impl<'a> SpriteAtlasBuilder<'a> {
         self
     }
 
-    pub fn build(self, renderer: Rc<Renderer>) -> Result<(), RendererError> {
+    pub fn build(self, renderer: &Renderer) -> Result<(), RendererError> {
         let mut atlas = image::Image::new(self.total_width, self.max_height)?;
         let mut sprite_bounds = vec![];
         let mut x = 0;
@@ -62,10 +62,10 @@ impl<'a> SpriteAtlasBuilder<'a> {
 
         for (bounds, sprite) in sprite_bounds {
             *sprite = Some(Sprite::from_texture_with_bounds(
-                renderer.clone(),
+                renderer,
                 texture.clone(),
                 bounds.convert(),
-            ));
+            )?);
         }
 
         Ok(())

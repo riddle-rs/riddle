@@ -1,14 +1,15 @@
 use crate::{event::InternalEvent, *};
 
-use riddle_common::eventpub::EventPub;
+use riddle_common::{clone_handle::CloneHandle, eventpub::EventPub};
 
 use std::{
     cell::{Ref, RefCell, RefMut},
     ops::Deref,
-    rc::Rc,
+    rc::{Rc, Weak},
 };
 
 pub struct PlatformSystem {
+    weak_self: Weak<PlatformSystem>,
     event_loop: RefCell<Option<winit::event_loop::EventLoop<InternalEvent>>>,
     event_proxy: winit::event_loop::EventLoopProxy<InternalEvent>,
 
@@ -69,17 +70,18 @@ impl PlatformSystem {
         })
     }
 
-    pub fn new() -> PlatformSystem {
+    pub fn new() -> Rc<PlatformSystem> {
         let event_loop = winit::event_loop::EventLoop::with_user_event();
         let event_proxy = event_loop.create_proxy();
-        PlatformSystem {
+        Rc::new_cyclic(|weak_self| PlatformSystem {
+            weak_self: weak_self.clone(),
             event_loop: RefCell::new(event_loop.into()),
             event_proxy,
 
             window_map: WindowMap::new().into(),
 
             event_pub: EventPub::new(),
-        }
+        })
     }
 
     pub fn event_pub(&self) -> &EventPub<PlatformEvent> {
@@ -141,5 +143,11 @@ impl<'a> PlatformContext<'a> {
 
     pub fn event(&self) -> &PlatformEvent {
         &self.triggering_event
+    }
+}
+
+impl CloneHandle for PlatformSystem {
+    fn clone_weak_handle(&self) -> Weak<Self> {
+        self.weak_self.clone()
     }
 }

@@ -1,26 +1,29 @@
 use crate::*;
 
+use riddle_common::clone_handle::CloneHandle;
 use rodio::{Device, Sink};
 use std::{
     cell::RefCell,
     collections::HashMap,
-    rc::Rc,
+    rc::{Rc, Weak},
     time::{Duration, Instant},
 };
 
 pub struct AudioSystem {
+    weak_self: Weak<AudioSystem>,
     pub(super) device: Device,
 
     fades: RefCell<std::collections::HashMap<FadeKey, Fade>>,
 }
 
 impl AudioSystem {
-    pub fn new() -> Result<AudioSystem, AudioError> {
+    pub fn new() -> Result<Rc<AudioSystem>, AudioError> {
         let device = rodio::default_output_device().ok_or(AudioError::UnknownError)?;
-        Ok(AudioSystem {
+        Ok(Rc::new_cyclic(|weak_self| AudioSystem {
+            weak_self: weak_self.clone(),
             device,
             fades: RefCell::new(HashMap::new()),
-        })
+        }))
     }
 
     pub fn process_frame(&self) {
@@ -127,5 +130,11 @@ impl Fade {
         FadeKey {
             sink: self.sink.clone(),
         }
+    }
+}
+
+impl CloneHandle for AudioSystem {
+    fn clone_weak_handle(&self) -> Weak<Self> {
+        self.weak_self.clone()
     }
 }

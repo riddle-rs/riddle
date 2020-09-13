@@ -1,5 +1,6 @@
 use crate::*;
 
+use riddle_common::clone_handle::CloneHandle;
 use rodio::{decoder::Decoder, source::Source, Sink};
 use std::{io::Cursor, rc::Rc, time::Duration};
 
@@ -14,13 +15,13 @@ pub struct ClipPlayer {
 }
 
 impl ClipPlayer {
-    pub(crate) fn new(audio: Rc<AudioSystem>, clip: Clip) -> Self {
-        Self {
-            audio: audio.clone(),
+    pub(crate) fn new(audio: &AudioSystem, clip: Clip) -> Result<Self, AudioError> {
+        Ok(Self {
+            audio: audio.clone_handle().ok_or(AudioError::UnknownError)?,
             clip: clip,
             sink: None,
             volume: 1.0,
-        }
+        })
     }
 
     fn play(&mut self, mode: PlayMode) -> Result<(), AudioError> {
@@ -107,8 +108,8 @@ impl ClipPlayerBuilder {
         self
     }
 
-    pub fn play(&self, audio: Rc<AudioSystem>, clip: Clip) -> Result<ClipPlayer, AudioError> {
-        let mut player = ClipPlayer::new(audio, clip);
+    pub fn play(&self, audio: &AudioSystem, clip: Clip) -> Result<ClipPlayer, AudioError> {
+        let mut player = ClipPlayer::new(audio, clip)?;
         player.play(self.mode)?;
         Ok(player)
     }

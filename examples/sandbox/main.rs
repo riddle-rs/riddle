@@ -27,7 +27,7 @@ struct DemoState {
 impl DemoState {
     fn new(rdl: &RiddleApp) -> Result<Self, RiddleError> {
         let window = WindowBuilder::new().build(rdl.context())?;
-        let renderer = renderer::Renderer::new_shared(window.clone())?;
+        let renderer = renderer::Renderer::new_shared(&window)?;
 
         let img = {
             let img_bytes = include_bytes!("../example_assets/image.png");
@@ -58,7 +58,7 @@ impl DemoState {
         SpriteAtlasBuilder::new()
             .with_image(label, &mut label_sprite)
             .with_image(img, &mut sprite)
-            .build(renderer.clone())?;
+            .build(&renderer)?;
 
         let sprite = sprite.unwrap();
         let subsprite = sprite.subsprite(&Rect {
@@ -68,7 +68,7 @@ impl DemoState {
 
         let music_player = audio::ClipPlayerBuilder::new()
             .with_mode(audio::PlayMode::Loop)
-            .play(rdl.state().audio(), music)?;
+            .play(&rdl.state().audio(), music)?;
 
         Ok(Self {
             window,
@@ -126,7 +126,7 @@ impl DemoState {
         self.blip_player = Some(
             audio::ClipPlayerBuilder::new()
                 .with_mode(audio::PlayMode::OneShot)
-                .play(self.state.audio(), self.clip.clone())?,
+                .play(&self.state.audio(), self.clip.clone())?,
         );
         Ok(())
     }

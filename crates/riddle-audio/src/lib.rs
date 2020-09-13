@@ -1,3 +1,5 @@
+#![feature(arc_new_cyclic)]
+
 mod audio_system;
 mod clip;
 mod clip_player;

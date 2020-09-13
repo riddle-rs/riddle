@@ -1,6 +1,6 @@
 use crate::{math::*, platform::*, *};
 
-use riddle_common::{eventpub::EventSub, Color};
+use riddle_common::{clone_handle::CloneHandle, eventpub::EventSub, Color};
 
 use std::{cell::RefCell, rc::Rc};
 
@@ -9,6 +9,7 @@ use std::{cell::RefCell, rc::Rc};
 /// A renderer is created for a Window and holds a reference to the window, which will keep
 /// the window alive as long as the renderer is alive
 pub struct Renderer {
+    weak_self: std::rc::Weak<Renderer>,
     pub(super) window: Rc<Window>,
     pub(super) default_shader: Rc<Shader>,
     pub(super) white_tex: Rc<Texture>,
@@ -33,13 +34,9 @@ pub(super) struct FrameRenderState {
 }
 
 impl Renderer {
-    pub fn new_shared(window: Rc<Window>) -> Result<Rc<Renderer>, RendererError> {
-        Ok(Self::new(window)?.into())
-    }
-
-    fn new(window: Rc<Window>) -> Result<Renderer, RendererError> {
+    pub fn new_shared(window: &Window) -> Result<Rc<Renderer>, RendererError> {
         let instance = wgpu::Instance::new(wgpu::BackendBit::PRIMARY);
-        let surface = unsafe { instance.create_surface(window.as_ref()) };
+        let surface = unsafe { instance.create_surface(window) };
 
         let adapter =
             futures::executor::block_on(instance.request_adapter(&wgpu::RequestAdapterOptions {
@@ -93,8 +90,11 @@ impl Renderer {
         let window_event_sub = EventSub::new();
         window.subscribe_to_events(&window_event_sub);
 
-        Ok(Self {
-            window: window.clone(),
+        let window_handle = window.clone_handle().ok_or(RendererError::Unknown)?;
+
+        Ok(std::rc::Rc::new_cyclic(|weak_self| Self {
+            weak_self: weak_self.clone(),
+            window: window_handle,
             surface: surface,
             device,
             queue,
@@ -108,7 +108,7 @@ impl Renderer {
             }),
             window_event_sub,
             stream_buffer: RefCell::new(StreamRenderBuffer::new()),
-        })
+        }))
     }
 
     pub fn set_transform(&self, transform: mint::ColumnMatrix4<f32>) -> Result<(), RendererError> {
@@ -300,5 +300,12 @@ impl Renderer {
         }
 
         Ok(())
+    }
+}
+
+impl CloneHandle for Renderer {
+    #[inline]
+    fn clone_weak_handle(&self) -> std::rc::Weak<Self> {
+        self.weak_self.clone()
     }
 }
