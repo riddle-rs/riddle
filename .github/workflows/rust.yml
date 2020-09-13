@@ -37,6 +37,8 @@ jobs:
       uses: actions-rs/toolchain@v1.0.6
       with:
           toolchain: nightly
+    - name: Use nightly toolchain
+      run: rustup default nightly
     - name: Build
       run: cargo build --verbose
     - name: Run tests
