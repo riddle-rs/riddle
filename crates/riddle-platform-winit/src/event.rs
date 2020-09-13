@@ -1,7 +1,5 @@
 use crate::*;
 
-use std::rc::Rc;
-
 #[derive(Debug)]
 pub(crate) enum InternalEvent {
     QuitRequested,
@@ -13,8 +11,8 @@ pub(crate) fn convert_winit_event(
 ) -> Option<PlatformEvent> {
     match event {
         winit::event::Event::WindowEvent { window_id, event } => {
-            let window = system.borrow_window_map().lookup_winit_window(window_id);
-            window.and_then(|window| convert_winit_window_event(window, event))
+            let window = system.with_window_map(|wmap| wmap.lookup_winit_window(window_id));
+            window.and_then(|window| convert_winit_window_event(&window, event))
         }
         winit::event::Event::MainEventsCleared => PlatformEvent::EventQueueEmpty.into(),
         _ => None,
@@ -22,7 +20,7 @@ pub(crate) fn convert_winit_event(
 }
 
 fn convert_winit_window_event(
-    window: Rc<Window>,
+    window: &Window,
     event: winit::event::WindowEvent,
 ) -> Option<PlatformEvent> {
     match event {
@@ -34,7 +32,7 @@ fn convert_winit_window_event(
         }
         winit::event::WindowEvent::CursorMoved { position, .. } => {
             Some(PlatformEvent::CursorMove {
-                window: window.clone().window_id(),
+                window: window.window_id(),
                 position: dimensions::logical_pos_from_winit(
                     position.to_logical(window.scale_factor()),
                 ),

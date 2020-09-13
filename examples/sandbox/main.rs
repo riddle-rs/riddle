@@ -11,7 +11,7 @@ use input::{KeyboardModifiers, MouseButton};
 use std::rc::Rc;
 
 struct DemoState {
-    window: Rc<platform::Window>,
+    window: platform::WindowHandle,
     state: RiddleState,
 
     renderer: Rc<renderer::Renderer>,
@@ -27,6 +27,15 @@ struct DemoState {
 impl DemoState {
     fn new(rdl: &RiddleApp) -> Result<Self, RiddleError> {
         let window = WindowBuilder::new().build(rdl.context())?;
+
+        {
+            let window = window.clone();
+            std::thread::spawn(move || loop {
+                println!("Window Size: {:?}", window.logical_size());
+                std::thread::sleep(std::time::Duration::from_secs(5));
+            });
+        }
+
         let renderer = renderer::Renderer::new_shared(&window)?;
 
         let img = {

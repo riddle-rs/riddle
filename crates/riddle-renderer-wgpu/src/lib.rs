@@ -15,6 +15,7 @@ pub use sprite::*;
 pub use sprite_atlas::*;
 pub use texture::*;
 
+use riddle_common::*;
 use shader::*;
 use stream_render_buffer::*;
 use vertex::*;

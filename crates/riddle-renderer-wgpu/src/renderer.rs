@@ -1,6 +1,6 @@
 use crate::{math::*, platform::*, *};
 
-use riddle_common::{clone_handle::CloneHandle, eventpub::EventSub, Color};
+use riddle_common::eventpub::EventSub;
 
 use std::{cell::RefCell, rc::Rc};
 
@@ -10,7 +10,7 @@ use std::{cell::RefCell, rc::Rc};
 /// the window alive as long as the renderer is alive
 pub struct Renderer {
     weak_self: std::rc::Weak<Renderer>,
-    pub(super) window: Rc<Window>,
+    pub(super) window: <Window as CloneHandle>::Handle,
     pub(super) default_shader: Rc<Shader>,
     pub(super) white_tex: Rc<Texture>,
     pub(super) frame_state: RefCell<Option<FrameRenderState>>,
@@ -267,7 +267,7 @@ impl Renderer {
         self.camera_size.borrow().clone()
     }
 
-    pub fn window(&self) -> Rc<Window> {
+    pub fn window(&self) -> <Window as CloneHandle>::Handle {
         self.window.clone()
     }
 
@@ -304,6 +304,14 @@ impl Renderer {
 }
 
 impl CloneHandle for Renderer {
+    type Handle = Rc<Self>;
+    type WeakHandle = std::rc::Weak<Self>;
+
+    #[inline]
+    fn clone_handle(&self) -> Option<Rc<Self>> {
+        std::rc::Weak::upgrade(&self.clone_weak_handle())
+    }
+
     #[inline]
     fn clone_weak_handle(&self) -> std::rc::Weak<Self> {
         self.weak_self.clone()

@@ -1,13 +1,12 @@
 use crate::*;
 
-use riddle_common::clone_handle::CloneHandle;
 use rodio::{decoder::Decoder, source::Source, Sink};
 use std::{io::Cursor, rc::Rc, time::Duration};
 
 const QUICK_FADE_DURATION_SECONDS: f32 = 0.2;
 
 pub struct ClipPlayer {
-    audio: Rc<AudioSystem>,
+    audio: <AudioSystem as CloneHandle>::Handle,
     clip: Clip,
     sink: Option<Rc<Sink>>,
 

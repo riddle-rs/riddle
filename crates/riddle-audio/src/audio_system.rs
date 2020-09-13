@@ -1,6 +1,5 @@
 use crate::*;
 
-use riddle_common::clone_handle::CloneHandle;
 use rodio::{Device, Sink};
 use std::{
     cell::RefCell,
@@ -134,6 +133,14 @@ impl Fade {
 }
 
 impl CloneHandle for AudioSystem {
+    type Handle = Rc<Self>;
+    type WeakHandle = Weak<Self>;
+
+    #[inline]
+    fn clone_handle(&self) -> Option<Rc<Self>> {
+        std::rc::Weak::upgrade(&self.clone_weak_handle())
+    }
+
     fn clone_weak_handle(&self) -> Weak<Self> {
         self.weak_self.clone()
     }

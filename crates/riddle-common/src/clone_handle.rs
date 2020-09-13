@@ -1,10 +1,7 @@
-use std::rc::{Rc, Weak};
-
 pub trait CloneHandle {
-    #[inline]
-    fn clone_handle(&self) -> Option<Rc<Self>> {
-        std::rc::Weak::upgrade(&self.clone_weak_handle())
-    }
+    type Handle;
+    type WeakHandle;
 
-    fn clone_weak_handle(&self) -> Weak<Self>;
+    fn clone_handle(&self) -> Option<Self::Handle>;
+    fn clone_weak_handle(&self) -> Self::WeakHandle;
 }

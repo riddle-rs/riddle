@@ -1,9 +1,6 @@
 use crate::*;
 
-use std::{
-    collections::HashMap,
-    rc::{Rc, Weak},
-};
+use std::{collections::HashMap, sync::Arc, sync::Weak};
 
 pub(crate) struct WindowMap {
     next_window_id: u32,
@@ -22,11 +19,11 @@ impl WindowMap {
         }
     }
 
-    pub fn register_window(&mut self, window: Rc<Window>) {
+    pub fn register_window(&mut self, window: Arc<Window>) {
         self.windows
-            .insert(window.window_id(), Rc::downgrade(&window));
+            .insert(window.window_id(), std::sync::Arc::downgrade(&window));
         self.winit_windows
-            .insert(window.winit_window_id(), Rc::downgrade(&window));
+            .insert(window.winit_window_id(), std::sync::Arc::downgrade(&window));
     }
 
     pub fn unregister_window(&mut self, window: &Window) {
@@ -34,16 +31,16 @@ impl WindowMap {
         self.winit_windows.remove(&window.winit_window_id());
     }
 
-    pub fn lookup_window(&self, window_id: WindowId) -> Option<Rc<Window>> {
+    pub fn lookup_window(&self, window_id: WindowId) -> Option<Arc<Window>> {
         self.windows
             .get(&window_id)
-            .and_then(|weak| Weak::upgrade(weak))
+            .and_then(|weak| std::sync::Weak::upgrade(weak))
     }
 
-    pub fn lookup_winit_window(&self, winit_id: winit::window::WindowId) -> Option<Rc<Window>> {
+    pub fn lookup_winit_window(&self, winit_id: winit::window::WindowId) -> Option<Arc<Window>> {
         self.winit_windows
             .get(&winit_id)
-            .and_then(|weak| Weak::upgrade(weak))
+            .and_then(|weak| std::sync::Weak::upgrade(weak))
     }
 
     pub fn take_next_window_id(&mut self) -> WindowId {
@@ -53,11 +50,11 @@ impl WindowMap {
         WindowId::new(id)
     }
 
-    pub fn windows(&self) -> Vec<Rc<Window>> {
+    pub fn windows(&self) -> Vec<Arc<Window>> {
         self.windows
             .values()
             .into_iter()
-            .filter_map(|w| Weak::upgrade(w))
+            .filter_map(|w| std::sync::Weak::upgrade(w))
             .collect()
     }
 }

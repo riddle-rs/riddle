@@ -2,58 +2,33 @@ use crate::*;
 
 pub struct RiddleApp {
     pub(crate) state: RiddleState,
+    main_thread_state: MainThreadState,
 }
 
 impl RiddleApp {
     pub fn new() -> Result<Self, RiddleError> {
+        let (state, main_thread_state) = RiddleState::new()?;
         Ok(Self {
-            state: RiddleState::new()?.into(),
+            state,
+            main_thread_state,
         })
     }
 
-    pub fn run<F>(self, mut update: F) -> !
+    pub fn run<F>(self, update: F) -> !
     where
         F: FnMut(&RiddleContext) -> () + 'static,
     {
-        let window_system = self.state.window.clone();
-        platform::PlatformSystem::run(window_system, move |platform_ctx| {
-            match platform_ctx.event() {
-                platform::PlatformEvent::EventQueueEmpty => {
-                    self.state.time.process_frame();
-
-                    #[cfg(feature = "riddle-audio")]
-                    self.state.audio.process_frame();
-                }
-                _ => (),
-            };
-
-            self.state.input.update();
-
-            let event = match platform_ctx.event() {
-                platform::PlatformEvent::EventQueueEmpty => Event::ProcessFrame,
-                _ => Event::Platform(platform_ctx.event().clone()),
-            };
-
-            let mut ctx = RiddleContext {
-                window_ctx: platform_ctx,
-                state: &self.state,
-                event,
-            };
-            update(&ctx);
-
-            let input_events = self.state.input.take_input_events();
-            for input_event in input_events {
-                ctx.event = Event::Input(input_event);
-                update(&ctx);
-            }
-        })
+        let RiddleApp {
+            state,
+            main_thread_state,
+        } = self;
+        main_thread_state.run(state, update);
     }
 
     pub fn context(&self) -> RiddleContext {
-        let state = &self.state;
-        let platform_ctx = platform::PlatformSystem::borrow_context(&self.state.window).unwrap();
+        let platform_ctx = self.main_thread_state.platform.borrow_context().unwrap();
         RiddleContext {
-            state,
+            state: &self.state,
             window_ctx: platform_ctx,
             event: Event::PreRunPlaceholder,
         }
