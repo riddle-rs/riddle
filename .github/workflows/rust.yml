@@ -37,7 +37,6 @@ jobs:
       uses: actions-rs/toolchain@v1.0.6
       with:
           toolchain: nightly
-          override: true
     - name: Build
       run: cargo build --verbose
     - name: Run tests
