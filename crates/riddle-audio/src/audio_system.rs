@@ -4,22 +4,24 @@ use rodio::{Device, Sink};
 use std::{
     cell::RefCell,
     collections::HashMap,
-    rc::{Rc, Weak},
+    rc::Rc,
     time::{Duration, Instant},
 };
 
 pub struct AudioSystem {
-    weak_self: Weak<AudioSystem>,
+    weak_self: AudioSystemWeak,
     pub(super) device: Device,
 
     fades: RefCell<std::collections::HashMap<FadeKey, Fade>>,
 }
 
+define_handles!(<AudioSystem>::weak_self, pub AudioSystemHandle, pub AudioSystemWeak);
+
 impl AudioSystem {
-    pub fn new() -> Result<Rc<AudioSystem>, AudioError> {
+    pub fn new() -> Result<AudioSystemHandle, AudioError> {
         let device = rodio::default_output_device().ok_or(AudioError::UnknownError)?;
-        Ok(Rc::new_cyclic(|weak_self| AudioSystem {
-            weak_self: weak_self.clone(),
+        Ok(AudioSystemHandle::new(|weak_self| AudioSystem {
+            weak_self,
             device,
             fades: RefCell::new(HashMap::new()),
         }))
@@ -129,19 +131,5 @@ impl Fade {
         FadeKey {
             sink: self.sink.clone(),
         }
-    }
-}
-
-impl CloneHandle for AudioSystem {
-    type Handle = Rc<Self>;
-    type WeakHandle = Weak<Self>;
-
-    #[inline]
-    fn clone_handle(&self) -> Option<Rc<Self>> {
-        std::rc::Weak::upgrade(&self.clone_weak_handle())
-    }
-
-    fn clone_weak_handle(&self) -> Weak<Self> {
-        self.weak_self.clone()
     }
 }

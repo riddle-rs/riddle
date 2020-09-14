@@ -1,17 +1,15 @@
 use crate::{math::*, *};
 
-use riddle_macros::CloneHandle;
-
 use wgpu::util::DeviceExt;
 use wgpu::{CommandEncoder, RenderPass, TextureView};
 
-#[derive(CloneHandle)]
 pub(super) struct Shader {
-    #[self_handle]
-    weak_self: <Self as CloneHandle>::WeakHandle,
+    weak_self: ShaderWeak,
     pub bind_group_layout: wgpu::BindGroupLayout,
     pipeline: wgpu::RenderPipeline,
 }
+
+define_handles!(<Shader>::weak_self, pub(super) ShaderHandle, pub(super) ShaderWeak);
 
 impl Shader {
     pub(crate) fn from_readers<VR, FR>(
@@ -137,8 +135,8 @@ impl Shader {
             alpha_to_coverage_enabled: false,
         });
 
-        Ok(std::sync::Arc::new_cyclic(|weak_self| Shader {
-            weak_self: weak_self.clone(),
+        Ok(ShaderHandle::new(|weak_self| Shader {
+            weak_self,
             bind_group_layout,
             pipeline: render_pipeline,
         }))

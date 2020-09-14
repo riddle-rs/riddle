@@ -1,6 +1,6 @@
 use crate::*;
 
-use std::{borrow::Borrow, rc::Rc};
+use std::borrow::Borrow;
 
 /// An riddle execution context. A context is always associated with the event that caused
 /// the context to be created.
@@ -33,8 +33,8 @@ impl<'a> RiddleContext<'a> {
     }
 
     #[cfg(feature = "riddle-audio")]
-    pub fn audio(&self) -> Rc<audio::AudioSystem> {
-        self.state.audio.clone()
+    pub fn audio(&self) -> &audio::AudioSystem {
+        &self.state.audio
     }
 
     pub fn input(&self) -> &input::InputSystem {
@@ -43,13 +43,6 @@ impl<'a> RiddleContext<'a> {
 
     pub fn time(&self) -> &time::TimeSystem {
         &self.state.time
-    }
-}
-
-#[cfg(feature = "riddle-audio")]
-impl<'a> Borrow<Rc<audio::AudioSystem>> for RiddleContext<'a> {
-    fn borrow(&self) -> &Rc<audio::AudioSystem> {
-        &self.state.audio
     }
 }
 

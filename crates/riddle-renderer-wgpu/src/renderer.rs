@@ -1,16 +1,13 @@
 use crate::{math::*, platform::*, *};
 
-use riddle_common::eventpub::EventSub;
-use riddle_macros::CloneHandle;
+use riddle_common::{define_handles, eventpub::EventSub};
 
 /// A simple 2D sprite based renderer.
 ///
 /// A renderer is created for a Window and holds a reference to the window, which will keep
 /// the window alive as long as the renderer is alive
-#[derive(CloneHandle)]
 pub struct Renderer {
-    #[self_handle]
-    weak_self: <Renderer as CloneHandle>::WeakHandle,
+    weak_self: RendererWeak,
 
     pub(super) window: <Window as CloneHandle>::Handle,
     pub(super) default_shader: <Shader as CloneHandle>::Handle,
@@ -24,6 +21,8 @@ pub struct Renderer {
 
     window_event_sub: EventSub<PlatformEvent>,
 }
+
+define_handles!(<Renderer>::weak_self, pub RendererHandle, pub RendererWeak);
 
 impl Renderer {
     pub fn new_shared(window: &Window) -> Result<<Renderer as CloneHandle>::Handle, RendererError> {
@@ -84,8 +83,8 @@ impl Renderer {
 
         let window_handle = window.clone_handle().ok_or(RendererError::Unknown)?;
 
-        Ok(std::sync::Arc::new_cyclic(|weak_self| Self {
-            weak_self: weak_self.clone(),
+        Ok(RendererHandle::new(|weak_self| Self {
+            weak_self,
             window: window_handle,
             surface: surface,
             device,

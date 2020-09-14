@@ -110,7 +110,7 @@ impl DemoState {
 }
 
 struct RendererState {
-    renderer: std::sync::Arc<renderer::Renderer>,
+    renderer: renderer::RendererHandle,
     sprite: renderer::Sprite,
     subsprite: renderer::Sprite,
     label_sprite: renderer::Sprite,

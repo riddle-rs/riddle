@@ -1,31 +1,28 @@
 use crate::*;
 
 use riddle_common::eventpub::*;
-use riddle_macros::CloneHandle;
 
 use raw_window_handle::{HasRawWindowHandle, RawWindowHandle};
 use riddle_platform_common::traits::WindowExt;
 use std::borrow::Borrow;
 
-#[derive(CloneHandle)]
 pub struct Window {
-    #[self_handle]
-    weak_self: <Window as CloneHandle>::WeakHandle,
-    window_system: <PlatformSystem as CloneHandle>::Handle,
+    weak_self: WindowWeak,
+    window_system: PlatformSystemHandle,
     winit_window: winit::window::Window,
     event_sub: EventSub<PlatformEvent>,
     event_pub: EventPub<PlatformEvent>,
 
     id: WindowId,
 }
-pub type WindowHandle = <Window as CloneHandle>::Handle;
-pub type WindowWeakHandle = <Window as CloneHandle>::WeakHandle;
+
+define_handles!(<Window>::weak_self, pub WindowHandle, pub WindowWeak);
 
 impl Window {
     fn new_shared(
         ctx: &PlatformContext,
         args: &WindowBuilder,
-    ) -> Result<std::sync::Arc<Self>, WindowError> {
+    ) -> Result<WindowHandle, WindowError> {
         let system = ctx.system().clone_handle().unwrap();
 
         #[cfg(target_os = "windows")]
@@ -58,8 +55,8 @@ impl Window {
         let event_sub = EventSub::new_with_filter(Self::event_filter);
         ctx.system().event_pub().attach(&event_sub);
 
-        let window = std::sync::Arc::new_cyclic(|weak_self| Self {
-            weak_self: weak_self.clone(),
+        let window = WindowHandle::new(|weak_self| Self {
+            weak_self,
             window_system: system.clone(),
             winit_window: winit_window,
             event_sub,

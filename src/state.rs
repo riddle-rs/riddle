@@ -1,8 +1,8 @@
 #[cfg(feature = "riddle-audio")]
-use crate::audio::AudioSystem;
+use crate::audio::{AudioSystem, AudioSystemHandle};
 use crate::{
     input::InputSystem,
-    platform::{PlatformMainThreadState, PlatformSystem},
+    platform::{PlatformMainThreadState, PlatformSystem, PlatformSystemHandle},
     time::TimeSystem,
     *,
 };
@@ -11,12 +11,12 @@ use std::rc::Rc;
 
 #[derive(Clone)]
 pub struct RiddleState {
-    pub window: std::sync::Arc<PlatformSystem>,
+    pub platform: PlatformSystemHandle,
     pub input: Rc<InputSystem>,
     pub time: Rc<TimeSystem>,
 
     #[cfg(feature = "riddle-audio")]
-    pub audio: Rc<AudioSystem>,
+    pub audio: AudioSystemHandle,
 }
 
 impl RiddleState {
@@ -29,12 +29,12 @@ impl RiddleState {
         let audio = AudioSystem::new()?;
 
         let riddle_state = RiddleState {
-            window: platform_system.into(),
+            platform: platform_system,
             input: input.into(),
             time: time.into(),
 
             #[cfg(feature = "riddle-audio")]
-            audio: audio.into(),
+            audio: audio,
         };
 
         let main_thread_state = MainThreadState {
@@ -44,8 +44,8 @@ impl RiddleState {
         Ok((riddle_state, main_thread_state))
     }
 
-    pub fn window(&self) -> &PlatformSystem {
-        &self.window
+    pub fn platform(&self) -> &PlatformSystem {
+        &self.platform
     }
 
     pub fn input(&self) -> Rc<InputSystem> {
@@ -56,8 +56,8 @@ impl RiddleState {
         self.time.clone()
     }
 
-    pub fn audio(&self) -> Rc<AudioSystem> {
-        self.audio.clone()
+    pub fn audio(&self) -> &AudioSystem {
+        &self.audio
     }
 }
 

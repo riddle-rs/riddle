@@ -7,7 +7,7 @@ use riddle_common::Color;
 ///
 /// Sprites store a reference to the Renderer that constructed it.
 pub struct Sprite {
-    renderer: <Renderer as CloneHandle>::Handle,
+    renderer: RendererHandle,
     texture: <Texture as CloneHandle>::Handle,
     source_rect: Rect<f32>,
 }

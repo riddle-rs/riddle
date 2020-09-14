@@ -1,16 +1,15 @@
 use crate::*;
 
-use riddle_macros::CloneHandle;
 use riddle_math::Vector2;
 
-#[derive(CloneHandle)]
 pub(super) struct Texture {
-    #[self_handle]
-    weak_self: <Self as CloneHandle>::WeakHandle,
+    weak_self: TextureWeak,
     pub(crate) texture: wgpu::Texture,
     pub(crate) sampler: wgpu::Sampler,
     pub dimensions: Vector2<u32>,
 }
+
+define_handles!(<Texture>::weak_self, pub(crate) TextureHandle, pub(crate) TextureWeak);
 
 impl Texture {
     pub fn from_image(
@@ -19,7 +18,7 @@ impl Texture {
         image: image::Image,
         mag_filter: FilterMode,
         min_filter: FilterMode,
-    ) -> Result<<Self as CloneHandle>::Handle, RendererError> {
+    ) -> Result<TextureHandle, RendererError> {
         let texture_extent = wgpu::Extent3d {
             width: image.width(),
             height: image.height(),
@@ -61,8 +60,8 @@ impl Texture {
             ..Default::default()
         });
 
-        Ok(std::sync::Arc::new_cyclic(|weak_self| Texture {
-            weak_self: weak_self.clone(),
+        Ok(TextureHandle::new(|weak_self| Texture {
+            weak_self,
             texture,
             sampler,
             dimensions: image.dimensions(),

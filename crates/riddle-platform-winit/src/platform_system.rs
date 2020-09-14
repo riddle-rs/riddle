@@ -1,14 +1,11 @@
 use crate::{event::InternalEvent, *};
 
 use riddle_common::eventpub::EventPub;
-use riddle_macros::CloneHandle;
 
 use std::cell::RefCell;
 
-#[derive(CloneHandle)]
 pub struct PlatformSystem {
-    #[self_handle]
-    weak_self: <PlatformSystem as CloneHandle>::WeakHandle,
+    weak_self: PlatformSystemWeak,
     pub(crate) event_proxy: std::sync::Mutex<winit::event_loop::EventLoopProxy<InternalEvent>>,
 
     window_map: std::sync::Mutex<WindowMap>,
@@ -16,12 +13,14 @@ pub struct PlatformSystem {
     event_pub: EventPub<PlatformEvent>,
 }
 
+define_handles!(<PlatformSystem>::weak_self, pub PlatformSystemHandle, pub PlatformSystemWeak);
+
 impl PlatformSystem {
-    pub fn new() -> (std::sync::Arc<PlatformSystem>, PlatformMainThreadState) {
+    pub fn new() -> (PlatformSystemHandle, PlatformMainThreadState) {
         let event_loop = winit::event_loop::EventLoop::with_user_event();
         let event_proxy = event_loop.create_proxy();
-        let system = std::sync::Arc::new_cyclic(|weak_self| PlatformSystem {
-            weak_self: weak_self.clone(),
+        let system = PlatformSystemHandle::new(|weak_self| PlatformSystem {
+            weak_self,
             event_proxy: std::sync::Mutex::new(event_proxy),
 
             window_map: WindowMap::new().into(),
@@ -49,7 +48,7 @@ impl PlatformSystem {
         f(&mut self.window_map.lock().unwrap())
     }
 
-    pub fn lookup_window(&self, window_id: WindowId) -> Option<<Window as CloneHandle>::Handle> {
+    pub fn lookup_window(&self, window_id: WindowId) -> Option<WindowHandle> {
         self.window_map.lock().unwrap().lookup_window(window_id)
     }
 

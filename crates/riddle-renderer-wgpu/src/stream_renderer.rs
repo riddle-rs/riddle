@@ -5,14 +5,14 @@ use wgpu::util::DeviceExt;
 
 #[derive(Clone)]
 pub(crate) struct StreamRenderArgs {
-    pub texture: <Texture as CloneHandle>::Handle,
-    pub shader: <Shader as CloneHandle>::Handle,
+    pub texture: TextureHandle,
+    pub shader: ShaderHandle,
 }
 
 impl PartialEq for StreamRenderArgs {
     fn eq(&self, other: &Self) -> bool {
-        std::sync::Arc::ptr_eq(&self.texture, &other.texture)
-            && std::sync::Arc::ptr_eq(&self.shader, &other.shader)
+        TextureHandle::eq(&self.texture, &other.texture)
+            && ShaderHandle::eq(&self.shader, &other.shader)
     }
 }
 
