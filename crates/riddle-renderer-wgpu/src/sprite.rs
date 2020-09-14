@@ -1,15 +1,14 @@
 use crate::{math::*, *};
 
 use riddle_common::Color;
-use std::rc::Rc;
 
 /// A sprite represents an image texture, along with an axis aligned rect to select which
 /// part of the texture the sprite represents.
 ///
 /// Sprites store a reference to the Renderer that constructed it.
 pub struct Sprite {
-    renderer: Rc<Renderer>,
-    texture: Rc<Texture>,
+    renderer: <Renderer as CloneHandle>::Handle,
+    texture: <Texture as CloneHandle>::Handle,
     source_rect: Rect<f32>,
 }
 
@@ -29,12 +28,12 @@ impl Sprite {
             mag_filter,
             min_filter,
         )?;
-        Self::from_texture(renderer, texture.into())
+        Self::from_texture(renderer, &texture)
     }
 
     pub(super) fn from_texture(
         renderer: &Renderer,
-        texture: Rc<Texture>,
+        texture: &Texture,
     ) -> Result<Sprite, RendererError> {
         let dimensions = texture.dimensions.convert();
         Self::from_texture_with_bounds(
@@ -49,12 +48,12 @@ impl Sprite {
 
     pub(super) fn from_texture_with_bounds(
         renderer: &Renderer,
-        texture: Rc<Texture>,
+        texture: &Texture,
         source_rect: Rect<f32>,
     ) -> Result<Sprite, RendererError> {
         Ok(Sprite {
             renderer: renderer.clone_handle().ok_or(RendererError::Unknown)?,
-            texture: texture,
+            texture: texture.clone_handle().unwrap(),
             source_rect,
         })
     }
@@ -73,7 +72,11 @@ impl Sprite {
         }
     }
 
-    pub fn render(&self, args: &SpriteRenderCommand) -> Result<(), RendererError> {
+    pub fn render(
+        &self,
+        frame: &mut FrameRenderer,
+        args: &SpriteRenderCommand,
+    ) -> Result<(), RendererError> {
         let rot: glam::Mat2 = glam::Mat2::from_angle((args.angle / 180.0) * std::f32::consts::PI);
         let Vector2 {
             x: tex_width,
@@ -120,8 +123,7 @@ impl Sprite {
 
         let index_data: &[u16] = &[1, 2, 0, 2, 0, 3];
 
-        self.renderer.stream_buffer.borrow_mut().stream_render(
-            &self.renderer,
+        frame.render(
             &StreamRenderArgs {
                 texture: self.texture.clone(),
                 shader: self.renderer.default_shader.clone(),
@@ -131,11 +133,18 @@ impl Sprite {
         )
     }
 
-    pub fn render_at<P: Into<Vector2<f32>>>(&self, location: P) -> Result<(), RendererError> {
-        self.render(&SpriteRenderCommand {
-            location: location.into(),
-            ..Default::default()
-        })
+    pub fn render_at<P: Into<Vector2<f32>>>(
+        &self,
+        frame: &mut FrameRenderer,
+        location: P,
+    ) -> Result<(), RendererError> {
+        self.render(
+            frame,
+            &SpriteRenderCommand {
+                location: location.into(),
+                ..Default::default()
+            },
+        )
     }
 
     pub fn dimensions(&self) -> Vector2<f32> {
@@ -192,8 +201,8 @@ impl SpriteRenderCommand {
         self
     }
 
-    pub fn render(&self, sprite: &Sprite) -> Result<(), RendererError> {
-        sprite.render(self)
+    pub fn render(&self, frame: &mut FrameRenderer, sprite: &Sprite) -> Result<(), RendererError> {
+        sprite.render(frame, self)
     }
 }
 

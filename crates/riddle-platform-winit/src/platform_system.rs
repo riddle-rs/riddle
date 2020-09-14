@@ -1,10 +1,13 @@
 use crate::{event::InternalEvent, *};
 
 use riddle_common::eventpub::EventPub;
+use riddle_macros::CloneHandle;
 
 use std::cell::RefCell;
 
+#[derive(CloneHandle)]
 pub struct PlatformSystem {
+    #[self_handle]
     weak_self: <PlatformSystem as CloneHandle>::WeakHandle,
     pub(crate) event_proxy: std::sync::Mutex<winit::event_loop::EventLoopProxy<InternalEvent>>,
 
@@ -61,20 +64,6 @@ impl PlatformSystem {
 impl riddle_platform_common::traits::WindowSystem for PlatformSystem {
     fn event_pub(&self) -> &EventPub<riddle_platform_common::PlatformEvent> {
         &self.event_pub
-    }
-}
-
-impl CloneHandle for PlatformSystem {
-    type Handle = std::sync::Arc<Self>;
-    type WeakHandle = std::sync::Weak<Self>;
-
-    #[inline]
-    fn clone_handle(&self) -> Option<Self::Handle> {
-        std::sync::Weak::upgrade(&self.clone_weak_handle())
-    }
-
-    fn clone_weak_handle(&self) -> Self::WeakHandle {
-        self.weak_self.clone()
     }
 }
 

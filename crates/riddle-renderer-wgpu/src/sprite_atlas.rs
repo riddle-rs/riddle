@@ -63,7 +63,7 @@ impl<'a> SpriteAtlasBuilder<'a> {
         for (bounds, sprite) in sprite_bounds {
             *sprite = Some(Sprite::from_texture_with_bounds(
                 renderer,
-                texture.clone(),
+                &texture,
                 bounds.convert(),
             )?);
         }

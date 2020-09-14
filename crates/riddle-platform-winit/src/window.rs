@@ -1,12 +1,15 @@
 use crate::*;
 
 use riddle_common::eventpub::*;
+use riddle_macros::CloneHandle;
 
 use raw_window_handle::{HasRawWindowHandle, RawWindowHandle};
 use riddle_platform_common::traits::WindowExt;
 use std::borrow::Borrow;
 
+#[derive(CloneHandle)]
 pub struct Window {
+    #[self_handle]
     weak_self: <Window as CloneHandle>::WeakHandle,
     window_system: <PlatformSystem as CloneHandle>::Handle,
     winit_window: winit::window::Window,
@@ -145,7 +148,7 @@ unsafe impl HasRawWindowHandle for Window {
     }
 }
 
-impl CloneHandle for Window {
+/*impl CloneHandle for Window {
     type Handle = std::sync::Arc<Self>;
     type WeakHandle = std::sync::Weak<Self>;
 
@@ -158,7 +161,7 @@ impl CloneHandle for Window {
     fn clone_weak_handle(&self) -> std::sync::Weak<Self> {
         self.weak_self.clone()
     }
-}
+}*/
 
 pub struct WindowBuilder {
     width: u32,
