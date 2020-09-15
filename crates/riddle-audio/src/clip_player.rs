@@ -1,14 +1,14 @@
 use crate::*;
 
 use rodio::{decoder::Decoder, source::Source, Sink};
-use std::{io::Cursor, rc::Rc, time::Duration};
+use std::{io::Cursor, time::Duration};
 
 const QUICK_FADE_DURATION_SECONDS: f32 = 0.2;
 
 pub struct ClipPlayer {
     audio: <AudioSystem as CloneHandle>::Handle,
     clip: Clip,
-    sink: Option<Rc<Sink>>,
+    sink: Option<std::sync::Arc<Sink>>,
 
     volume: f32,
 }
@@ -24,7 +24,7 @@ impl ClipPlayer {
     }
 
     fn play(&mut self, mode: PlayMode) -> Result<(), AudioError> {
-        let sink: Rc<Sink> = Sink::new(&self.audio.device).into();
+        let sink: std::sync::Arc<Sink> = Sink::new(&self.audio.device).into();
         sink.set_volume(self.volume);
         let source = Decoder::new(Cursor::new(self.clip.data.clone()))
             .map_err(|_| AudioError::UnknownError)?;

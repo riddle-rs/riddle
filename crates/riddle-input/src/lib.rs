@@ -1,9 +1,14 @@
+#![feature(arc_new_cyclic)]
+
 mod error;
 mod event;
 mod gamepad;
+mod gamepad_state;
 mod input_system;
 mod keyboard_state;
 mod mouse_state;
+
+use gamepad_state::*;
 
 pub use error::*;
 pub use event::*;

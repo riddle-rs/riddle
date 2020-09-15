@@ -1,3 +1,5 @@
+#![feature(arc_new_cyclic)]
+
 mod time_system;
 mod timer;
 

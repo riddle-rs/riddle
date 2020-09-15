@@ -1,54 +1,51 @@
-use std::{
-    cell::RefCell,
-    rc::{Rc, Weak},
-};
+use std::sync::Mutex;
 
 pub(crate) struct TimerSet {
-    active_timers: RefCell<Vec<Timer>>,
+    active_timers: Mutex<Vec<Timer>>,
 }
 
 impl TimerSet {
     pub fn new() -> Self {
         Self {
-            active_timers: RefCell::new(vec![]),
+            active_timers: std::sync::Mutex::new(vec![]),
         }
     }
 
     pub fn update(&self, dt: std::time::Duration) {
-        let mut timers = std::mem::take(&mut *self.active_timers.borrow_mut());
+        let mut timers = std::mem::take(&mut *self.active_timers.lock().unwrap());
         for timer in timers.iter_mut() {
             timer.update(dt);
         }
         timers.retain(|t| t.pending());
-        self.active_timers.borrow_mut().append(&mut timers);
+        self.active_timers.lock().unwrap().append(&mut timers);
     }
 
     pub fn register_timer(
         &self,
         duration: std::time::Duration,
-        callback: Box<dyn FnOnce()>,
+        callback: Box<dyn FnOnce() + Send>,
     ) -> TimerHandle {
         let timer = Timer::new(duration, callback);
         let handle = TimerHandle {
-            shared_state: Rc::downgrade(&timer.shared_state),
+            shared_state: std::sync::Arc::downgrade(&timer.shared_state),
         };
-        self.active_timers.borrow_mut().push(timer);
+        self.active_timers.lock().unwrap().push(timer);
         handle
     }
 }
 
 struct Timer {
     time_remaining: std::time::Duration,
-    callback: Option<Box<dyn FnOnce()>>,
-    shared_state: Rc<SharedTimerState>,
+    callback: Option<Box<dyn FnOnce() + Send>>,
+    shared_state: std::sync::Arc<SharedTimerState>,
 }
 
 impl Timer {
-    pub fn new(duration: std::time::Duration, callback: Box<dyn FnOnce()>) -> Self {
+    pub fn new(duration: std::time::Duration, callback: Box<dyn FnOnce() + Send>) -> Self {
         Self {
             time_remaining: duration,
             callback: Some(callback),
-            shared_state: Rc::new(SharedTimerState::default()),
+            shared_state: std::sync::Arc::new(SharedTimerState::default()),
         }
     }
 
@@ -74,48 +71,48 @@ impl Timer {
             callback();
         }
         self.time_remaining = std::time::Duration::default();
-        *self.shared_state.pending.borrow_mut() = false;
+        *self.shared_state.pending.lock().unwrap() = false;
     }
 }
 
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug)]
 struct SharedTimerState {
-    pending: RefCell<bool>,
-    cancelled: RefCell<bool>,
+    pending: std::sync::Mutex<bool>,
+    cancelled: std::sync::Mutex<bool>,
 }
 
 impl SharedTimerState {
     fn cancelled(&self) -> bool {
-        *self.cancelled.borrow()
+        *self.cancelled.lock().unwrap()
     }
 
     fn pending(&self) -> bool {
-        *self.pending.borrow()
+        *self.pending.lock().unwrap()
     }
 }
 
 impl Default for SharedTimerState {
     fn default() -> Self {
         Self {
-            pending: RefCell::new(true),
-            cancelled: RefCell::new(false),
+            pending: std::sync::Mutex::new(true),
+            cancelled: std::sync::Mutex::new(false),
         }
     }
 }
 
 pub struct TimerHandle {
-    shared_state: Weak<SharedTimerState>,
+    shared_state: std::sync::Weak<SharedTimerState>,
 }
 
 impl TimerHandle {
     pub fn cancel(&self) {
-        if let Some(state) = Weak::upgrade(&self.shared_state) {
-            *state.cancelled.borrow_mut() = true;
+        if let Some(state) = std::sync::Weak::upgrade(&self.shared_state) {
+            *state.cancelled.lock().unwrap() = true;
         }
     }
 
     pub fn pending(&self) -> bool {
-        match Weak::upgrade(&self.shared_state) {
+        match std::sync::Weak::upgrade(&self.shared_state) {
             Some(state) => state.pending(),
             _ => false,
         }

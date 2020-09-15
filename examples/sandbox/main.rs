@@ -23,14 +23,6 @@ impl DemoState {
     fn new(rdl: &RiddleApp) -> Result<Self, RiddleError> {
         let window = WindowBuilder::new().build(rdl.context())?;
 
-        {
-            let window = window.clone();
-            std::thread::spawn(move || loop {
-                println!("Window Size: {:?}", window.logical_size());
-                std::thread::sleep(std::time::Duration::from_secs(5));
-            });
-        }
-
         let renderer = renderer::Renderer::new_shared(&window)?;
 
         let img = {
@@ -85,6 +77,25 @@ impl DemoState {
             label_sprite,
             mouse_location: mouse_location.clone(),
         };
+
+        {
+            let window = window.clone();
+            std::thread::spawn(move || loop {
+                println!("Window Size: {:?}", window.logical_size());
+                std::thread::sleep(std::time::Duration::from_secs(5));
+            });
+        }
+
+        {
+            let rdlstate = rdl.state().clone();
+            let clip = clip.clone();
+            std::thread::spawn(move || loop {
+                let _player = audio::ClipPlayerBuilder::new()
+                    .play(&rdlstate.audio(), clip.clone())
+                    .unwrap();
+                std::thread::sleep(std::time::Duration::from_secs(10));
+            });
+        }
 
         std::thread::spawn(move || renderer_state.run());
 
