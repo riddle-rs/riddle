@@ -1,4 +1,7 @@
-use std::sync::Mutex;
+use std::sync::{
+    atomic::{AtomicBool, Ordering},
+    Arc, Mutex, Weak,
+};
 
 pub(crate) struct TimerSet {
     active_timers: Mutex<Vec<Timer>>,
@@ -7,7 +10,7 @@ pub(crate) struct TimerSet {
 impl TimerSet {
     pub fn new() -> Self {
         Self {
-            active_timers: std::sync::Mutex::new(vec![]),
+            active_timers: Mutex::new(vec![]),
         }
     }
 
@@ -27,7 +30,7 @@ impl TimerSet {
     ) -> TimerHandle {
         let timer = Timer::new(duration, callback);
         let handle = TimerHandle {
-            shared_state: std::sync::Arc::downgrade(&timer.shared_state),
+            shared_state: Arc::downgrade(&timer.shared_state),
         };
         self.active_timers.lock().unwrap().push(timer);
         handle
@@ -37,7 +40,7 @@ impl TimerSet {
 struct Timer {
     time_remaining: std::time::Duration,
     callback: Option<Box<dyn FnOnce() + Send>>,
-    shared_state: std::sync::Arc<SharedTimerState>,
+    shared_state: Arc<SharedTimerState>,
 }
 
 impl Timer {
@@ -45,7 +48,7 @@ impl Timer {
         Self {
             time_remaining: duration,
             callback: Some(callback),
-            shared_state: std::sync::Arc::new(SharedTimerState::default()),
+            shared_state: Arc::new(SharedTimerState::default()),
         }
     }
 
@@ -71,48 +74,48 @@ impl Timer {
             callback();
         }
         self.time_remaining = std::time::Duration::default();
-        *self.shared_state.pending.lock().unwrap() = false;
+        self.shared_state.pending.store(false, Ordering::Relaxed);
     }
 }
 
 #[derive(Debug)]
 struct SharedTimerState {
-    pending: std::sync::Mutex<bool>,
-    cancelled: std::sync::Mutex<bool>,
+    pending: AtomicBool,
+    cancelled: AtomicBool,
 }
 
 impl SharedTimerState {
     fn cancelled(&self) -> bool {
-        *self.cancelled.lock().unwrap()
+        self.cancelled.load(Ordering::Relaxed)
     }
 
     fn pending(&self) -> bool {
-        *self.pending.lock().unwrap()
+        self.pending.load(Ordering::Relaxed)
     }
 }
 
 impl Default for SharedTimerState {
     fn default() -> Self {
         Self {
-            pending: std::sync::Mutex::new(true),
-            cancelled: std::sync::Mutex::new(false),
+            pending: AtomicBool::new(true),
+            cancelled: AtomicBool::new(false),
         }
     }
 }
 
 pub struct TimerHandle {
-    shared_state: std::sync::Weak<SharedTimerState>,
+    shared_state: Weak<SharedTimerState>,
 }
 
 impl TimerHandle {
     pub fn cancel(&self) {
-        if let Some(state) = std::sync::Weak::upgrade(&self.shared_state) {
-            *state.cancelled.lock().unwrap() = true;
+        if let Some(state) = Weak::upgrade(&self.shared_state) {
+            state.cancelled.store(true, Ordering::Relaxed);
         }
     }
 
     pub fn pending(&self) -> bool {
-        match std::sync::Weak::upgrade(&self.shared_state) {
+        match Weak::upgrade(&self.shared_state) {
             Some(state) => state.pending(),
             _ => false,
         }

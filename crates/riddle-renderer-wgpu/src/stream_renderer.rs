@@ -19,7 +19,7 @@ impl PartialEq for StreamRenderArgs {
 impl Eq for StreamRenderArgs {}
 
 pub(crate) struct StreamRenderer {
-    renderer: <Renderer as CloneHandle>::Handle,
+    renderer: RendererHandle,
     current_args: Option<StreamRenderArgs>,
 
     verts: Vec<Vertex>,

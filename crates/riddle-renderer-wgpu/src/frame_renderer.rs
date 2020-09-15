@@ -3,7 +3,7 @@ use math::Rect;
 use crate::*;
 
 pub struct FrameRenderer {
-    renderer: <Renderer as CloneHandle>::Handle,
+    renderer: RendererHandle,
 
     pub(crate) stream_renderer: StreamRenderer,
 }

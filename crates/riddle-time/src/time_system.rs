@@ -1,10 +1,12 @@
+use crate::*;
+
 use riddle_common::define_handles;
 
-use crate::*;
+use std::sync::Mutex;
 
 pub struct TimeSystem {
     weak_self: TimeSystemWeak,
-    frame_time: std::sync::Mutex<FrameTime>,
+    frame_time: Mutex<FrameTime>,
     timers: TimerSet,
 }
 
@@ -14,7 +16,7 @@ impl TimeSystem {
     pub fn new() -> TimeSystemHandle {
         TimeSystemHandle::new(|weak_self| Self {
             weak_self,
-            frame_time: std::sync::Mutex::new(FrameTime::new()),
+            frame_time: Mutex::new(FrameTime::new()),
             timers: TimerSet::new(),
         })
     }

@@ -8,11 +8,12 @@ use riddle::{
 };
 
 use input::{KeyboardModifiers, MouseButton};
+use std::sync::{Arc, Mutex};
 
 struct DemoState {
     state: RiddleState,
 
-    mouse_location: std::sync::Arc<std::sync::Mutex<input::LogicalPosition>>,
+    mouse_location: Arc<Mutex<input::LogicalPosition>>,
 
     clip: audio::Clip,
     music_player: audio::ClipPlayer,
@@ -67,8 +68,7 @@ impl DemoState {
             .with_mode(audio::PlayMode::Loop)
             .play(&rdl.state().audio(), music)?;
 
-        let mouse_location =
-            std::sync::Arc::new(std::sync::Mutex::new(input::LogicalPosition::default()));
+        let mouse_location = Arc::new(Mutex::new(input::LogicalPosition::default()));
 
         let renderer_state = RendererState {
             renderer: renderer.clone(),
@@ -126,7 +126,7 @@ struct RendererState {
     subsprite: renderer::Sprite,
     label_sprite: renderer::Sprite,
 
-    mouse_location: std::sync::Arc<std::sync::Mutex<input::LogicalPosition>>,
+    mouse_location: Arc<Mutex<input::LogicalPosition>>,
 }
 
 impl RendererState {

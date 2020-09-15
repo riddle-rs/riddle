@@ -2,13 +2,13 @@ use crate::{event::InternalEvent, *};
 
 use riddle_common::eventpub::EventPub;
 
-use std::cell::RefCell;
+use std::{cell::RefCell, sync::Mutex};
 
 pub struct PlatformSystem {
     weak_self: PlatformSystemWeak,
-    pub(crate) event_proxy: std::sync::Mutex<winit::event_loop::EventLoopProxy<InternalEvent>>,
+    pub(crate) event_proxy: Mutex<winit::event_loop::EventLoopProxy<InternalEvent>>,
 
-    window_map: std::sync::Mutex<WindowMap>,
+    window_map: Mutex<WindowMap>,
 
     event_pub: EventPub<PlatformEvent>,
 }
@@ -21,7 +21,7 @@ impl PlatformSystem {
         let event_proxy = event_loop.create_proxy();
         let system = PlatformSystemHandle::new(|weak_self| PlatformSystem {
             weak_self,
-            event_proxy: std::sync::Mutex::new(event_proxy),
+            event_proxy: Mutex::new(event_proxy),
 
             window_map: WindowMap::new().into(),
 
@@ -67,7 +67,7 @@ impl riddle_platform_common::traits::WindowSystem for PlatformSystem {
 }
 
 pub struct PlatformMainThreadState {
-    pub(crate) system: <PlatformSystem as CloneHandle>::Handle,
+    pub(crate) system: PlatformSystemHandle,
     pub(crate) event_loop: RefCell<Option<winit::event_loop::EventLoop<InternalEvent>>>,
 }
 

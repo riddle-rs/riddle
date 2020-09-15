@@ -145,21 +145,6 @@ unsafe impl HasRawWindowHandle for Window {
     }
 }
 
-/*impl CloneHandle for Window {
-    type Handle = std::sync::Arc<Self>;
-    type WeakHandle = std::sync::Weak<Self>;
-
-    #[inline]
-    fn clone_handle(&self) -> Option<std::sync::Arc<Self>> {
-        std::sync::Weak::upgrade(&self.clone_weak_handle())
-    }
-
-    #[inline]
-    fn clone_weak_handle(&self) -> std::sync::Weak<Self> {
-        self.weak_self.clone()
-    }
-}*/
-
 pub struct WindowBuilder {
     width: u32,
     height: u32,

@@ -6,7 +6,7 @@ use riddle_common::{
 };
 use riddle_platform_common::{LogicalPosition, PlatformEvent, WindowId};
 
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::Mutex};
 
 struct WindowInputState {
     mouse: MouseState,
@@ -16,12 +16,12 @@ struct WindowInputState {
 pub struct InputSystem {
     weak_self: InputSystemWeak,
 
-    window_states: std::sync::Mutex<HashMap<WindowId, WindowInputState>>,
-    gamepad_states: std::sync::Mutex<GamePadStateMap>,
+    window_states: Mutex<HashMap<WindowId, WindowInputState>>,
+    gamepad_states: Mutex<GamePadStateMap>,
 
     event_sub: EventSub<PlatformEvent>,
 
-    outgoing_input_events: std::sync::Mutex<Vec<InputEvent>>,
+    outgoing_input_events: Mutex<Vec<InputEvent>>,
 }
 
 define_handles!(<InputSystem>::weak_self, pub InputSystemHandle, pub InputSystemWeak);
@@ -37,10 +37,10 @@ impl InputSystem {
 
         let system = InputSystemHandle::new(|weak_self| InputSystem {
             weak_self,
-            window_states: std::sync::Mutex::new(HashMap::new()),
-            gamepad_states: std::sync::Mutex::new(GamePadStateMap::new()),
+            window_states: Mutex::new(HashMap::new()),
+            gamepad_states: Mutex::new(GamePadStateMap::new()),
             event_sub,
-            outgoing_input_events: std::sync::Mutex::new(vec![]),
+            outgoing_input_events: Mutex::new(vec![]),
         });
 
         let main_thread = InputMainThreadState {

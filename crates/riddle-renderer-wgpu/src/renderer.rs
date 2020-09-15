@@ -1,6 +1,7 @@
 use crate::{math::*, platform::*, *};
 
 use riddle_common::{define_handles, eventpub::EventSub};
+use std::sync::Mutex;
 
 /// A simple 2D sprite based renderer.
 ///
@@ -9,15 +10,15 @@ use riddle_common::{define_handles, eventpub::EventSub};
 pub struct Renderer {
     weak_self: RendererWeak,
 
-    pub(super) window: <Window as CloneHandle>::Handle,
-    pub(super) default_shader: <Shader as CloneHandle>::Handle,
-    pub(super) white_tex: <Texture as CloneHandle>::Handle,
+    pub(super) window: WindowHandle,
+    pub(super) default_shader: ShaderHandle,
+    pub(super) white_tex: TextureHandle,
 
     pub(super) device: wgpu::Device,
     surface: wgpu::Surface,
     pub(super) queue: wgpu::Queue,
-    swap_chain: std::sync::Mutex<wgpu::SwapChain>,
-    camera_size: std::sync::Mutex<Vector2<f32>>,
+    swap_chain: Mutex<wgpu::SwapChain>,
+    camera_size: Mutex<Vector2<f32>>,
 
     window_event_sub: EventSub<PlatformEvent>,
 }
@@ -25,7 +26,7 @@ pub struct Renderer {
 define_handles!(<Renderer>::weak_self, pub RendererHandle, pub RendererWeak);
 
 impl Renderer {
-    pub fn new_shared(window: &Window) -> Result<<Renderer as CloneHandle>::Handle, RendererError> {
+    pub fn new_shared(window: &Window) -> Result<RendererHandle, RendererError> {
         let instance = wgpu::Instance::new(wgpu::BackendBit::PRIMARY);
         let surface = unsafe { instance.create_surface(window) };
 
@@ -89,10 +90,10 @@ impl Renderer {
             surface: surface,
             device,
             queue,
-            swap_chain: std::sync::Mutex::new(swap_chain),
+            swap_chain: Mutex::new(swap_chain),
             default_shader: sprite_shader,
             white_tex,
-            camera_size: std::sync::Mutex::new(Vector2 {
+            camera_size: Mutex::new(Vector2 {
                 x: camera_size.width as f32,
                 y: camera_size.height as f32,
             }),
@@ -120,8 +121,8 @@ impl Renderer {
         self.camera_size.lock().unwrap().clone()
     }
 
-    pub fn window(&self) -> <Window as CloneHandle>::Handle {
-        self.window.clone()
+    pub fn window(&self) -> &Window {
+        &self.window
     }
 
     pub fn handle_window_events(&self) -> Result<(), RendererError> {

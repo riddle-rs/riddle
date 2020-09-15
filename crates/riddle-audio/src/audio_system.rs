@@ -3,6 +3,8 @@ use crate::*;
 use rodio::{Device, Sink};
 use std::{
     collections::HashMap,
+    sync::Arc,
+    sync::Mutex,
     time::{Duration, Instant},
 };
 
@@ -10,7 +12,7 @@ pub struct AudioSystem {
     weak_self: AudioSystemWeak,
     pub(super) device: Device,
 
-    fades: std::sync::Mutex<std::collections::HashMap<FadeKey, Fade>>,
+    fades: Mutex<HashMap<FadeKey, Fade>>,
 }
 
 define_handles!(<AudioSystem>::weak_self, pub AudioSystemHandle, pub AudioSystemWeak);
@@ -21,7 +23,7 @@ impl AudioSystem {
         Ok(AudioSystemHandle::new(|weak_self| AudioSystem {
             weak_self,
             device,
-            fades: std::sync::Mutex::new(HashMap::new()),
+            fades: Mutex::new(HashMap::new()),
         }))
     }
 
@@ -46,7 +48,7 @@ impl AudioSystem {
 }
 
 struct FadeKey {
-    sink: std::sync::Arc<Sink>,
+    sink: Arc<Sink>,
 }
 
 impl std::hash::Hash for FadeKey {
@@ -57,7 +59,7 @@ impl std::hash::Hash for FadeKey {
 
 impl std::cmp::PartialEq for FadeKey {
     fn eq(&self, other: &Self) -> bool {
-        std::sync::Arc::ptr_eq(&self.sink, &other.sink)
+        Arc::ptr_eq(&self.sink, &other.sink)
     }
 }
 
@@ -70,7 +72,7 @@ pub(crate) enum FadeType {
 }
 
 pub(crate) struct Fade {
-    sink: std::sync::Arc<Sink>,
+    sink: Arc<Sink>,
     start_volume: f32,
     dest_volume: f32,
     start_time: Instant,
@@ -80,7 +82,7 @@ pub(crate) struct Fade {
 
 impl Fade {
     pub(crate) fn new(
-        sink: std::sync::Arc<Sink>,
+        sink: Arc<Sink>,
         dest_volume: f32,
         duration: Duration,
         fade_type: FadeType,
