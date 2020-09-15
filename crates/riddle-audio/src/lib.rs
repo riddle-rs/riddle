@@ -5,6 +5,8 @@ mod clip;
 mod clip_player;
 mod error;
 
+use riddle_common::*;
+
 pub use audio_system::*;
 pub use clip::*;
 pub use clip_player::*;

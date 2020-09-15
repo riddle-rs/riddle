@@ -1,13 +1,15 @@
 use crate::{math::*, *};
 
-use std::rc::Rc;
 use wgpu::util::DeviceExt;
 use wgpu::{CommandEncoder, RenderPass, TextureView};
 
 pub(super) struct Shader {
+    weak_self: ShaderWeak,
     pub bind_group_layout: wgpu::BindGroupLayout,
     pipeline: wgpu::RenderPipeline,
 }
+
+define_handles!(<Shader>::weak_self, pub(super) ShaderHandle, pub(super) ShaderWeak);
 
 impl Shader {
     pub(crate) fn from_readers<VR, FR>(
@@ -15,7 +17,7 @@ impl Shader {
         mut vs: VR,
         mut fs: FR,
         primitive_type: wgpu::PrimitiveTopology,
-    ) -> Result<Rc<Shader>, RendererError>
+    ) -> Result<<Shader as CloneHandle>::Handle, RendererError>
     where
         VR: std::io::Read + std::io::Seek,
         FR: std::io::Read + std::io::Seek,
@@ -133,11 +135,11 @@ impl Shader {
             alpha_to_coverage_enabled: false,
         });
 
-        let shader = Shader {
+        Ok(ShaderHandle::new(|weak_self| Shader {
+            weak_self,
             bind_group_layout,
             pipeline: render_pipeline,
-        };
-        Ok(Rc::new(shader))
+        }))
     }
 
     pub(crate) fn bind_params(

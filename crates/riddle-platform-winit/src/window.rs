@@ -1,17 +1,14 @@
 use crate::*;
 
-use riddle_common::{clone_handle::CloneHandle, eventpub::*};
+use riddle_common::eventpub::*;
 
 use raw_window_handle::{HasRawWindowHandle, RawWindowHandle};
 use riddle_platform_common::traits::WindowExt;
-use std::{
-    borrow::Borrow,
-    rc::{Rc, Weak},
-};
+use std::borrow::Borrow;
 
 pub struct Window {
-    weak_self: Weak<Window>,
-    window_system: Rc<PlatformSystem>,
+    weak_self: WindowWeak,
+    window_system: PlatformSystemHandle,
     winit_window: winit::window::Window,
     event_sub: EventSub<PlatformEvent>,
     event_pub: EventPub<PlatformEvent>,
@@ -19,9 +16,14 @@ pub struct Window {
     id: WindowId,
 }
 
+define_handles!(<Window>::weak_self, pub WindowHandle, pub WindowWeak);
+
 impl Window {
-    fn new_shared(ctx: &PlatformContext, args: &WindowBuilder) -> Result<Rc<Self>, WindowError> {
-        let system = ctx.system.clone();
+    fn new_shared(
+        ctx: &PlatformContext,
+        args: &WindowBuilder,
+    ) -> Result<WindowHandle, WindowError> {
+        let system = ctx.system().clone_handle().unwrap();
 
         #[cfg(target_os = "windows")]
         let winit_builder = {
@@ -51,20 +53,19 @@ impl Window {
         args.configure_window(&winit_window);
 
         let event_sub = EventSub::new_with_filter(Self::event_filter);
-        system.event_pub().attach(&event_sub);
+        ctx.system().event_pub().attach(&event_sub);
 
-        let window = Rc::new_cyclic(|weak_self| Self {
-            weak_self: weak_self.clone(),
+        let window = WindowHandle::new(|weak_self| Self {
+            weak_self,
             window_system: system.clone(),
             winit_window: winit_window,
             event_sub,
             event_pub: EventPub::new(),
-            id: system.borrow_window_map_mut().take_next_window_id(),
+            id: system.with_window_map_mut(|wmap| wmap.take_next_window_id()),
         });
 
-        ctx.system
-            .borrow_window_map_mut()
-            .register_window(window.clone());
+        ctx.system()
+            .with_window_map_mut(|wmap| wmap.register_window(window.clone()));
 
         Ok(window)
     }
@@ -134,20 +135,13 @@ impl std::cmp::Eq for Window {}
 impl Drop for Window {
     fn drop(&mut self) {
         self.window_system
-            .borrow_window_map_mut()
-            .unregister_window(&self);
+            .with_window_map_mut(|wmap| wmap.unregister_window(&self));
     }
 }
 
 unsafe impl HasRawWindowHandle for Window {
     fn raw_window_handle(&self) -> RawWindowHandle {
         self.winit_window.raw_window_handle()
-    }
-}
-
-impl CloneHandle for Window {
-    fn clone_weak_handle(&self) -> Weak<Self> {
-        self.weak_self.clone()
     }
 }
 
@@ -197,7 +191,7 @@ impl WindowBuilder {
         self
     }
 
-    pub fn build<'a, C>(&self, ctx: C) -> Result<Rc<Window>, WindowError>
+    pub fn build<'a, C>(&self, ctx: C) -> Result<WindowHandle, WindowError>
     where
         C: Borrow<PlatformContext<'a>>,
     {

@@ -1,10 +1,11 @@
 use thiserror::Error;
 
+mod clone_handle;
 mod color;
 
-pub mod clone_handle;
 pub mod eventpub;
 
+pub use clone_handle::*;
 pub use color::*;
 
 #[derive(Debug, Error)]

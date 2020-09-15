@@ -8,16 +8,12 @@ use riddle::{
 };
 
 use input::{KeyboardModifiers, MouseButton};
-use std::rc::Rc;
+use std::sync::{Arc, Mutex};
 
 struct DemoState {
-    window: Rc<platform::Window>,
     state: RiddleState,
 
-    renderer: Rc<renderer::Renderer>,
-    sprite: renderer::Sprite,
-    subsprite: renderer::Sprite,
-    label_sprite: renderer::Sprite,
+    mouse_location: Arc<Mutex<input::LogicalPosition>>,
 
     clip: audio::Clip,
     music_player: audio::ClipPlayer,
@@ -27,6 +23,7 @@ struct DemoState {
 impl DemoState {
     fn new(rdl: &RiddleApp) -> Result<Self, RiddleError> {
         let window = WindowBuilder::new().build(rdl.context())?;
+
         let renderer = renderer::Renderer::new_shared(&window)?;
 
         let img = {
@@ -65,61 +62,52 @@ impl DemoState {
             location: [3.0, 3.0].into(),
             dimensions: [39.0, 39.0].into(),
         });
+        let label_sprite = label_sprite.unwrap();
 
         let music_player = audio::ClipPlayerBuilder::new()
             .with_mode(audio::PlayMode::Loop)
             .play(&rdl.state().audio(), music)?;
 
-        Ok(Self {
-            window,
-            state: rdl.state().clone(),
+        let mouse_location = Arc::new(Mutex::new(input::LogicalPosition::default()));
 
-            renderer,
+        let renderer_state = RendererState {
+            renderer: renderer.clone(),
             sprite,
             subsprite,
-            label_sprite: label_sprite.unwrap(),
+            label_sprite,
+            mouse_location: mouse_location.clone(),
+        };
+
+        {
+            let window = window.clone();
+            std::thread::spawn(move || loop {
+                println!("Window Size: {:?}", window.logical_size());
+                std::thread::sleep(std::time::Duration::from_secs(5));
+            });
+        }
+
+        {
+            let rdlstate = rdl.state().clone();
+            let clip = clip.clone();
+            std::thread::spawn(move || loop {
+                let _player = audio::ClipPlayerBuilder::new()
+                    .play(&rdlstate.audio(), clip.clone())
+                    .unwrap();
+                std::thread::sleep(std::time::Duration::from_secs(10));
+            });
+        }
+
+        std::thread::spawn(move || renderer_state.run());
+
+        Ok(Self {
+            state: rdl.state().clone(),
+
+            mouse_location: mouse_location,
 
             clip,
             music_player,
             blip_player: None,
         })
-    }
-
-    pub fn render_frame(&self) -> Result<(), RiddleError> {
-        self.renderer.clear(Color::rgb(0.0, 1.0, 0.0))?;
-
-        self.renderer
-            .push_transform(glam::Mat4::from_scale(glam::vec3(2.0, 2.0, 1.0)).into())?;
-
-        self.renderer.fill_rect(
-            &Rect {
-                location: [100.0, 100.0].into(),
-                dimensions: [50.0, 50.0].into(),
-            },
-            [1.0, 0.0, 0.0, 1.0],
-        )?;
-        self.renderer.fill_rect(
-            &Rect {
-                location: [102.0, 102.0].into(),
-                dimensions: [46.0, 46.0].into(),
-            },
-            [1.0, 1.0, 1.0, 1.0],
-        )?;
-
-        self.subsprite.render_at([60.0, 60.0])?;
-        self.label_sprite.render(&SpriteRenderCommand {
-            location: [10.0, 100.0].into(),
-            diffuse_color: [0.0, 0.0, 1.0, 1.0],
-            ..Default::default()
-        })?;
-
-        self.renderer.pop_transform()?;
-
-        self.sprite
-            .render_at(self.state.input().mouse_pos(self.window.window_id()))?;
-
-        self.renderer.present()?;
-        Ok(())
     }
 
     pub fn on_mouse_down(&mut self) -> Result<(), RiddleError> {
@@ -128,6 +116,64 @@ impl DemoState {
                 .with_mode(audio::PlayMode::OneShot)
                 .play(&self.state.audio(), self.clip.clone())?,
         );
+        Ok(())
+    }
+}
+
+struct RendererState {
+    renderer: renderer::RendererHandle,
+    sprite: renderer::Sprite,
+    subsprite: renderer::Sprite,
+    label_sprite: renderer::Sprite,
+
+    mouse_location: Arc<Mutex<input::LogicalPosition>>,
+}
+
+impl RendererState {
+    fn run(&self) {
+        loop {
+            self.render_frame().unwrap();
+        }
+    }
+
+    pub fn render_frame(&self) -> Result<(), RiddleError> {
+        let mut frame = self.renderer.begin_render_frame()?;
+        frame.clear(Color::rgb(0.0, 1.0, 0.0))?;
+
+        frame.push_transform(glam::Mat4::from_scale(glam::vec3(2.0, 2.0, 1.0)).into())?;
+
+        frame.fill_rect(
+            &Rect {
+                location: [100.0, 100.0].into(),
+                dimensions: [50.0, 50.0].into(),
+            },
+            [1.0, 0.0, 0.0, 1.0],
+        )?;
+        frame.fill_rect(
+            &Rect {
+                location: [102.0, 102.0].into(),
+                dimensions: [46.0, 46.0].into(),
+            },
+            [1.0, 1.0, 1.0, 1.0],
+        )?;
+
+        self.subsprite.render_at(&mut frame, [60.0, 60.0])?;
+        self.label_sprite.render(
+            &mut frame,
+            &SpriteRenderCommand {
+                location: [10.0, 100.0].into(),
+                diffuse_color: [0.0, 0.0, 1.0, 1.0],
+                ..Default::default()
+            },
+        )?;
+
+        frame.pop_transform()?;
+
+        let pos: input::LogicalPosition = self.mouse_location.lock().unwrap().clone();
+
+        self.sprite.render_at(&mut frame, pos)?;
+
+        frame.present()?;
         Ok(())
     }
 }
@@ -187,8 +233,8 @@ fn main() -> Result<(), RiddleError> {
         Event::Input(InputEvent::GamePadAxisChanged { axis, value, .. }) => {
             println!("Gamepad Up {:?} {:?}", axis, value);
         }
-        Event::ProcessFrame => {
-            state.render_frame().unwrap();
+        Event::Input(InputEvent::CursorMove { position, .. }) => {
+            *state.mouse_location.lock().unwrap() = position.clone();
         }
         _ => (),
     })

@@ -77,6 +77,12 @@ impl From<Vector2<u32>> for LogicalPosition {
     }
 }
 
+impl Default for LogicalPosition {
+    fn default() -> Self {
+        Self { x: 0, y: 0 }
+    }
+}
+
 impl From<LogicalPosition> for Vector2<f32> {
     fn from(pos: LogicalPosition) -> Self {
         Self {

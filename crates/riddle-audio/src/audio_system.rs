@@ -1,28 +1,29 @@
 use crate::*;
 
-use riddle_common::clone_handle::CloneHandle;
 use rodio::{Device, Sink};
 use std::{
-    cell::RefCell,
     collections::HashMap,
-    rc::{Rc, Weak},
+    sync::Arc,
+    sync::Mutex,
     time::{Duration, Instant},
 };
 
 pub struct AudioSystem {
-    weak_self: Weak<AudioSystem>,
+    weak_self: AudioSystemWeak,
     pub(super) device: Device,
 
-    fades: RefCell<std::collections::HashMap<FadeKey, Fade>>,
+    fades: Mutex<HashMap<FadeKey, Fade>>,
 }
 
+define_handles!(<AudioSystem>::weak_self, pub AudioSystemHandle, pub AudioSystemWeak);
+
 impl AudioSystem {
-    pub fn new() -> Result<Rc<AudioSystem>, AudioError> {
+    pub fn new() -> Result<AudioSystemHandle, AudioError> {
         let device = rodio::default_output_device().ok_or(AudioError::UnknownError)?;
-        Ok(Rc::new_cyclic(|weak_self| AudioSystem {
-            weak_self: weak_self.clone(),
+        Ok(AudioSystemHandle::new(|weak_self| AudioSystem {
+            weak_self,
             device,
-            fades: RefCell::new(HashMap::new()),
+            fades: Mutex::new(HashMap::new()),
         }))
     }
 
@@ -32,7 +33,7 @@ impl AudioSystem {
     }
 
     pub(crate) fn register_fade(&self, fade: Fade) {
-        let mut fades = self.fades.borrow_mut();
+        let mut fades = self.fades.lock().unwrap();
         let existing = fades.remove(&fade.key());
         match existing {
             Some(old) => fades.insert(fade.key(), Fade::merge_pair(old, fade)),
@@ -41,13 +42,13 @@ impl AudioSystem {
     }
 
     pub fn tick_fades(&self, now: Instant) {
-        let mut fades = self.fades.borrow_mut();
+        let mut fades = self.fades.lock().unwrap();
         fades.retain(|_, f| f.update(now));
     }
 }
 
 struct FadeKey {
-    sink: Rc<Sink>,
+    sink: Arc<Sink>,
 }
 
 impl std::hash::Hash for FadeKey {
@@ -58,7 +59,7 @@ impl std::hash::Hash for FadeKey {
 
 impl std::cmp::PartialEq for FadeKey {
     fn eq(&self, other: &Self) -> bool {
-        Rc::ptr_eq(&self.sink, &other.sink)
+        Arc::ptr_eq(&self.sink, &other.sink)
     }
 }
 
@@ -71,7 +72,7 @@ pub(crate) enum FadeType {
 }
 
 pub(crate) struct Fade {
-    sink: Rc<Sink>,
+    sink: Arc<Sink>,
     start_volume: f32,
     dest_volume: f32,
     start_time: Instant,
@@ -81,7 +82,7 @@ pub(crate) struct Fade {
 
 impl Fade {
     pub(crate) fn new(
-        sink: Rc<Sink>,
+        sink: Arc<Sink>,
         dest_volume: f32,
         duration: Duration,
         fade_type: FadeType,
@@ -130,11 +131,5 @@ impl Fade {
         FadeKey {
             sink: self.sink.clone(),
         }
-    }
-}
-
-impl CloneHandle for AudioSystem {
-    fn clone_weak_handle(&self) -> Weak<Self> {
-        self.weak_self.clone()
     }
 }

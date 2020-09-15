@@ -8,6 +8,7 @@ edition = "2018"
 
 [dependencies]
 riddle-common = {path = "../riddle-common"}
+riddle-macros = {path = "../riddle-macros"}
 riddle-platform-common = {path = "../riddle-platform-common"}
 
 raw-window-handle = "0.3"

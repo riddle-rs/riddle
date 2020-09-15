@@ -3,10 +3,13 @@ use crate::*;
 use riddle_math::Vector2;
 
 pub(super) struct Texture {
+    weak_self: TextureWeak,
     pub(crate) texture: wgpu::Texture,
     pub(crate) sampler: wgpu::Sampler,
     pub dimensions: Vector2<u32>,
 }
+
+define_handles!(<Texture>::weak_self, pub(crate) TextureHandle, pub(crate) TextureWeak);
 
 impl Texture {
     pub fn from_image(
@@ -15,7 +18,7 @@ impl Texture {
         image: image::Image,
         mag_filter: FilterMode,
         min_filter: FilterMode,
-    ) -> Result<Texture, RendererError> {
+    ) -> Result<TextureHandle, RendererError> {
         let texture_extent = wgpu::Extent3d {
             width: image.width(),
             height: image.height(),
@@ -57,12 +60,12 @@ impl Texture {
             ..Default::default()
         });
 
-        Ok(Texture {
+        Ok(TextureHandle::new(|weak_self| Texture {
+            weak_self,
             texture,
             sampler,
             dimensions: image.dimensions(),
-        }
-        .into())
+        }))
     }
 }
 

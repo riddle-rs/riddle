@@ -1,35 +1,34 @@
-use std::{
-    cell::RefCell,
-    rc::{Rc, Weak},
-};
+use std::sync::{Arc, Mutex, RwLock, Weak};
 
 struct EventQueue<T> {
-    queue: RefCell<Vec<T>>,
-    filter: Box<dyn Fn(&T) -> bool>,
+    queue: Mutex<Vec<T>>,
+    filter: Box<dyn Fn(&T) -> bool + Sync + Send>,
 }
 
 pub struct EventPub<T> {
-    subs: RefCell<Vec<Weak<EventQueue<T>>>>,
+    subs: RwLock<Vec<Weak<EventQueue<T>>>>,
 }
 
 pub struct EventSub<T> {
-    events: Rc<EventQueue<T>>,
+    events: Arc<EventQueue<T>>,
 }
 
 impl<T: Clone> EventPub<T> {
     pub fn new() -> Self {
         Self {
-            subs: RefCell::new(vec![]),
+            subs: RwLock::new(vec![]),
         }
     }
 
     pub fn attach(&self, sub: &EventSub<T>) {
-        self.subs.borrow_mut().push(Rc::downgrade(&sub.events));
+        let mut subs = self.subs.write().unwrap();
+        subs.push(Arc::downgrade(&sub.events));
     }
 
     pub fn dispatch(&self, event: &T) {
         let mut dirty = false;
-        for sub in self.subs.borrow().iter() {
+
+        for sub in self.subs.read().unwrap().iter() {
             match Weak::upgrade(sub) {
                 Some(strong_sub) => strong_sub.deliver(event.clone()),
                 None => dirty = true,
@@ -42,9 +41,8 @@ impl<T: Clone> EventPub<T> {
     }
 
     fn clean(&self) {
-        self.subs
-            .borrow_mut()
-            .retain(|w| Weak::upgrade(w).is_some())
+        let mut subs = self.subs.write().unwrap();
+        subs.retain(|w| Weak::upgrade(w).is_some())
     }
 }
 
@@ -57,7 +55,7 @@ impl<T> EventSub<T> {
 
     pub fn new_with_filter<F>(filter: F) -> Self
     where
-        F: Fn(&T) -> bool + 'static,
+        F: Fn(&T) -> bool + Send + Sync + 'static,
     {
         Self {
             events: EventQueue::new_with_filter(filter).into(),
@@ -76,21 +74,25 @@ impl<T> EventQueue<T> {
 
     fn new_with_filter<F>(filter: F) -> Self
     where
-        F: Fn(&T) -> bool + 'static,
+        F: Fn(&T) -> bool + Send + Sync + 'static,
     {
         Self {
-            queue: RefCell::new(vec![]),
+            queue: Mutex::new(vec![]),
             filter: Box::new(filter),
         }
     }
 
     fn deliver(&self, event: T) {
         if (*self.filter)(&event) {
-            self.queue.borrow_mut().push(event);
+            let mut queue = self.queue.lock().unwrap();
+            queue.push(event);
         }
     }
 
     fn collect(&self) -> Vec<T> {
-        self.queue.replace(vec![])
+        let mut queue = self.queue.lock().unwrap();
+        let mut res = vec![];
+        res.append(&mut queue);
+        res
     }
 }
