@@ -74,6 +74,7 @@ impl Renderer {
             white_img,
             FilterMode::Nearest,
             FilterMode::Nearest,
+            TextureType::Plain,
         )?
         .into();
 
@@ -101,7 +102,7 @@ impl Renderer {
         }))
     }
 
-    pub fn begin_render_frame(&self) -> Result<FrameRenderer, RendererError> {
+    pub fn begin_render<'a>(&'a self) -> Result<impl RenderContext + 'a, RendererError> {
         self.handle_window_events()?;
 
         let frame = self
@@ -114,7 +115,9 @@ impl Renderer {
             .device
             .create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
 
-        Ok(FrameRenderer::new(self, frame, encoder))
+        let target =
+            SwapChainFrameTarget::new(self, frame, self.camera_size.lock().unwrap().clone());
+        Ok(StreamRenderer::new(target, encoder))
     }
 
     pub fn camera_size(&self) -> Vector2<f32> {

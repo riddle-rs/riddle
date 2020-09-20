@@ -58,6 +58,7 @@ impl<'a> SpriteAtlasBuilder<'a> {
             atlas,
             self.mag_filter,
             self.min_filter,
+            TextureType::Plain,
         )?);
 
         for (bounds, sprite) in sprite_bounds {
