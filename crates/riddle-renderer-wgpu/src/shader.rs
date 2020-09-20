@@ -17,7 +17,7 @@ impl Shader {
         mut vs: VR,
         mut fs: FR,
         primitive_type: wgpu::PrimitiveTopology,
-    ) -> Result<<Shader as CloneHandle>::Handle, RendererError>
+    ) -> Result<ShaderHandle, RendererError>
     where
         VR: std::io::Read + std::io::Seek,
         FR: std::io::Read + std::io::Seek,

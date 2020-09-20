@@ -64,6 +64,8 @@ impl DemoState {
         });
         let label_sprite = label_sprite.unwrap();
 
+        let target = SpriteRenderTarget::new(&renderer, [50, 50].into())?;
+
         let music_player = audio::ClipPlayerBuilder::new()
             .with_mode(audio::PlayMode::Loop)
             .play(&rdl.state().audio(), music)?;
@@ -75,6 +77,7 @@ impl DemoState {
             sprite,
             subsprite,
             label_sprite,
+            target,
             mouse_location: mouse_location.clone(),
         };
 
@@ -126,6 +129,8 @@ struct RendererState {
     subsprite: renderer::Sprite,
     label_sprite: renderer::Sprite,
 
+    target: renderer::SpriteRenderTarget,
+
     mouse_location: Arc<Mutex<input::LogicalPosition>>,
 }
 
@@ -136,8 +141,20 @@ impl RendererState {
         }
     }
 
+    fn render_to_target(&self) -> Result<(), RiddleError> {
+        let mut ctx = self.target.begin_render();
+        ctx.clear(Color::rgb(0.0, 0.0, 1.0))?;
+
+        self.sprite.render_at(&mut ctx, [0.0, 0.0])?;
+
+        ctx.present()?;
+        Ok(())
+    }
+
     pub fn render_frame(&self) -> Result<(), RiddleError> {
-        let mut frame = self.renderer.begin_render_frame()?;
+        self.render_to_target()?;
+
+        let mut frame = self.renderer.begin_render()?;
         frame.clear(Color::rgb(0.0, 1.0, 0.0))?;
 
         frame.push_transform(glam::Mat4::from_scale(glam::vec3(2.0, 2.0, 1.0)).into())?;
@@ -168,6 +185,8 @@ impl RendererState {
         )?;
 
         frame.pop_transform()?;
+
+        self.target.sprite().render_at(&mut frame, [400.0, 400.0])?;
 
         let pos: input::LogicalPosition = self.mouse_location.lock().unwrap().clone();
 

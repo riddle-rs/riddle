@@ -1,25 +1,29 @@
 #![feature(arc_new_cyclic)]
 
+mod buffered_renderer;
 mod error;
-mod frame_renderer;
+mod render_context;
 mod renderer;
 mod shader;
 mod sprite;
 mod sprite_atlas;
-mod stream_renderer;
+mod sprite_render_target;
+mod swap_chain_target;
 mod texture;
 mod vertex;
 
+pub use buffered_renderer::*;
 pub use error::*;
-pub use frame_renderer::*;
+pub use render_context::*;
 pub use renderer::*;
 pub use sprite::*;
 pub use sprite_atlas::*;
+pub use sprite_render_target::*;
 pub use texture::*;
 
 use riddle_common::*;
 use shader::*;
-use stream_renderer::*;
+use swap_chain_target::*;
 use vertex::*;
 
 use riddle_image as image;

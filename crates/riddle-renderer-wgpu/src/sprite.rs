@@ -27,6 +27,7 @@ impl Sprite {
             img,
             mag_filter,
             min_filter,
+            TextureType::Plain,
         )?;
         Self::from_texture(renderer, &texture)
     }
@@ -74,7 +75,7 @@ impl Sprite {
 
     pub fn render(
         &self,
-        frame: &mut FrameRenderer,
+        render_ctx: &mut impl RenderContext,
         args: &SpriteRenderCommand,
     ) -> Result<(), RendererError> {
         let rot: glam::Mat2 = glam::Mat2::from_angle((args.angle / 180.0) * std::f32::consts::PI);
@@ -123,23 +124,23 @@ impl Sprite {
 
         let index_data: &[u16] = &[1, 2, 0, 2, 0, 3];
 
-        frame.render(
-            &StreamRenderArgs {
-                texture: self.texture.clone(),
-                shader: self.renderer.default_shader.clone(),
-            },
-            &vertex_data[..],
-            index_data,
-        )
+        let renderable = RenderableDesc {
+            texture: self.texture.clone(),
+            shader: self.renderer.default_shader.clone(),
+            verts: &vertex_data[..],
+            indices: index_data,
+        };
+
+        render_ctx.render(&renderable)
     }
 
     pub fn render_at<P: Into<Vector2<f32>>>(
         &self,
-        frame: &mut FrameRenderer,
+        render_ctx: &mut impl RenderContext,
         location: P,
     ) -> Result<(), RendererError> {
         self.render(
-            frame,
+            render_ctx,
             &SpriteRenderCommand {
                 location: location.into(),
                 ..Default::default()
@@ -201,8 +202,12 @@ impl SpriteRenderCommand {
         self
     }
 
-    pub fn render(&self, frame: &mut FrameRenderer, sprite: &Sprite) -> Result<(), RendererError> {
-        sprite.render(frame, self)
+    pub fn render(
+        &self,
+        render_ctx: &mut impl RenderContext,
+        sprite: &Sprite,
+    ) -> Result<(), RendererError> {
+        sprite.render(render_ctx, self)
     }
 }
 
