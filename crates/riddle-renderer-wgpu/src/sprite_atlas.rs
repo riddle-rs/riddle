@@ -1,4 +1,4 @@
-use crate::{math::*, *};
+use crate::{ext::*, math::*, *};
 
 use std::rc::Rc;
 
@@ -36,7 +36,7 @@ impl<'a> SpriteAtlasBuilder<'a> {
         self
     }
 
-    pub fn build(self, renderer: &Renderer) -> Result<(), RendererError> {
+    pub fn build(self, renderer: &Renderer) -> Result<()> {
         let mut atlas = image::Image::new(self.total_width, self.max_height)?;
         let mut sprite_bounds = vec![];
         let mut x = 0;
@@ -53,8 +53,8 @@ impl<'a> SpriteAtlasBuilder<'a> {
         }
 
         let texture = Rc::new(Texture::from_image(
-            &renderer.device,
-            &renderer.queue,
+            renderer.wgpu_device().device(),
+            renderer.wgpu_device().queue(),
             atlas,
             self.mag_filter,
             self.min_filter,

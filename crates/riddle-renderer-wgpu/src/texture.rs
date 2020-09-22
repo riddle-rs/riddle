@@ -19,7 +19,7 @@ impl Texture {
         mag_filter: FilterMode,
         min_filter: FilterMode,
         tex_type: TextureType,
-    ) -> Result<TextureHandle, RendererError> {
+    ) -> Result<TextureHandle> {
         let texture = Texture::new(device, mag_filter, min_filter, tex_type, image.dimensions())?;
 
         let texture_extent = wgpu::Extent3d {
@@ -52,7 +52,7 @@ impl Texture {
         min_filter: FilterMode,
         tex_type: TextureType,
         dimensions: Vector2<u32>,
-    ) -> Result<TextureHandle, RendererError> {
+    ) -> Result<TextureHandle> {
         let texture_extent = wgpu::Extent3d {
             width: dimensions.x,
             height: dimensions.y,

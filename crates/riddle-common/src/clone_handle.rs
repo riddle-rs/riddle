@@ -1,5 +1,5 @@
 pub trait CloneHandle {
-    type Handle;
+    type Handle: std::ops::Deref<Target = Self>;
     type WeakHandle;
 
     fn clone_handle(&self) -> Option<Self::Handle>;

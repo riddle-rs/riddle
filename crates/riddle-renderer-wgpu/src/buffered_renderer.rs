@@ -26,7 +26,7 @@ impl PartialEq for BufferedRenderArgs {
 
 impl Eq for BufferedRenderArgs {}
 
-pub(crate) struct StreamRenderer<'a, R: RenderTargetDesc<'a>> {
+pub(crate) struct BufferedRenderer<'a, R: RenderTargetDesc<'a>> {
     target_desc: R,
     current_args: Option<BufferedRenderArgs>,
 
@@ -40,10 +40,11 @@ pub(crate) struct StreamRenderer<'a, R: RenderTargetDesc<'a>> {
     _a_marker: std::marker::PhantomData<&'a ()>,
 }
 
-impl<'a, R: RenderTargetDesc<'a>> StreamRenderer<'a, R> {
-    pub fn new(target_desc: R, encoder: wgpu::CommandEncoder) -> Self {
+impl<'a, R: RenderTargetDesc<'a>> BufferedRenderer<'a, R> {
+    pub fn new(target_desc: R, encoder: wgpu::CommandEncoder) -> Result<Self> {
+        target_desc.begin_render()?;
         let identity: mint::ColumnMatrix4<f32> = glam::Mat4::identity().into();
-        Self {
+        Ok(Self {
             target_desc,
             current_args: None,
             verts: vec![],
@@ -52,10 +53,10 @@ impl<'a, R: RenderTargetDesc<'a>> StreamRenderer<'a, R> {
             view_matrix_stack: vec![identity],
             encoder,
             _a_marker: std::marker::PhantomData::default(),
-        }
+        })
     }
 
-    fn clear_immediate(&mut self, color: Color<f32>) -> Result<(), RendererError> {
+    fn clear_immediate(&mut self, color: Color<f32>) -> Result<()> {
         self.flush()?;
         let encoder = &mut self.encoder;
         self.target_desc.with_view(|view| {
@@ -79,7 +80,7 @@ impl<'a, R: RenderTargetDesc<'a>> StreamRenderer<'a, R> {
         })
     }
 
-    pub fn flush(&mut self) -> Result<(), RendererError> {
+    pub fn flush(&mut self) -> Result<()> {
         match &self.current_args {
             Some(args) => {
                 let args = args.clone();
@@ -89,8 +90,8 @@ impl<'a, R: RenderTargetDesc<'a>> StreamRenderer<'a, R> {
         }
     }
 
-    fn do_flush(&mut self, args: &BufferedRenderArgs) -> Result<(), RendererError> {
-        let device = &self.target_desc.renderer().device;
+    fn do_flush(&mut self, args: &BufferedRenderArgs) -> Result<()> {
+        let device = self.target_desc.wgpu_device().device();
 
         let vertex_buf = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: None,
@@ -153,7 +154,7 @@ impl<'a, R: RenderTargetDesc<'a>> StreamRenderer<'a, R> {
         args: &BufferedRenderArgs,
         verts: &[Vertex],
         indices: &[u16],
-    ) -> Result<(), RendererError> {
+    ) -> Result<()> {
         if Some(args) != self.current_args.as_ref() {
             self.flush()?;
             self.current_args = Some(args.clone());
@@ -171,8 +172,8 @@ impl<'a, R: RenderTargetDesc<'a>> StreamRenderer<'a, R> {
     }
 }
 
-impl<'a, R: RenderTargetDesc<'a>> RenderContext for StreamRenderer<'a, R> {
-    fn set_transform(&mut self, transform: mint::ColumnMatrix4<f32>) -> Result<(), RendererError> {
+impl<'a, R: RenderTargetDesc<'a>> RenderContext for BufferedRenderer<'a, R> {
+    fn set_transform(&mut self, transform: mint::ColumnMatrix4<f32>) -> Result<()> {
         self.flush()?;
         match self.view_matrix_stack.last_mut() {
             Some(last) => *last = transform,
@@ -181,13 +182,13 @@ impl<'a, R: RenderTargetDesc<'a>> RenderContext for StreamRenderer<'a, R> {
         Ok(())
     }
 
-    fn push_transform(&mut self, transform: mint::ColumnMatrix4<f32>) -> Result<(), RendererError> {
+    fn push_transform(&mut self, transform: mint::ColumnMatrix4<f32>) -> Result<()> {
         self.flush()?;
         self.view_matrix_stack.push(transform);
         Ok(())
     }
 
-    fn pop_transform(&mut self) -> Result<(), RendererError> {
+    fn pop_transform(&mut self) -> Result<()> {
         self.flush()?;
         self.view_matrix_stack.pop();
         Ok(())
@@ -196,13 +197,13 @@ impl<'a, R: RenderTargetDesc<'a>> RenderContext for StreamRenderer<'a, R> {
     /// Set the clear color and mark the frame buffer for clearing. The actual clear operation
     /// will be performed when the next batched render happens, or when `present` is called,
     /// whichever comes first.
-    fn clear(&mut self, color: Color<f32>) -> Result<(), RendererError> {
+    fn clear(&mut self, color: Color<f32>) -> Result<()> {
         self.flush()?;
         self.pending_clear_color = Some(color.into());
         Ok(())
     }
 
-    fn fill_rect(&mut self, rect: &Rect<f32>, color: [f32; 4]) -> Result<(), RendererError> {
+    fn fill_rect(&mut self, rect: &Rect<f32>, color: [f32; 4]) -> Result<()> {
         let pos_topleft = glam::Vec2::from(rect.location);
         let pos_topright = pos_topleft + glam::vec2(rect.dimensions.x, 0.0);
         let pos_bottomleft = pos_topleft + glam::vec2(0.0, rect.dimensions.y);
@@ -218,27 +219,27 @@ impl<'a, R: RenderTargetDesc<'a>> RenderContext for StreamRenderer<'a, R> {
 
         self.buffered_render(
             &BufferedRenderArgs {
-                texture: self.target_desc.renderer().white_tex.clone(),
-                shader: self.target_desc.renderer().default_shader.clone(),
+                texture: self.target_desc.standard_resources().white_tex.clone(),
+                shader: self.target_desc.standard_resources().default_shader.clone(),
             },
             &vertex_data[..],
             index_data,
         )
     }
 
-    fn present(mut self) -> Result<(), RendererError> {
+    fn present(mut self) -> Result<()> {
         self.flush()?;
         if let Some(clear_color) = self.pending_clear_color {
             self.clear_immediate(clear_color.into())?;
         }
 
         let cmd = self.encoder.finish();
-        self.target_desc.renderer().queue.submit(Some(cmd));
+        self.target_desc.wgpu_device().queue().submit(Some(cmd));
 
-        Ok(())
+        self.target_desc.end_render()
     }
 
-    fn render<S: Renderable>(&mut self, renderable: &S) -> Result<(), RendererError> {
+    fn render<S: Renderable>(&mut self, renderable: &S) -> Result<()> {
         renderable.with_renderable(|r| {
             self.buffered_render(&BufferedRenderArgs::new(r), r.verts, r.indices)?;
             Ok(())

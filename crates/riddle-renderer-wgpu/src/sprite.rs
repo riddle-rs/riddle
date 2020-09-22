@@ -1,4 +1,4 @@
-use crate::{math::*, *};
+use crate::{ext::*, math::*, *};
 
 use riddle_common::Color;
 
@@ -20,10 +20,10 @@ impl Sprite {
         img: image::Image,
         mag_filter: FilterMode,
         min_filter: FilterMode,
-    ) -> Result<Sprite, RendererError> {
+    ) -> Result<Sprite> {
         let texture = Texture::from_image(
-            &renderer.device,
-            &renderer.queue,
+            renderer.wgpu_device().device(),
+            renderer.wgpu_device().queue(),
             img,
             mag_filter,
             min_filter,
@@ -32,10 +32,7 @@ impl Sprite {
         Self::from_texture(renderer, &texture)
     }
 
-    pub(super) fn from_texture(
-        renderer: &Renderer,
-        texture: &Texture,
-    ) -> Result<Sprite, RendererError> {
+    pub(super) fn from_texture(renderer: &Renderer, texture: &Texture) -> Result<Sprite> {
         let dimensions = texture.dimensions.convert();
         Self::from_texture_with_bounds(
             renderer,
@@ -51,7 +48,7 @@ impl Sprite {
         renderer: &Renderer,
         texture: &Texture,
         source_rect: Rect<f32>,
-    ) -> Result<Sprite, RendererError> {
+    ) -> Result<Sprite> {
         Ok(Sprite {
             renderer: renderer.clone_handle().ok_or(RendererError::Unknown)?,
             texture: texture.clone_handle().unwrap(),
@@ -77,7 +74,7 @@ impl Sprite {
         &self,
         render_ctx: &mut impl RenderContext,
         args: &SpriteRenderCommand,
-    ) -> Result<(), RendererError> {
+    ) -> Result<()> {
         let rot: glam::Mat2 = glam::Mat2::from_angle((args.angle / 180.0) * std::f32::consts::PI);
         let Vector2 {
             x: tex_width,
@@ -126,7 +123,7 @@ impl Sprite {
 
         let renderable = RenderableDesc {
             texture: self.texture.clone(),
-            shader: self.renderer.default_shader.clone(),
+            shader: self.renderer.standard_res().default_shader.clone(),
             verts: &vertex_data[..],
             indices: index_data,
         };
@@ -138,7 +135,7 @@ impl Sprite {
         &self,
         render_ctx: &mut impl RenderContext,
         location: P,
-    ) -> Result<(), RendererError> {
+    ) -> Result<()> {
         self.render(
             render_ctx,
             &SpriteRenderCommand {
@@ -202,11 +199,7 @@ impl SpriteRenderCommand {
         self
     }
 
-    pub fn render(
-        &self,
-        render_ctx: &mut impl RenderContext,
-        sprite: &Sprite,
-    ) -> Result<(), RendererError> {
+    pub fn render(&self, render_ctx: &mut impl RenderContext, sprite: &Sprite) -> Result<()> {
         sprite.render(render_ctx, self)
     }
 }
@@ -244,7 +237,7 @@ impl SpriteBuilder {
         self
     }
 
-    pub fn build(self, renderer: &Renderer) -> Result<Sprite, RendererError> {
+    pub fn build(self, renderer: &Renderer) -> Result<Sprite> {
         Sprite::new_from_image(renderer, self.img, self.mag_filter, self.min_filter)
     }
 }

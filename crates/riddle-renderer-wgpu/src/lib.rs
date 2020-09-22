@@ -12,6 +12,8 @@ mod swap_chain_target;
 mod texture;
 mod vertex;
 
+pub mod ext;
+
 pub use buffered_renderer::*;
 pub use error::*;
 pub use render_context::*;
@@ -29,3 +31,5 @@ use vertex::*;
 use riddle_image as image;
 use riddle_math as math;
 use riddle_platform_winit as platform;
+
+type Result<R> = std::result::Result<R, RendererError>;
