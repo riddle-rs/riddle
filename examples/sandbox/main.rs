@@ -24,7 +24,7 @@ impl DemoState {
     fn new(rdl: &RiddleApp) -> Result<Self, RiddleError> {
         let window = WindowBuilder::new().build(rdl.context())?;
 
-        let renderer = renderer::Renderer::new_shared(&window)?;
+        let renderer = renderer::Renderer::new_from_window(&window)?;
 
         let img = {
             let img_bytes = include_bytes!("../example_assets/image.png");
@@ -142,7 +142,7 @@ impl RendererState {
     }
 
     fn render_to_target(&self) -> Result<(), RiddleError> {
-        let mut ctx = self.target.begin_render();
+        let mut ctx = self.target.begin_render()?;
         ctx.clear(Color::rgb(0.0, 0.0, 1.0))?;
 
         self.sprite.render_at(&mut ctx, [0.0, 0.0])?;

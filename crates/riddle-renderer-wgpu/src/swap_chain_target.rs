@@ -1,40 +1,45 @@
-use math::Vector2;
-
-use crate::*;
+use crate::{ext::*, math::Vector2, *};
 
 pub(crate) struct SwapChainFrameTarget<'a> {
     renderer: &'a Renderer,
-    frame: wgpu::SwapChainFrame,
     dimensions: Vector2<f32>,
 }
 
 impl<'a> SwapChainFrameTarget<'a> {
-    pub fn new(
-        renderer: &'a Renderer,
-        frame: wgpu::SwapChainFrame,
-        dimensions: Vector2<f32>,
-    ) -> Self {
+    pub fn new(renderer: &'a Renderer, dimensions: Vector2<f32>) -> Self {
         Self {
             renderer: renderer,
-            frame,
             dimensions,
         }
     }
 }
 
 impl<'a> RenderTargetDesc<'a> for SwapChainFrameTarget<'a> {
-    fn renderer(&self) -> &Renderer {
-        &self.renderer
-    }
-
+    #[inline]
     fn dimensions(&self) -> Vector2<f32> {
         self.dimensions
     }
 
-    fn with_view<R, F: FnOnce(&wgpu::TextureView) -> Result<R, RendererError>>(
-        &self,
-        f: F,
-    ) -> Result<R, RendererError> {
-        f(&self.frame.output.view)
+    #[inline]
+    fn with_view<F: FnMut(&wgpu::TextureView) -> Result<()>>(&self, mut f: F) -> Result<()> {
+        self.renderer
+            .wgpu_device()
+            .with_frame(&mut |frame| f(&frame.output.view))
+    }
+
+    fn wgpu_device(&self) -> &dyn ext::RendererWGPUDevice {
+        self.renderer.wgpu_device()
+    }
+
+    fn standard_resources(&self) -> &StandardResources {
+        self.renderer.standard_res()
+    }
+
+    fn begin_render(&self) -> Result<()> {
+        self.wgpu_device().begin_frame()
+    }
+
+    fn end_render(&self) -> Result<()> {
+        self.wgpu_device().end_frame()
     }
 }
