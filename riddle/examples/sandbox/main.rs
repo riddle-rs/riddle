@@ -27,23 +27,23 @@ impl DemoState {
         let renderer = renderer::Renderer::new_from_window(&window)?;
 
         let img = {
-            let img_bytes = include_bytes!("../example_assets/image.png");
+            let img_bytes = include_bytes!("../../../example_assets/image.png");
             let img_cursor = std::io::Cursor::new(&img_bytes[..]);
             image::Image::new_from_png(img_cursor)?
         };
 
         let font = {
-            let font_bytes = include_bytes!("../example_assets/Roboto-Regular.ttf");
+            let font_bytes = include_bytes!("../../../example_assets/Roboto-Regular.ttf");
             font::TTFont::new(&font_bytes[..])?
         };
 
         let clip = {
-            let clip_bytes = include_bytes!("../example_assets/boop.wav");
+            let clip_bytes = include_bytes!("../../../example_assets/boop.wav");
             audio::Clip::new(&clip_bytes[..])?
         };
 
         let music = {
-            let music_bytes = include_bytes!("../example_assets/music.ogg");
+            let music_bytes = include_bytes!("../../../example_assets/music.ogg");
             audio::Clip::new(&music_bytes[..])?
         };
 

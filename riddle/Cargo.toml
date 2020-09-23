@@ -1,0 +1,30 @@
+[package]
+name = "riddle"
+version = "0.1.0"
+authors = ["vickles <vicklesort@gmail.com>"]
+edition = "2018"
+license = "MIT OR Apache-2.0"
+
+[features]
+default = ["renderer", "audio", "font"]
+renderer = ["riddle-renderer-wgpu"]
+audio = ["riddle-audio"]
+font = ["riddle-font"]
+
+[dependencies]
+riddle-audio = {version = "0.1", path = "../riddle-audio", optional = true}
+riddle-common = {version = "0.1", path = "../riddle-common"}
+riddle-font = {version = "0.1", path = "../riddle-font", optional = true}
+riddle-image = {version = "0.1", path = "../riddle-image"}
+riddle-input = {version = "0.1", path = "../riddle-input"}
+riddle-macros = {version = "0.1", path = "../riddle-macros"}
+riddle-math = {version = "0.1", path = "../riddle-math"}
+riddle-renderer-wgpu = {version = "0.1", path = "../riddle-renderer-wgpu", optional = true}
+riddle-time = {version = "0.1", path = "../riddle-time"}
+riddle-platform-winit = {version = "0.1", path = "../riddle-platform-winit"}
+
+thiserror = "1.0"
+
+[dev-dependencies]
+mint = "0.5"
+glam = {version= "0.9", features=["mint"]}
