@@ -34,7 +34,7 @@ impl ColorElement for f32 {
 impl ColorElementConversion<u8> for f32 {
     #[inline]
     fn convert(&self) -> u8 {
-        (self / 255.0) as u8
+        (self * 255.0) as u8
     }
 }
 
@@ -46,6 +46,7 @@ impl ColorElementConversion<f32> for f32 {
 }
 
 #[repr(C)]
+#[derive(Debug)]
 pub struct Color<E> {
     pub r: E,
     pub g: E,
@@ -103,6 +104,13 @@ impl<E: ColorElement> Color<E> {
         a: E::ZERO,
     };
 
+    pub const ZERO: Self = Self {
+        r: E::ZERO,
+        g: E::ZERO,
+        b: E::ZERO,
+        a: E::ZERO,
+    };
+
     #[inline]
     pub fn rgb(r: E, g: E, b: E) -> Self {
         Self {
@@ -125,6 +133,14 @@ impl<T: ColorElement, F: ColorElementConversion<T>> ColorElementConversion<Color
         )
     }
 }
+
+impl<E: PartialEq> PartialEq for Color<E> {
+    fn eq(&self, other: &Self) -> bool {
+        self.r == other.r && self.g == other.g && self.b == other.b && self.a == other.a
+    }
+}
+
+impl<E: PartialEq> Eq for Color<E> {}
 
 impl<E: Copy> From<[E; 4]> for Color<E> {
     #[inline]

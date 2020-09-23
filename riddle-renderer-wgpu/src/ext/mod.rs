@@ -18,6 +18,7 @@ pub trait RendererWGPUDevice: Send + Sync {
 
 pub trait RendererWGPU {
     fn wgpu_device(&self) -> &dyn RendererWGPUDevice;
+    fn new_from_device(device: Box<dyn RendererWGPUDevice>) -> Result<RendererHandle>;
 }
 
 pub struct WindowWGPUDevice {

@@ -27,6 +27,30 @@ impl Renderer {
         Self::new_from_device(Box::new(wgpu_device))
     }
 
+    pub(crate) fn standard_res(&self) -> &StandardResources {
+        &self.standard_res
+    }
+
+    pub fn dimensions(&self) -> Vector2<f32> {
+        self.wgpu_device.viewport_dimensions()
+    }
+
+    pub fn begin_render<'a>(&'a self) -> Result<impl RenderContext + 'a> {
+        let encoder = self
+            .wgpu_device
+            .device()
+            .create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
+
+        let target = SwapChainFrameTarget::new(self, self.dimensions());
+        BufferedRenderer::new(target, encoder)
+    }
+}
+
+impl RendererWGPU for Renderer {
+    fn wgpu_device(&self) -> &dyn RendererWGPUDevice {
+        Box::as_ref(&self.wgpu_device)
+    }
+
     fn new_from_device(wgpu_device: Box<dyn RendererWGPUDevice>) -> Result<RendererHandle> {
         let vs = include_bytes!("shaders/default.vert.spv");
         let fs = include_bytes!("shaders/default.frag.spv");
@@ -59,29 +83,5 @@ impl Renderer {
             wgpu_device,
             standard_res,
         }))
-    }
-
-    pub(crate) fn standard_res(&self) -> &StandardResources {
-        &self.standard_res
-    }
-
-    pub fn dimensions(&self) -> Vector2<f32> {
-        self.wgpu_device.viewport_dimensions()
-    }
-
-    pub fn begin_render<'a>(&'a self) -> Result<impl RenderContext + 'a> {
-        let encoder = self
-            .wgpu_device
-            .device()
-            .create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
-
-        let target = SwapChainFrameTarget::new(self, self.dimensions());
-        BufferedRenderer::new(target, encoder)
-    }
-}
-
-impl RendererWGPU for Renderer {
-    fn wgpu_device(&self) -> &dyn RendererWGPUDevice {
-        Box::as_ref(&self.wgpu_device)
     }
 }

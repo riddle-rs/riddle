@@ -9,12 +9,12 @@ struct ImageViewDetails {
     row_len: usize,
 }
 
-pub struct ImageView<'a> {
+pub(crate) struct ImageView<'a> {
     image: &'a Image,
     details: ImageViewDetails,
 }
 
-pub struct ImageViewMut<'a> {
+pub(crate) struct ImageViewMut<'a> {
     image: &'a mut Image,
     details: ImageViewDetails,
 }

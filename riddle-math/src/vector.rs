@@ -19,6 +19,14 @@ impl<T> Vector2<T> {
     }
 }
 
+impl<T: PartialEq> PartialEq for Vector2<T> {
+    fn eq(&self, other: &Self) -> bool {
+        self.x == other.x && self.y == other.y
+    }
+}
+
+impl<T: PartialEq> Eq for Vector2<T> {}
+
 impl<T: Default> Default for Vector2<T> {
     #[inline]
     fn default() -> Self {

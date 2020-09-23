@@ -1,6 +1,10 @@
 /*!
 Riddle crate for loading font files and rendering text to riddle_image images.
 
+Built largely on the back of `rusttype` and its dependencies.
+
+# Example
+
 ```
 # use riddle_font::*;
 # fn main() -> Result<(), FontError> {
@@ -10,8 +14,6 @@ let font = TTFont::new(&ttf_bytes[..])?;
 
 // Render the loaded font to a Riddle image
 let image = font.render_simple("Simple String", 24)?;
-# assert_eq!(24, image.height());
-# assert!(image.width() > 0);
 # Ok(())
 # }
 ```

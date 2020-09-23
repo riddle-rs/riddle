@@ -1,6 +1,6 @@
 use crate::*;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 #[repr(C)]
 pub struct Rect<T> {
     pub location: Vector2<T>,
@@ -126,3 +126,11 @@ impl<T: SpacialNumericConversion<U>, U> SpacialNumericConversion<Rect<U>> for Re
         }
     }
 }
+
+impl<T: PartialEq> PartialEq for Rect<T> {
+    fn eq(&self, other: &Self) -> bool {
+        self.location == other.location && self.dimensions == other.dimensions
+    }
+}
+
+impl<T: PartialEq> Eq for Rect<T> {}
