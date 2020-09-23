@@ -2,7 +2,7 @@ pub trait CloneHandle {
     type Handle: std::ops::Deref<Target = Self>;
     type WeakHandle;
 
-    fn clone_handle(&self) -> Option<Self::Handle>;
+    fn clone_handle(&self) -> Self::Handle;
     fn clone_weak_handle(&self) -> Self::WeakHandle;
 }
 
@@ -14,8 +14,8 @@ macro_rules! define_handles {
             type WeakHandle = $w;
 
             #[inline]
-            fn clone_handle(&self) -> Option<$s> {
-                <$w>::upgrade(&self.$i)
+            fn clone_handle(&self) -> $s {
+                <$w>::upgrade(&self.$i).unwrap()
             }
 
             #[inline]

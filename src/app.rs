@@ -26,7 +26,7 @@ impl RiddleApp {
     }
 
     pub fn context(&self) -> RiddleContext {
-        let platform_ctx = self.main_thread_state.platform.borrow_context().unwrap();
+        let platform_ctx = self.main_thread_state.platform.borrow_context();
         RiddleContext {
             state: &self.state,
             window_ctx: platform_ctx,

@@ -50,8 +50,8 @@ impl Sprite {
         source_rect: Rect<f32>,
     ) -> Result<Sprite> {
         Ok(Sprite {
-            renderer: renderer.clone_handle().ok_or(RendererError::Unknown)?,
-            texture: texture.clone_handle().unwrap(),
+            renderer: renderer.clone_handle(),
+            texture: texture.clone_handle(),
             source_rect,
         })
     }

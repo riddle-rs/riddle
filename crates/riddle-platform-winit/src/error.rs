@@ -1,13 +1,16 @@
 use thiserror::Error;
 
 #[derive(Debug, Error)]
-pub enum WindowError {
+pub enum PlatformError {
+    #[error("Message Dispatch Error")]
+    MessageDispatchError,
+
+    #[error("Invalid context state")]
+    InvalidContextState,
+
+    #[error("Window creation failure")]
+    WindowInitFailure,
+
     #[error("Unknown Window Error")]
     Unknown,
-}
-
-impl From<WindowError> for riddle_common::CommonError {
-    fn from(e: WindowError) -> Self {
-        e.into()
-    }
 }

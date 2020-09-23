@@ -8,13 +8,13 @@ pub struct Clip {
 }
 
 impl Clip {
-    pub fn new<R>(mut data: R) -> Result<Clip, AudioError>
+    pub fn new<R>(mut data: R) -> Result<Clip>
     where
         R: Read,
     {
         let mut owned_data: Vec<u8> = vec![];
         data.read_to_end(&mut owned_data)
-            .map_err(|_| AudioError::UnknownError)?;
+            .map_err(|e| CommonError::IOError(e))?;
 
         Ok(Self {
             data: ClipData::new(owned_data),

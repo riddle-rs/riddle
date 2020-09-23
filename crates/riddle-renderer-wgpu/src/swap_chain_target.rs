@@ -39,7 +39,7 @@ impl<'a> RenderTargetDesc<'a> for SwapChainFrameTarget<'a> {
         self.wgpu_device().begin_frame()
     }
 
-    fn end_render(&self) -> Result<()> {
+    fn end_render(&self) {
         self.wgpu_device().end_frame()
     }
 }

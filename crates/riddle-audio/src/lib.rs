@@ -11,3 +11,5 @@ pub use audio_system::*;
 pub use clip::*;
 pub use clip_player::*;
 pub use error::*;
+
+type Result<R> = std::result::Result<R, AudioError>;

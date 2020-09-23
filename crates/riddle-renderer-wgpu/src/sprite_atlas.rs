@@ -37,7 +37,7 @@ impl<'a> SpriteAtlasBuilder<'a> {
     }
 
     pub fn build(self, renderer: &Renderer) -> Result<()> {
-        let mut atlas = image::Image::new(self.total_width, self.max_height)?;
+        let mut atlas = image::Image::new(self.total_width, self.max_height);
         let mut sprite_bounds = vec![];
         let mut x = 0;
         for (img, sprite) in self.images {

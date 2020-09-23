@@ -4,12 +4,12 @@ use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum AudioError {
-    #[error("Initialization Error")]
-    UnknownError,
-}
+    #[error("Error acquiring rodio device")]
+    InitFailed { cause: &'static str },
 
-impl From<AudioError> for CommonError {
-    fn from(e: AudioError) -> Self {
-        e.into()
-    }
+    #[error("Error decoding clip")]
+    ClipDecodeError,
+
+    #[error(transparent)]
+    CommonError(#[from] CommonError),
 }

@@ -18,8 +18,10 @@ pub struct AudioSystem {
 define_handles!(<AudioSystem>::weak_self, pub AudioSystemHandle, pub AudioSystemWeak);
 
 impl AudioSystem {
-    pub fn new() -> Result<AudioSystemHandle, AudioError> {
-        let device = rodio::default_output_device().ok_or(AudioError::UnknownError)?;
+    pub fn new() -> Result<AudioSystemHandle> {
+        let device = rodio::default_output_device().ok_or(AudioError::InitFailed {
+            cause: "Failed to get rodio output device",
+        })?;
         Ok(AudioSystemHandle::new(|weak_self| AudioSystem {
             weak_self,
             device,

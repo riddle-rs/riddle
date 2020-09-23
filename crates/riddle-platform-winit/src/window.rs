@@ -19,11 +19,8 @@ pub struct Window {
 define_handles!(<Window>::weak_self, pub WindowHandle, pub WindowWeak);
 
 impl Window {
-    fn new_shared(
-        ctx: &PlatformContext,
-        args: &WindowBuilder,
-    ) -> Result<WindowHandle, WindowError> {
-        let system = ctx.system().clone_handle().unwrap();
+    fn new_shared(ctx: &PlatformContext, args: &WindowBuilder) -> Result<WindowHandle> {
+        let system = ctx.system().clone_handle();
 
         #[cfg(target_os = "windows")]
         let winit_builder = {
@@ -47,8 +44,11 @@ impl Window {
             .with_title(args.title.clone())
             .with_resizable(args.resizeable);
 
-        let winit_window =
-            ctx.with_event_loop(|el| winit_builder.build(el).map_err(|_| WindowError::Unknown))?;
+        let winit_window = ctx.with_event_loop(|el| {
+            winit_builder
+                .build(el)
+                .map_err(|_| PlatformError::WindowInitFailure)
+        })?;
 
         args.configure_window(&winit_window);
 
@@ -191,7 +191,7 @@ impl WindowBuilder {
         self
     }
 
-    pub fn build<'a, C>(&self, ctx: C) -> Result<WindowHandle, WindowError>
+    pub fn build<'a, C>(&self, ctx: C) -> Result<WindowHandle>
     where
         C: Borrow<PlatformContext<'a>>,
     {

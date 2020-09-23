@@ -236,7 +236,9 @@ impl<'a, R: RenderTargetDesc<'a>> RenderContext for BufferedRenderer<'a, R> {
         let cmd = self.encoder.finish();
         self.target_desc.wgpu_device().queue().submit(Some(cmd));
 
-        self.target_desc.end_render()
+        self.target_desc.end_render();
+
+        Ok(())
     }
 
     fn render<S: Renderable>(&mut self, renderable: &S) -> Result<()> {
