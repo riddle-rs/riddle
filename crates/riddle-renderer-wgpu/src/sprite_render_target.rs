@@ -37,9 +37,7 @@ impl<'a> RenderTargetDesc<'a> for &'a SpriteRenderTarget {
         Ok(())
     }
 
-    fn end_render(&self) -> Result<()> {
-        Ok(())
-    }
+    fn end_render(&self) {}
 }
 
 impl SpriteRenderTarget {
@@ -55,7 +53,7 @@ impl SpriteRenderTarget {
         let sprite = Sprite::from_texture(renderer, &texture)?;
 
         Ok(Self {
-            renderer: renderer.clone_handle().unwrap(),
+            renderer: renderer.clone_handle(),
 
             texture,
             sprite,

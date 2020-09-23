@@ -83,7 +83,7 @@ impl PlatformMainThreadState {
     {
         let el = std::mem::replace(&mut *self.event_loop.borrow_mut(), None).unwrap();
         let mut main_loop = main_loop;
-        let this = self.system.clone_handle().unwrap();
+        let this = self.system.clone_handle();
         el.run(move |event, el, cf| {
             match &event {
                 winit::event::Event::UserEvent(InternalEvent::QuitRequested) => {
@@ -110,11 +110,11 @@ impl PlatformMainThreadState {
         })
     }
 
-    pub fn borrow_context(&self) -> Result<PlatformContext, WindowError> {
-        Ok(PlatformContext {
+    pub fn borrow_context(&self) -> PlatformContext {
+        PlatformContext {
             main_thread_state: &self,
             event_loop: None,
             triggering_event: PlatformEvent::Unknown,
-        })
+        }
     }
 }

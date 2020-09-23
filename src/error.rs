@@ -23,11 +23,5 @@ pub enum RiddleError {
     RendererError(#[from] renderer::RendererError),
 
     #[error(transparent)]
-    WindowError(#[from] platform::WindowError),
-}
-
-impl From<RiddleError> for riddle_common::CommonError {
-    fn from(e: RiddleError) -> Self {
-        e.into()
-    }
+    WindowError(#[from] platform::PlatformError),
 }

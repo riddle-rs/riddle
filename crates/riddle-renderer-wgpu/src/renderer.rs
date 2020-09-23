@@ -37,7 +37,7 @@ impl Renderer {
             wgpu::PrimitiveTopology::TriangleList,
         )?;
 
-        let mut white_img = image::Image::new(1, 1).map_err(|_| RendererError::Unknown)?;
+        let mut white_img = image::Image::new(1, 1);
         white_img.set_pixel(0, 0, Color::from([0xFF; 4]));
         let white_tex = Texture::from_image(
             wgpu_device.device(),

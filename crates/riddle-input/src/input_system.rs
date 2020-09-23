@@ -29,11 +29,11 @@ define_handles!(<InputSystem>::weak_self, pub InputSystemHandle, pub InputSystem
 impl InputSystem {
     pub fn new(
         sys_events: &EventPub<PlatformEvent>,
-    ) -> Result<(InputSystemHandle, InputMainThreadState), InputError> {
+    ) -> Result<(InputSystemHandle, InputMainThreadState)> {
         let event_sub = EventSub::new_with_filter(Self::event_filter);
         sys_events.attach(&event_sub);
 
-        let gilrs = gilrs::Gilrs::new().map_err(|_| InputError::Unknown)?;
+        let gilrs = gilrs::Gilrs::new().map_err(|_| InputError::InitError("Gilrs init failure"))?;
 
         let system = InputSystemHandle::new(|weak_self| InputSystem {
             weak_self,

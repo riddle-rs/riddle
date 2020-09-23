@@ -9,11 +9,9 @@ pub struct PlatformContext<'a> {
 }
 
 impl<'a> PlatformContext<'a> {
-    pub(crate) fn with_event_loop<T, F>(&self, f: F) -> Result<T, WindowError>
+    pub(crate) fn with_event_loop<T, F>(&self, f: F) -> Result<T>
     where
-        F: FnOnce(
-            &winit::event_loop::EventLoopWindowTarget<InternalEvent>,
-        ) -> Result<T, WindowError>,
+        F: FnOnce(&winit::event_loop::EventLoopWindowTarget<InternalEvent>) -> Result<T>,
     {
         match self.event_loop {
             Some(el) => f(el),
@@ -22,20 +20,20 @@ impl<'a> PlatformContext<'a> {
                 let el = el_ref.deref();
                 match el {
                     Some(el) => f(el),
-                    None => Err(WindowError::Unknown),
+                    None => Err(PlatformError::InvalidContextState),
                 }
             }
         }
     }
 
-    pub fn quit(&self) -> Result<(), WindowError> {
+    pub fn quit(&self) -> Result<()> {
         self.main_thread_state
             .system
             .event_proxy
             .lock()
             .unwrap()
             .send_event(InternalEvent::QuitRequested)
-            .map_err(|_| WindowError::Unknown)
+            .map_err(|_| PlatformError::MessageDispatchError)
     }
 
     pub fn event(&self) -> &PlatformEvent {

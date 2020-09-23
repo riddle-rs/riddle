@@ -13,19 +13,18 @@ pub struct Image {
 }
 
 impl Image {
-    pub fn new_from_png<R: Read + Seek>(r: R) -> Result<Self, ImageError> {
-        let img = ::image::load(std::io::BufReader::new(r), ::image::ImageFormat::Png)
-            .map_err(|_| ImageError::Unknown)?;
+    pub fn new_from_png<R: Read + Seek>(r: R) -> Result<Self> {
+        let img = ::image::load(std::io::BufReader::new(r), ::image::ImageFormat::Png)?;
         Ok(Image {
             img: img.into_rgba(),
         })
     }
 
-    pub fn new(width: u32, height: u32) -> Result<Self, ImageError> {
+    pub fn new(width: u32, height: u32) -> Self {
         let img =
             ::image::RgbaImage::from_raw(width, height, vec![0u8; (width * height * 4) as usize])
-                .ok_or(ImageError::Unknown)?;
-        Ok(Image { img })
+                .unwrap();
+        Image { img }
     }
 
     pub fn get_pixel(&self, x: u32, y: u32) -> Color<u8> {

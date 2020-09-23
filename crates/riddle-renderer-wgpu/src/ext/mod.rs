@@ -11,7 +11,7 @@ pub trait RendererWGPUDevice: Send + Sync {
     fn device(&self) -> &wgpu::Device;
     fn queue(&self) -> &wgpu::Queue;
     fn begin_frame(&self) -> Result<()>;
-    fn end_frame(&self) -> Result<()>;
+    fn end_frame(&self);
     fn viewport_dimensions(&self) -> Vector2<f32>;
     fn with_frame(&self, f: &mut dyn FnMut(&wgpu::SwapChainFrame) -> Result<()>) -> Result<()>;
 }
@@ -42,7 +42,7 @@ impl WindowWGPUDevice {
                 power_preference: wgpu::PowerPreference::Default,
                 compatible_surface: Some(&surface),
             }))
-            .ok_or(RendererError::Unknown)?;
+            .ok_or(RendererError::APIInitError("Failed to get WGPU adapter"))?;
 
         let (device, queue) = futures::executor::block_on(adapter.request_device(
             &wgpu::DeviceDescriptor {
@@ -51,7 +51,7 @@ impl WindowWGPUDevice {
             },
             None,
         ))
-        .map_err(|_| RendererError::Unknown)?;
+        .map_err(|_| RendererError::APIInitError("Failed to create WGPU device"))?;
 
         let (width, height) = window.drawable_size();
         let sc_desc = wgpu::SwapChainDescriptor {
@@ -68,7 +68,7 @@ impl WindowWGPUDevice {
         window.subscribe_to_events(&window_event_sub);
 
         Ok(Self {
-            window: window.clone_handle().unwrap(),
+            window: window.clone_handle(),
             window_event_sub,
             device,
             surface,
@@ -78,7 +78,7 @@ impl WindowWGPUDevice {
         })
     }
 
-    fn handle_window_events(&self) -> Result<()> {
+    fn handle_window_events(&self) {
         let mut dirty_swap_chain = false;
         for event in self.window_event_sub.collect().iter() {
             match event {
@@ -100,8 +100,6 @@ impl WindowWGPUDevice {
             let swap_chain = self.device.create_swap_chain(&self.surface, &sc_desc);
             *self.swap_chain.lock().unwrap() = swap_chain;
         }
-
-        Ok(())
     }
 
     fn ensure_current_frame(&self) -> Result<()> {
@@ -110,17 +108,16 @@ impl WindowWGPUDevice {
 
         let new_frame = swap_chain
             .get_current_frame()
-            .map_err(|_| RendererError::Unknown)?;
+            .map_err(|_| RendererError::BeginRenderError("Error getting swap chain frame"))?;
 
         *frame = Some(new_frame);
 
         Ok(())
     }
 
-    fn present_current_frame(&self) -> Result<()> {
+    fn present_current_frame(&self) -> () {
         let mut frame = self.current_frame.lock().unwrap();
         *frame = None;
-        Ok(())
     }
 }
 
@@ -138,11 +135,11 @@ impl RendererWGPUDevice for WindowWGPUDevice {
     }
 
     fn begin_frame(&self) -> Result<()> {
-        self.handle_window_events()?;
+        self.handle_window_events();
         self.ensure_current_frame()
     }
 
-    fn end_frame(&self) -> Result<()> {
+    fn end_frame(&self) {
         self.present_current_frame()
     }
 

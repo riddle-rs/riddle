@@ -2,7 +2,7 @@ use crate::{math::*, *};
 
 pub trait RenderTargetDesc<'a> {
     fn begin_render(&self) -> Result<()>;
-    fn end_render(&self) -> Result<()>;
+    fn end_render(&self);
     fn wgpu_device(&self) -> &dyn ext::RendererWGPUDevice;
     fn dimensions(&self) -> Vector2<f32>;
     fn standard_resources(&self) -> &StandardResources;

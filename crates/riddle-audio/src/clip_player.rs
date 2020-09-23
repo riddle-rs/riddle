@@ -14,20 +14,20 @@ pub struct ClipPlayer {
 }
 
 impl ClipPlayer {
-    pub(crate) fn new(audio: &AudioSystem, clip: Clip) -> Result<Self, AudioError> {
-        Ok(Self {
-            audio: audio.clone_handle().ok_or(AudioError::UnknownError)?,
+    pub(crate) fn new(audio: &AudioSystem, clip: Clip) -> Self {
+        Self {
+            audio: audio.clone_handle(),
             clip: clip,
             sink: None,
             volume: 1.0,
-        })
+        }
     }
 
-    fn play(&mut self, mode: PlayMode) -> Result<(), AudioError> {
+    fn play(&mut self, mode: PlayMode) -> Result<()> {
         let sink: Arc<Sink> = Sink::new(&self.audio.device).into();
         sink.set_volume(self.volume);
         let source = Decoder::new(Cursor::new(self.clip.data.clone()))
-            .map_err(|_| AudioError::UnknownError)?;
+            .map_err(|_| AudioError::ClipDecodeError)?;
 
         match mode {
             PlayMode::OneShot => sink.append(source),
@@ -107,8 +107,8 @@ impl ClipPlayerBuilder {
         self
     }
 
-    pub fn play(&self, audio: &AudioSystem, clip: Clip) -> Result<ClipPlayer, AudioError> {
-        let mut player = ClipPlayer::new(audio, clip)?;
+    pub fn play(&self, audio: &AudioSystem, clip: Clip) -> Result<ClipPlayer> {
+        let mut player = ClipPlayer::new(audio, clip);
         player.play(self.mode)?;
         Ok(player)
     }

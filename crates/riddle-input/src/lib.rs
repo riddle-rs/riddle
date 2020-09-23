@@ -17,3 +17,5 @@ pub use input_system::*;
 pub use keyboard_state::*;
 pub use mouse_state::*;
 pub use riddle_platform_common::{LogicalPosition, MouseButton, Scancode, VirtualKey};
+
+type Result<R> = std::result::Result<R, InputError>;
