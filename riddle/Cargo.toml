@@ -17,7 +17,6 @@ riddle-common = {version = "0.1", path = "../riddle-common"}
 riddle-font = {version = "0.1", path = "../riddle-font", optional = true}
 riddle-image = {version = "0.1", path = "../riddle-image"}
 riddle-input = {version = "0.1", path = "../riddle-input"}
-riddle-macros = {version = "0.1", path = "../riddle-macros"}
 riddle-math = {version = "0.1", path = "../riddle-math"}
 riddle-renderer-wgpu = {version = "0.1", path = "../riddle-renderer-wgpu", optional = true}
 riddle-time = {version = "0.1", path = "../riddle-time"}

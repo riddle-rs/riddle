@@ -9,7 +9,6 @@ edition = "2018"
 [dependencies]
 riddle-common = {path = "../riddle-common"}
 riddle-image = {path = "../riddle-image"}
-riddle-macros = {path = "../riddle-macros"}
 riddle-math = {path = "../riddle-math"}
 riddle-platform-winit = {path = "../riddle-platform-winit"}
 
