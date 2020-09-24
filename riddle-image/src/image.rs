@@ -192,17 +192,18 @@ impl Image {
     /// assert_eq!(Color::RED, dest.get_pixel(1, 0));
     /// ```
     pub fn blit(&mut self, source: &Image, location: Vector2<i32>) {
-        let (dest_rect, src_rect) =
-            Rect::intersect_relative_to_both(self.dimensions(), source.dimensions(), location);
+        if let Some((dest_rect, src_rect)) =
+            Rect::intersect_relative_to_both(self.dimensions(), source.dimensions(), location)
+        {
+            let mut dest_view = self.create_view_mut(dest_rect.clone().convert());
+            let src_view = source.create_view(src_rect.convert());
 
-        let mut dest_view = self.create_view_mut(dest_rect.clone().convert());
-        let src_view = source.create_view(src_rect.convert());
+            for row in 0..(dest_rect.dimensions.y as u32) {
+                let dest = dest_view.get_row_rgba8_mut(row);
+                let src = src_view.get_row_rgba8(row);
 
-        for row in 0..(dest_rect.dimensions.y as u32) {
-            let dest = dest_view.get_row_rgba8_mut(row);
-            let src = src_view.get_row_rgba8(row);
-
-            dest.clone_from_slice(src);
+                dest.clone_from_slice(src);
+            }
         }
     }
 

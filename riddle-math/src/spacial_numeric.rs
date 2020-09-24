@@ -1,3 +1,8 @@
+/// Numeric types over which [`crate::Rect`] and [`crate::Vector2`] are defined
+///
+/// Types which implement this have basic operations and comparisons defined
+/// that can work for all signed, unsigned numbers, integer, and floating point
+/// numbers.
 pub trait SpacialNumeric:
     std::cmp::PartialOrd
     + Copy
@@ -11,9 +16,20 @@ pub trait SpacialNumeric:
 {
 }
 
+/// Types which as well as being defined as SpacialNumeric, may be negated.
 pub trait SignedSpacialNumeric: SpacialNumeric + std::ops::Neg<Output = Self> {}
 
+/// Define the conversion between two SpacialNumeric types.
+///
+/// # Example
+///
+/// ```
+/// # use riddle_math::*;
+/// let a: u32 = 1;
+/// let b: f32 = a.convert();
+/// ```
 pub trait SpacialNumericConversion<T> {
+    /// Convert one SpacialNumeric value to another. This conversion can not fail.
     fn convert(self) -> T;
 }
 

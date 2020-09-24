@@ -1,5 +1,27 @@
 use crate::*;
 
+/// A basic 2d vector, supporting a small selection of operations
+///
+/// Supported operations (depending on element type):
+///
+/// * Add
+/// * Subtract
+/// * Mul
+/// * Neg (where T: std::ops::Neg)
+/// * Converting to vectors of other element types
+///
+/// # Example
+///
+/// ```
+/// # use riddle_math::*;
+/// let v = vec2(1,2);
+/// assert_eq!(vec2(2, 4), v + v);
+/// assert_eq!(vec2(0, 0), v - v);
+/// assert_eq!(vec2(3, 6), v * 3);
+/// assert_eq!(vec2(-1, -2), -v);
+///
+/// assert_eq!(vec2(1.0, 2.0), v.convert());
+/// ```
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
 pub struct Vector2<T> {
@@ -7,12 +29,21 @@ pub struct Vector2<T> {
     pub y: T,
 }
 
+/// Utility function to abbreviate [`Vector2`] creation
+///
+/// # Example
+///
+/// ```
+/// # use riddle_math::*;
+/// assert_eq!(vec2(1,2), Vector2::new(1,2));
+/// ```
 #[inline]
 pub fn vec2<T>(x: T, y: T) -> Vector2<T> {
     Vector2::new(x, y)
 }
 
 impl<T> Vector2<T> {
+    /// Create a vector with the given coordinatates.
     #[inline]
     pub fn new(x: T, y: T) -> Self {
         Self { x, y }
@@ -129,6 +160,16 @@ impl<T: SpacialNumeric> Into<mint::Vector2<T>> for Vector2<T> {
     }
 }
 
+/// Vectors are convertible between numeric types
+///
+/// # Example
+///
+/// ```
+/// # use riddle_math::*;
+/// let v: Vector2<f32> = vec2(3.0, 4.0);
+/// let w: Vector2<u32> = v.convert();
+/// assert_eq!(vec2(3, 4), w);
+/// ```
 impl<T: SpacialNumericConversion<U>, U> SpacialNumericConversion<Vector2<U>> for Vector2<T> {
     #[inline]
     fn convert(self) -> Vector2<U> {

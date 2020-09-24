@@ -21,20 +21,27 @@ pub(crate) struct ImageViewMut<'a> {
 
 impl ImageViewDetails {
     fn new(image: &Image, bounds: Rect<u32>) -> Self {
-        let bounds = image.rect().intersect(&bounds);
+        if let Some(bounds) = image.rect().intersect(&bounds) {
+            let start_offset = ((image.width() * (bounds.location.y)) + bounds.location.x) * 4;
+            let stride = image.width() * 4;
+            let row_len = bounds.dimensions.x * 4;
+            let end_offset = ((image.width() * (bounds.location.y + bounds.dimensions.y))
+                + (bounds.location.x + bounds.location.y + 1))
+                * 4;
 
-        let start_offset = ((image.width() * (bounds.location.y)) + bounds.location.x) * 4;
-        let stride = image.width() * 4;
-        let row_len = bounds.dimensions.x * 4;
-        let end_offset = ((image.width() * (bounds.location.y + bounds.dimensions.y))
-            + (bounds.location.x + bounds.location.y + 1))
-            * 4;
-
-        Self {
-            start_offset: start_offset as usize,
-            end_offset: end_offset as usize,
-            stride: stride as usize,
-            row_len: row_len as usize,
+            Self {
+                start_offset: start_offset as usize,
+                end_offset: end_offset as usize,
+                stride: stride as usize,
+                row_len: row_len as usize,
+            }
+        } else {
+            Self {
+                start_offset: 0,
+                end_offset: 0,
+                stride: 0,
+                row_len: 0,
+            }
         }
     }
 }
