@@ -66,9 +66,9 @@ impl DemoState {
 
         let target = SpriteRenderTarget::new(&renderer, [50, 50].into())?;
 
-        let music_player = audio::ClipPlayerBuilder::new()
+        let music_player = audio::ClipPlayerBuilder::new(&rdl.state().audio())
             .with_mode(audio::PlayMode::Loop)
-            .play(&rdl.state().audio(), music)?;
+            .play(&music)?;
 
         let mouse_location = Arc::new(Mutex::new(input::LogicalPosition::default()));
 
@@ -93,8 +93,8 @@ impl DemoState {
             let rdlstate = rdl.state().clone();
             let clip = clip.clone();
             std::thread::spawn(move || loop {
-                let _player = audio::ClipPlayerBuilder::new()
-                    .play(&rdlstate.audio(), clip.clone())
+                let _player = audio::ClipPlayerBuilder::new(&rdlstate.audio())
+                    .play(&clip)
                     .unwrap();
                 std::thread::sleep(std::time::Duration::from_secs(10));
             });
@@ -115,9 +115,9 @@ impl DemoState {
 
     pub fn on_mouse_down(&mut self) -> Result<(), RiddleError> {
         self.blip_player = Some(
-            audio::ClipPlayerBuilder::new()
+            audio::ClipPlayerBuilder::new(&self.state.audio())
                 .with_mode(audio::PlayMode::OneShot)
-                .play(&self.state.audio(), self.clip.clone())?,
+                .play(&self.clip)?,
         );
         Ok(())
     }

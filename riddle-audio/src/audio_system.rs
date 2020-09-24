@@ -1,13 +1,17 @@
 use crate::*;
 
-use rodio::{Device, Sink};
-use std::{
-    collections::HashMap,
-    sync::Arc,
-    sync::Mutex,
-    time::{Duration, Instant},
-};
+use rodio::Device;
+use std::{collections::HashMap, sync::Mutex, time::Instant};
 
+/// The Riddle audio system core state.
+///
+/// Manages underlying audio device and riddle audio objects' states. The recommended
+/// way to use this type is to let the `riddle` crate initialize and manage it for you.
+///
+/// It is possible to manage the audio system state independantly - the most important
+/// thing to note is that [`AudioSystem::process_frame`] must be called periodically
+/// for [`ClipPlayer`] to work properly. This is **not** something that needs doing if
+/// using the `riddle` crate to manage the [`AudioSystem`] automatically.
 pub struct AudioSystem {
     weak_self: AudioSystemWeak,
     pub(super) device: Device,
@@ -18,6 +22,7 @@ pub struct AudioSystem {
 define_handles!(<AudioSystem>::weak_self, pub AudioSystemHandle, pub AudioSystemWeak);
 
 impl AudioSystem {
+    /// Create the audio system, connected to the default audio output device.
     pub fn new() -> Result<AudioSystemHandle> {
         let device = rodio::default_output_device().ok_or(AudioError::InitFailed {
             cause: "Failed to get rodio output device",
@@ -29,11 +34,28 @@ impl AudioSystem {
         }))
     }
 
+    /// Update the system's state.
+    ///
+    /// Updates all [`ClipPlayer`] fades. This must be called periodically for the [`AudioSystem`]
+    /// to function. **Do not** call this if the `riddle` crate is being used.
+    ///
+    /// # Example
+    /// ```no_run
+    /// # use riddle_audio::*; fn main() -> Result<(), AudioError> {
+    /// let audio_system = AudioSystem::new()?;
+    ///
+    /// // Tick the audio system every 100ms
+    /// let start_time = std::time::Instant::now();
+    /// while std::time::Instant::now() - start_time < std::time::Duration::from_secs(2) {
+    ///     audio_system.process_frame();
+    ///     std::thread::sleep(std::time::Duration::from_millis(100));
+    /// }
+    /// # Ok(()) }
+    /// ```
     pub fn process_frame(&self) {
         let now = Instant::now();
         self.tick_fades(now);
     }
-
     pub(crate) fn register_fade(&self, fade: Fade) {
         let mut fades = self.fades.lock().unwrap();
         let existing = fades.remove(&fade.key());
@@ -43,95 +65,8 @@ impl AudioSystem {
         };
     }
 
-    pub fn tick_fades(&self, now: Instant) {
+    fn tick_fades(&self, now: Instant) {
         let mut fades = self.fades.lock().unwrap();
         fades.retain(|_, f| f.update(now));
-    }
-}
-
-struct FadeKey {
-    sink: Arc<Sink>,
-}
-
-impl std::hash::Hash for FadeKey {
-    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
-        std::ptr::hash(&*self.sink, state);
-    }
-}
-
-impl std::cmp::PartialEq for FadeKey {
-    fn eq(&self, other: &Self) -> bool {
-        Arc::ptr_eq(&self.sink, &other.sink)
-    }
-}
-
-impl std::cmp::Eq for FadeKey {}
-
-pub(crate) enum FadeType {
-    Pause,
-    Resume,
-    AlterVolume,
-}
-
-pub(crate) struct Fade {
-    sink: Arc<Sink>,
-    start_volume: f32,
-    dest_volume: f32,
-    start_time: Instant,
-    duration: Duration,
-    fade_type: FadeType,
-}
-
-impl Fade {
-    pub(crate) fn new(
-        sink: Arc<Sink>,
-        dest_volume: f32,
-        duration: Duration,
-        fade_type: FadeType,
-    ) -> Self {
-        let start_volume = sink.volume();
-        let start_time = Instant::now();
-        Self {
-            sink,
-            start_volume,
-            dest_volume,
-            start_time,
-            duration,
-            fade_type,
-        }
-    }
-
-    fn merge_pair(old: Self, new: Self) -> Self {
-        use FadeType::*;
-        match (&old.fade_type, &new.fade_type) {
-            (AlterVolume, _) => new,
-            (Pause, _) => old,
-            (Resume, _) => old,
-        }
-    }
-
-    fn update(&self, now: Instant) -> bool {
-        let current_duration = now.duration_since(self.start_time);
-        let t = current_duration.as_secs_f32() / self.duration.as_secs_f32();
-        let new_volume = self.start_volume + ((self.dest_volume - self.start_volume) * t.min(1.0));
-        self.sink.set_volume(new_volume);
-
-        let finished = t >= 1.0;
-        if finished {
-            match &self.fade_type {
-                FadeType::Pause => {
-                    self.sink.pause();
-                }
-                _ => (),
-            }
-        }
-
-        !finished
-    }
-
-    fn key(&self) -> FadeKey {
-        FadeKey {
-            sink: self.sink.clone(),
-        }
     }
 }
