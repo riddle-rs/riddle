@@ -100,7 +100,7 @@ impl Window {
 
     pub(crate) fn update(&self) {
         for event in self.event_sub.collect() {
-            self.event_pub.dispatch(&event);
+            self.event_pub.dispatch(event);
         }
     }
 

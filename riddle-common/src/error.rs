@@ -1,5 +1,6 @@
 use thiserror::Error;
 
+/// Errors common to many riddle crates
 #[derive(Debug, Error)]
 pub enum CommonError {
     #[error(transparent)]

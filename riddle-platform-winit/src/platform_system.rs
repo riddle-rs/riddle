@@ -100,7 +100,7 @@ impl PlatformMainThreadState {
                         triggering_event: system_event.clone(),
                     };
 
-                    this.event_pub.dispatch(&system_event);
+                    this.event_pub.dispatch(system_event);
                     this.update_windows();
 
                     main_loop(ctx);
