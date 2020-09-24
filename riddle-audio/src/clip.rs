@@ -17,14 +17,13 @@ use std::{io::Cursor, io::Read, sync::Arc};
 #[derive(Clone)]
 pub struct Clip {
     pub(crate) data: ClipData,
-    duration: std::time::Duration,
+    duration: Option<std::time::Duration>,
 }
 
 impl Clip {
     /// Reads the entirety of the data reader in to memory.
     ///
-    /// An [`AudioError::ClipDecodeError`] value will be returned if the data isn't a known format
-    /// or if the duration of the clip could not be determined.
+    /// An [`AudioError::ClipDecodeError`] value will be returned if the data isn't a known format.
     pub fn new<R>(mut data: R) -> Result<Clip>
     where
         R: Read,
@@ -35,7 +34,7 @@ impl Clip {
 
         let source = Decoder::new(Cursor::new(owned_data.clone()))
             .map_err(|_| AudioError::ClipDecodeError)?;
-        let duration = source.total_duration().ok_or(AudioError::ClipDecodeError)?;
+        let duration = source.total_duration();
 
         Ok(Self {
             data: ClipData::new(owned_data),
@@ -43,7 +42,7 @@ impl Clip {
         })
     }
 
-    /// Get the run time of the clip.
+    /// Get the run time of the clip, if it can be determined.
     ///
     /// # Example
     ///
@@ -52,10 +51,10 @@ impl Clip {
     /// let clip_bytes = include_bytes!("../../example_assets/boop.wav");
     /// let clip = Clip::new(&clip_bytes[..])?;
     ///
-    /// assert!(clip.duration() > std::time::Duration::from_secs(0));
+    /// assert!(clip.duration().unwrap() > std::time::Duration::from_secs(0));
     /// # Ok(()) }
     /// ```
-    pub fn duration(&self) -> std::time::Duration {
+    pub fn duration(&self) -> Option<std::time::Duration> {
         self.duration
     }
 }
