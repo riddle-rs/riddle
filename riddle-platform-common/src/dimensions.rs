@@ -2,18 +2,27 @@ use crate::traits::WindowExt;
 
 use riddle_math::Vector2;
 
+/// A 2d size in logical screen units.
+///
+/// Logical units may be different to screen units depending on dpi scaling
 #[derive(Debug, Eq, PartialEq, Copy, Clone)]
 pub struct LogicalSize {
     pub width: u32,
     pub height: u32,
 }
 
+/// A 2d position in logical screen units.
+///
+/// Logical units may be different to screen units depending on dpi scaling
 #[derive(Debug, Eq, PartialEq, Copy, Clone)]
 pub struct LogicalPosition {
     pub x: u32,
     pub y: u32,
 }
 
+/// A 2d vector in logical screen units.
+///
+/// Logical units may be different to screen units depending on dpi scaling
 #[derive(Debug, Eq, PartialEq, Copy, Clone)]
 pub struct LogicalVec2 {
     pub x: u32,
@@ -21,6 +30,11 @@ pub struct LogicalVec2 {
 }
 
 impl LogicalSize {
+    /// Convert the size from logical units to physical pixel units, with respect
+    /// to a specific window's current scaling.
+    ///
+    /// # Example
+    ///
     pub fn into_physical<W: WindowExt>(self, window: &W) -> (u32, u32) {
         window.logical_to_physical(self)
     }

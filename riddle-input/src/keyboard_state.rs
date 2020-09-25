@@ -40,6 +40,10 @@ impl Default for KeyboardState {
     }
 }
 
+/// A snapshot of which keyboard modifiers are currently pressed.
+///
+/// Mostly used to provide context for [`InputEvent`] keyboard events.
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct KeyboardModifiers {
     pub shift: bool,
     pub ctrl: bool,

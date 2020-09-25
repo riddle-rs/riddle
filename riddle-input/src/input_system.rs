@@ -13,13 +13,15 @@ struct WindowInputState {
     keyboard: KeyboardState,
 }
 
+/// The Riddle input system core state, along with [`InputMainThreadState`].
+///
+/// This stores the thread safe input state which can be queried to inspect the
+/// status of input devices. It is updated by [`InputMainThreadState::process_input`].
 pub struct InputSystem {
     weak_self: InputSystemWeak,
 
     window_states: Mutex<HashMap<WindowId, WindowInputState>>,
     gamepad_states: Mutex<GamePadStateMap>,
-
-    event_sub: EventSub<PlatformEvent>,
 
     outgoing_input_events: Mutex<Vec<InputEvent>>,
 }
@@ -27,6 +29,16 @@ pub struct InputSystem {
 define_handles!(<InputSystem>::weak_self, pub InputSystemHandle, pub InputSystemWeak);
 
 impl InputSystem {
+    /// Create the input system, initializing any input device libraries needed.
+    ///
+    /// This will be instantiated automatically if `riddle` is being used.
+    ///
+    /// Returns a pair of objects, one of which is the system state which is like
+    /// most other riddle system states - it is thread safe, stored in `RiddleState`
+    /// and is the main means by which client code interacts with the system.
+    ///
+    /// The other return value stores the portion of this object's state that should
+    /// stay on the main thread - [`InputMainThreadState`].
     pub fn new(
         sys_events: &EventPub<PlatformEvent>,
     ) -> Result<(InputSystemHandle, InputMainThreadState)> {
@@ -39,34 +51,133 @@ impl InputSystem {
             weak_self,
             window_states: Mutex::new(HashMap::new()),
             gamepad_states: Mutex::new(GamePadStateMap::new()),
-            event_sub,
             outgoing_input_events: Mutex::new(vec![]),
         });
 
         let main_thread = InputMainThreadState {
             system: system.clone(),
+            event_sub,
             gilrs,
         };
 
         Ok((system, main_thread))
     }
 
-    pub fn update(&self) {
-        self.process_platform_events();
-    }
-
+    /// Collect any buffered [`InputEvent`]s emitted by the input system.
+    ///
+    /// This clears the system's buffer, so should only be called from a single location.
+    ///
+    /// **Do not** call this if you are using `riddle`. `riddle` manages taking these
+    /// events and passing them to the main application closure.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use riddle_input::*; use riddle_common::eventpub::*; use riddle_platform_common::*;
+    /// # fn main() -> Result<(), InputError> {
+    /// let platform_events: EventPub<PlatformEvent> = EventPub::new();
+    /// let (input_system, mut main_thread_state) = InputSystem::new(&platform_events)?;
+    ///
+    /// // Platform dispatches an event, and input processes it
+    /// platform_events.dispatch(PlatformEvent::MouseButtonDown{
+    ///     window: WindowId::new(0),
+    ///     button: MouseButton::Left});
+    /// main_thread_state.process_input();
+    ///
+    /// // Having processed the incoming platform event, there is now an InputEvent available
+    /// let input_events: Vec<InputEvent> = input_system.take_input_events();
+    ///
+    /// assert_eq!(vec![InputEvent::MouseButtonDown{
+    ///     window: WindowId::new(0),
+    ///     button: MouseButton::Left
+    /// }], input_events);
+    /// # Ok(()) }
+    /// ```
     pub fn take_input_events(&self) -> Vec<InputEvent> {
         std::mem::replace(&mut self.outgoing_input_events.lock().unwrap(), vec![])
     }
 
+    /// Query the cursor position with respect to a given window.
+    ///
+    /// If no mouse position infomation is available for the given window, the
+    /// position will be (0,0)
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use riddle_input::*; use riddle_common::eventpub::*; use riddle_platform_common::*;
+    /// # fn main() -> Result<(), InputError> {
+    /// # let platform_events: EventPub<PlatformEvent> = EventPub::new();
+    /// # let (input_system, mut main_thread_state) = InputSystem::new(&platform_events)?;
+    /// # let window = WindowId::new(0);
+    /// // The initial mouse position is (0,0)
+    /// assert_eq!(LogicalPosition{ x: 0, y: 0}, input_system.mouse_pos(window));
+    ///
+    /// // The platform system emits cursor move events
+    /// // [..]
+    /// # platform_events.dispatch(PlatformEvent::CursorMove {
+    /// #     window: WindowId::new(0),
+    /// #     position: LogicalPosition{ x: 10, y: 10}});
+    /// # main_thread_state.process_input();
+    ///
+    /// // The reported mouse position has changed
+    /// assert_ne!(LogicalPosition{ x: 0, y: 0}, input_system.mouse_pos(window));
+    /// # Ok(()) }
+    /// ```
     pub fn mouse_pos(&self, window: WindowId) -> LogicalPosition {
         self.with_window_state(window, |w| w.mouse.position())
     }
 
+    /// The current state of keyboard modifiers with respect to a given window.
+    ///
+    /// If no state has been set all modifiers are considered unset.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use riddle_input::*; use riddle_common::eventpub::*; use riddle_platform_common::*;
+    /// # fn main() -> Result<(), InputError> {
+    /// # let platform_events: EventPub<PlatformEvent> = EventPub::new();
+    /// # let (input_system, mut main_thread_state) = InputSystem::new(&platform_events)?;
+    /// # let window = WindowId::new(0);
+    /// // The initial mouse position is (0,0)
+    /// assert_eq!(false, input_system.keyboard_modifiers(window).ctrl);
+    ///
+    /// // The platform system emits key down event for Ctrl key
+    /// // [..]
+    /// # platform_events.dispatch(PlatformEvent::KeyDown {
+    /// #     window: WindowId::new(0),
+    /// #     vkey: Some(VirtualKey::LeftControl),
+    /// #     scancode: Scancode::LeftControl,
+    /// #     platform_scancode: 0});
+    /// # main_thread_state.process_input();
+    ///
+    /// // The reported mouse position has changed
+    /// assert_eq!(true, input_system.keyboard_modifiers(window).ctrl);
+    /// # Ok(()) }
+    /// ```
     pub fn keyboard_modifiers(&self, window: WindowId) -> KeyboardModifiers {
         self.with_window_state(window, |w| w.keyboard.modifiers())
     }
 
+    /// Check if a specific button is pressed for a given gamepad.
+    ///
+    /// If no state has been set all buttons are considered not to be down.
+    ///
+    /// ```no_run
+    /// # use riddle_input::*;
+    /// # let input_system: InputSystemHandle = todo!();
+    /// # let gamepad: GamePadId = todo!();
+    /// // The initial button state is false
+    /// assert_eq!(false, input_system.is_gamepad_button_down(gamepad, GamePadButton::North));
+    ///
+    /// // Controller button press events are processed
+    /// // [..]
+    /// # // Currently no support for faking a controller event
+    ///
+    /// // The reported button state has changed
+    /// assert_eq!(true, input_system.is_gamepad_button_down(gamepad, GamePadButton::North));
+    /// ```
     pub fn is_gamepad_button_down(&self, gamepad: GamePadId, button: GamePadButton) -> bool {
         self.gamepad_states
             .lock()
@@ -151,39 +262,6 @@ impl InputSystem {
         }
     }
 
-    fn process_platform_events(&self) {
-        for event in self.event_sub.collect() {
-            match event {
-                PlatformEvent::CursorMove { window, position } => {
-                    self.cursor_moved(window, position);
-                }
-                PlatformEvent::MouseButtonUp { window, button } => {
-                    self.mouse_up(window, button);
-                }
-                PlatformEvent::MouseButtonDown { window, button } => {
-                    self.mouse_down(window, button);
-                }
-                PlatformEvent::KeyUp {
-                    window,
-                    scancode,
-                    vkey,
-                    ..
-                } => {
-                    self.key_up(window, scancode, vkey);
-                }
-                PlatformEvent::KeyDown {
-                    window,
-                    scancode,
-                    vkey,
-                    ..
-                } => {
-                    self.key_down(window, scancode, vkey);
-                }
-                _ => (),
-            }
-        }
-    }
-
     fn send_input_event(&self, event: InputEvent) {
         self.outgoing_input_events.lock().unwrap().push(event);
     }
@@ -198,13 +276,22 @@ impl Default for WindowInputState {
     }
 }
 
+/// The portion of the input system that needs to remain on a single thread.
+///
+/// Constructed paired with its thread-safe counterpart via [`InputSystem::new`].
 pub struct InputMainThreadState {
     system: InputSystemHandle,
+
+    event_sub: EventSub<PlatformEvent>,
     gilrs: gilrs::Gilrs,
 }
 
 impl InputMainThreadState {
-    pub fn update(&mut self) {
+    /// Process all input sources, updating the static view of the known input
+    /// devices.
+    ///
+    /// This may produce InputEvents which can be consumed via [`InputSystem::take_input_events`].
+    pub fn process_input(&mut self) {
         while let Some(gilrs::Event { event, id, .. }) = self.gilrs.next_event() {
             use std::convert::TryFrom;
             match event {
@@ -258,6 +345,39 @@ impl InputMainThreadState {
             }
         }
 
-        self.system.update();
+        self.process_platform_events();
+    }
+
+    fn process_platform_events(&self) {
+        for event in self.event_sub.collect() {
+            match event {
+                PlatformEvent::CursorMove { window, position } => {
+                    self.system.cursor_moved(window, position);
+                }
+                PlatformEvent::MouseButtonUp { window, button } => {
+                    self.system.mouse_up(window, button);
+                }
+                PlatformEvent::MouseButtonDown { window, button } => {
+                    self.system.mouse_down(window, button);
+                }
+                PlatformEvent::KeyUp {
+                    window,
+                    scancode,
+                    vkey,
+                    ..
+                } => {
+                    self.system.key_up(window, scancode, vkey);
+                }
+                PlatformEvent::KeyDown {
+                    window,
+                    scancode,
+                    vkey,
+                    ..
+                } => {
+                    self.system.key_down(window, scancode, vkey);
+                }
+                _ => (),
+            }
+        }
     }
 }

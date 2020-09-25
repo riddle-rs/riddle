@@ -88,7 +88,7 @@ impl MainThreadState {
                 _ => (),
             };
 
-            input.update();
+            input.process_input();
 
             let event = match platform_ctx.event() {
                 platform::PlatformEvent::EventQueueEmpty => Event::ProcessFrame,

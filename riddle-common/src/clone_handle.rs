@@ -76,7 +76,7 @@ macro_rules! define_handles {
             /// the weak reference is passed to the closure with which to construct
             /// the object
             #[inline]
-            pub fn new<F: FnOnce($w) -> $t>(f: F) -> $s {
+            pub(crate) fn new<F: FnOnce($w) -> $t>(f: F) -> $s {
                 $s {
                     handle: std::sync::Arc::new_cyclic(|weak_sync| {
                         let weak_self = $w { handle: weak_sync.clone() };

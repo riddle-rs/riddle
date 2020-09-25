@@ -2,6 +2,7 @@ use crate::*;
 
 use riddle_platform_common::{LogicalPosition, WindowId};
 
+#[derive(Clone, PartialEq, Debug)]
 pub enum InputEvent {
     CursorMove {
         window: WindowId,

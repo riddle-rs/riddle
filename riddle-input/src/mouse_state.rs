@@ -2,7 +2,7 @@ use crate::*;
 
 use std::collections::HashSet;
 
-pub struct MouseState {
+pub(crate) struct MouseState {
     logical_position: LogicalPosition,
     buttons: HashSet<MouseButton>,
 }
