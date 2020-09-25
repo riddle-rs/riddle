@@ -1,3 +1,9 @@
+/// Supported virtual keys.
+///
+/// Virtual keys represent the intended meaning of the key, and have no relation to where
+/// the key physically is on the keyboard. Use virtual key where the meaning of the key
+/// is most important (textual input). When meaning matters less, but physical location
+/// is more important (WASD-like control schemes) use [`crate::Scancode`].
 #[repr(u16)]
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub enum VirtualKey {

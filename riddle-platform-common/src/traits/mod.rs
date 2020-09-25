@@ -1,5 +1,10 @@
+/*!
+Traits needed in order to implement a riddle compatible platform
+system.
+
+If you are consuming `riddle` directly, there should be no need to use this module.
+*/
+
 mod window;
-mod window_system;
 
 pub use window::*;
-pub use window_system::*;

@@ -5,6 +5,15 @@
     Windows definitions: https://download.microsoft.com/download/1/6/1/161ba512-40e2-4cc9-843a-923143f3456c/scancode.doc
 */
 
+/// Supported scancodes.
+///
+/// Scancodes relate to the physical location of a key on the keyboard, not what the currently
+/// mapped meaning of the key is. Use scancodes in situations where physical location matters
+/// (WASD for movement, etc), not for situations where meaning matters (eg. textual input). For
+/// those cases use [`crate::VirtualKey`].
+///
+/// Converting from a [`u32`] to [`Scancode`] assumes the integer represents a platform native
+/// scancode value, so depending on build target the mapping from number to scancode will vary.
 #[repr(u16)]
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub enum Scancode {

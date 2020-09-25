@@ -60,12 +60,6 @@ impl PlatformSystem {
     }
 }
 
-impl riddle_platform_common::traits::WindowSystem for PlatformSystem {
-    fn event_pub(&self) -> &EventPub<riddle_platform_common::PlatformEvent> {
-        &self.event_pub
-    }
-}
-
 pub struct PlatformMainThreadState {
     pub(crate) system: PlatformSystemHandle,
     pub(crate) event_loop: RefCell<Option<winit::event_loop::EventLoop<InternalEvent>>>,

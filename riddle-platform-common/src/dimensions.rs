@@ -35,6 +35,13 @@ impl LogicalSize {
     ///
     /// # Example
     ///
+    /// ```
+    /// # use riddle_platform_common::*;
+    /// # let window = doctest::MockWindow {};
+    /// // Given a window with DPI scaling factor of 2:
+    /// let size = LogicalSize{ width: 10, height: 10 };
+    /// assert_eq!((20, 20), size.into_physical(&window));
+    /// ```
     pub fn into_physical<W: WindowExt>(self, window: &W) -> (u32, u32) {
         window.logical_to_physical(self)
     }
@@ -68,6 +75,18 @@ impl From<LogicalSize> for Vector2<f32> {
 }
 
 impl LogicalPosition {
+    /// Convert the position from logical units to physical pixel units, with respect
+    /// to a specific window's current scaling.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use riddle_platform_common::*;
+    /// # let window = doctest::MockWindow {};
+    /// // Given a window with DPI scaling factor of 2:
+    /// let position = LogicalPosition{ x: 10, y: 10 };
+    /// assert_eq!((20, 20), position.into_physical(&window));
+    /// ```
     pub fn into_physical<W: WindowExt>(self, window: &W) -> (u32, u32) {
         window.logical_to_physical(self)
     }
@@ -107,6 +126,18 @@ impl From<LogicalPosition> for Vector2<f32> {
 }
 
 impl LogicalVec2 {
+    /// Convert the vector from logical units to physical pixel units, with respect
+    /// to a specific window's current scaling.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use riddle_platform_common::*;
+    /// # let window = doctest::MockWindow {};
+    /// // Given a window with DPI scaling factor of 2:
+    /// let vector = LogicalVec2{ x: 10, y: 10 };
+    /// assert_eq!((20, 20), vector.into_physical(&window));
+    /// ```
     pub fn into_physical<W: WindowExt>(self, window: &W) -> (u32, u32) {
         window.logical_to_physical(self)
     }
