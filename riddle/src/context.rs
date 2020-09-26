@@ -44,9 +44,19 @@ impl<'a> RiddleContext<'a> {
     pub fn time(&self) -> &time::TimeSystem {
         &self.state.time
     }
+
+    pub fn platform(&self) -> &platform::PlatformSystem {
+        &self.state.platform
+    }
 }
 
 impl<'a> Borrow<platform::PlatformContext<'a>> for RiddleContext<'a> {
+    fn borrow(&self) -> &platform::PlatformContext<'a> {
+        &self.window_ctx
+    }
+}
+
+impl<'a> Borrow<platform::PlatformContext<'a>> for &RiddleContext<'a> {
     fn borrow(&self) -> &platform::PlatformContext<'a> {
         &self.window_ctx
     }

@@ -54,7 +54,7 @@ impl WindowWGPUDevice {
         ))
         .map_err(|_| RendererError::APIInitError("Failed to create WGPU device"))?;
 
-        let (width, height) = window.drawable_size();
+        let (width, height) = window.physical_size();
         let sc_desc = wgpu::SwapChainDescriptor {
             usage: wgpu::TextureUsage::OUTPUT_ATTACHMENT,
             format: wgpu::TextureFormat::Bgra8UnormSrgb,
@@ -89,7 +89,7 @@ impl WindowWGPUDevice {
         }
 
         if dirty_swap_chain {
-            let (width, height) = self.window.drawable_size();
+            let (width, height) = self.window.physical_size();
             let sc_desc = wgpu::SwapChainDescriptor {
                 usage: wgpu::TextureUsage::OUTPUT_ATTACHMENT,
                 format: wgpu::TextureFormat::Bgra8UnormSrgb,

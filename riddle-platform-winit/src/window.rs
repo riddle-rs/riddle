@@ -1,4 +1,4 @@
-use crate::*;
+use crate::{common::*, *};
 
 use riddle_common::eventpub::*;
 
@@ -6,6 +6,36 @@ use raw_window_handle::{HasRawWindowHandle, RawWindowHandle};
 use riddle_platform_common::traits::WindowExt;
 use std::borrow::Borrow;
 
+/// A platform native window.
+///
+/// Construct windows using [`WindowBuilder`].
+///
+/// The window is kept open for the lifetime of this object, once it is
+/// dropped the window will be closed during the next event loop pump.
+///
+/// # Example
+///
+/// ```no_run
+/// # use riddle::{*, platform::*};
+/// # fn main() -> Result<(), RiddleError> {
+/// let rdl = RiddleApp::new()?;
+///
+/// // Create a window
+/// let mut window = Some(WindowBuilder::new().build(rdl.context())?);
+///
+/// rdl.run(move |rdl| {
+///     if window.is_some() {
+///         // Drop all handles to the window. It will be closed before the next invocation
+///         // of this closure.
+///         window.take();
+///     } else {
+///         // The window is closed. Exit.
+///         rdl.quit();
+///     }
+/// #   std::thread::sleep(std::time::Duration::from_millis(500));
+/// })
+/// # }
+/// ```
 pub struct Window {
     weak_self: WindowWeak,
     window_system: PlatformSystemHandle,
@@ -70,11 +100,13 @@ impl Window {
         Ok(window)
     }
 
-    pub fn drawable_size(&self) -> (u32, u32) {
+    /// Get the size of the drawable area of the window in pixels
+    pub fn physical_size(&self) -> (u32, u32) {
         let size = self.winit_window.inner_size();
         (size.width, size.height)
     }
 
+    /// Get the size of the drawable area of the window in logical units.
     pub fn logical_size(&self) -> LogicalSize {
         let physical_size = self.winit_window.inner_size();
         let logical_size: winit::dpi::LogicalSize<u32> =
@@ -82,19 +114,37 @@ impl Window {
         dimensions::logical_size_from_winit(logical_size)
     }
 
+    /// Get the scale factor of the window, based on how the window manager
+    /// configures hidpi scaling
     pub fn scale_factor(&self) -> f64 {
         self.winit_window.scale_factor()
     }
 
+    /// Set the window title
     pub fn set_title(&self, title: &str) {
         self.winit_window.set_title(title)
     }
 
+    /// Attach a subscriber to the subset of platform events that relate to this window
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use riddle::{*, common::eventpub::*, platform::*};
+    /// # fn main() -> Result<(), RiddleError> {
+    /// let rdl = RiddleApp::new()?;
+    /// let subscriber: EventSub<PlatformEvent> = EventSub::new();
+    ///
+    /// let window = WindowBuilder::new().build(rdl.context())?;
+    /// window.subscribe_to_events(&subscriber);
+    /// # Ok(()) }
+    /// ```
     pub fn subscribe_to_events(&self, sub: &EventSub<PlatformEvent>) {
         self.event_pub.attach(sub);
     }
 
-    pub fn window_id(&self) -> WindowId {
+    /// The window id which is used to identify this window in [`PlatformEvent`]s
+    pub fn id(&self) -> WindowId {
         self.id
     }
 
@@ -126,7 +176,7 @@ impl WindowExt for Window {
 
 impl std::cmp::PartialEq for Window {
     fn eq(&self, other: &Self) -> bool {
-        self.window_id() == other.window_id()
+        self.id() == other.id()
     }
 }
 
@@ -145,6 +195,34 @@ unsafe impl HasRawWindowHandle for Window {
     }
 }
 
+/// Builder for [`Window`] instances.
+///
+/// Default values:
+///
+/// * Width: `800`
+/// * Height: `600`
+/// * Title: `Riddle Window`
+/// * Resizeable: `true`
+/// * Cursor Visible: `true`
+///
+/// # Example
+///
+/// ```no_run
+/// use riddle::{*, platform::*};
+///
+/// fn main() -> Result<(), RiddleError> {
+///     let rdl = RiddleApp::new()?;
+///
+///     let window: WindowHandle = WindowBuilder::new()
+///         .title("A Sample Title")
+///         .dimensions(320, 240)
+///         .build(rdl.context())?;
+///
+///     // The window has been created, and is visible now.
+///     // [.. the rest of the application ..]
+/// # Ok(())
+/// }
+/// ```
 pub struct WindowBuilder {
     width: u32,
     height: u32,
@@ -170,27 +248,37 @@ impl WindowBuilder {
         Self::default()
     }
 
+    /// Set the dimensions of the window, in logical units.
+    ///
+    /// The pixel dimensions of the window may be different if the display's scale factor
+    /// does not equal `1`.
     pub fn dimensions(&mut self, width: u32, height: u32) -> &mut Self {
         self.width = width;
         self.height = height;
         self
     }
 
+    /// Set whether the window is resizeable.
     pub fn resizeable(&mut self, resizeable: bool) -> &mut Self {
         self.resizeable = resizeable;
         self
     }
 
+    /// Set the window's title.
     pub fn title<S: Into<String>>(&mut self, title: S) -> &mut Self {
         self.title = title.into();
         self
     }
 
+    /// Set whether the system cursor will be displayed for the created window.
     pub fn cursor_visible(&mut self, cursor_visible: bool) -> &mut Self {
         self.cursor_visible = cursor_visible;
         self
     }
 
+    /// Build the new window, returning a handle to the new window.
+    ///
+    /// The window will be visible as long as the handle, or a clone of it, is alive.
     pub fn build<'a, C>(&self, ctx: C) -> Result<WindowHandle>
     where
         C: Borrow<PlatformContext<'a>>,

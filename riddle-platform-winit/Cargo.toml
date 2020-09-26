@@ -20,3 +20,6 @@ winit = { version="0.22", git = "https://github.com/vickles/winit/", branch="win
 
 #[target.'cfg(not(target = "wasm32-unknown-unknown"))'.dependencies]
 #winit = {version = "0.22", git = "https://github.com/rust-windowing/winit", branch = "master"}
+
+[dev-dependencies]
+riddle = {path = "../riddle"}

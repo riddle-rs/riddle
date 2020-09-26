@@ -1,4 +1,4 @@
-use crate::*;
+use crate::{common::*, *};
 
 use std::collections::HashMap;
 
@@ -21,13 +21,13 @@ impl WindowMap {
 
     pub fn register_window(&mut self, window: WindowHandle) {
         self.windows
-            .insert(window.window_id(), WindowHandle::downgrade(&window));
+            .insert(window.id(), WindowHandle::downgrade(&window));
         self.winit_windows
             .insert(window.winit_window_id(), WindowHandle::downgrade(&window));
     }
 
     pub fn unregister_window(&mut self, window: &Window) {
-        self.windows.remove(&window.window_id());
+        self.windows.remove(&window.id());
         self.winit_windows.remove(&window.winit_window_id());
     }
 

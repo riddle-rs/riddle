@@ -1,9 +1,12 @@
-use crate::{event::InternalEvent, *};
+use crate::{common::*, event::InternalEvent, *};
 
 use riddle_common::eventpub::EventPub;
 
 use std::{cell::RefCell, sync::Mutex};
 
+/// The winit platform system core state, along with [`PlatformMainThreadState`].
+///
+/// Mostly used to lookup [`Window`] by [`WindowId`], and subscribe to [`PlatformEvent`]s.
 pub struct PlatformSystem {
     weak_self: PlatformSystemWeak,
     pub(crate) event_proxy: Mutex<winit::event_loop::EventLoopProxy<InternalEvent>>,
@@ -16,6 +19,29 @@ pub struct PlatformSystem {
 define_handles!(<PlatformSystem>::weak_self, pub PlatformSystemHandle, pub PlatformSystemWeak);
 
 impl PlatformSystem {
+    /// Create a new platform system and its main thread state pair.
+    ///
+    /// **Do not** call if using the `riddle` crate as recommended, as `RiddleApp` manages
+    /// the creation and platform lifetime automatically.
+    ///
+    /// # Example
+    ///
+    /// This example is only relevant if you're not using `riddle`
+    ///
+    /// ```no_run
+    /// # use riddle_platform_winit::*;
+    /// # fn main() -> Result<(), PlatformError> {
+    /// let (platform_system, main_thread_state) = PlatformSystem::new();
+    /// let window = WindowBuilder::new().build(main_thread_state.borrow_context())?;
+    ///
+    /// main_thread_state.run(move |ctx| {
+    ///     match ctx.event() {
+    ///         PlatformEvent::WindowClose(_) => { ctx.quit(); }
+    ///         _ => ()
+    ///     }
+    /// })
+    /// # }
+    /// ```
     pub fn new() -> (PlatformSystemHandle, PlatformMainThreadState) {
         let event_loop = winit::event_loop::EventLoop::with_user_event();
         let event_proxy = event_loop.create_proxy();
@@ -34,8 +60,40 @@ impl PlatformSystem {
         (system, main_thread_state)
     }
 
+    /// Get the [`PlatformEvent`] publisher, so that other systems can consume events.
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use riddle::{*, common::eventpub::*, platform::*};
+    /// # fn main() -> Result<(), RiddleError> {
+    /// let rdl = RiddleApp::new()?;
+    /// let subscriber: EventSub<PlatformEvent> = EventSub::new();
+    ///
+    /// // Attach subscriber to the platform event stream
+    /// rdl.state().platform().event_pub().attach(&subscriber);
+    /// # Ok(()) }
+    /// ```
     pub fn event_pub(&self) -> &EventPub<PlatformEvent> {
         &self.event_pub
+    }
+
+    /// Get a [`WindowHandle`] associated with a [`WindowId`], if one exists.
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use riddle::{*, common::eventpub::*, platform::*};
+    /// # fn main() -> Result<(), RiddleError> {
+    /// let rdl = RiddleApp::new()?;
+    /// let window = WindowBuilder::new().build(rdl.context())?;
+    /// let window_id = window.id();
+    /// assert!(WindowHandle::eq(&window,
+    ///        &rdl.state().platform().lookup_window(window_id).unwrap()));
+    /// # Ok(()) }
+    /// ```
+    pub fn lookup_window(&self, window_id: WindowId) -> Option<WindowHandle> {
+        self.window_map.lock().unwrap().lookup_window(window_id)
     }
 
     #[inline]
@@ -46,10 +104,6 @@ impl PlatformSystem {
     #[inline]
     pub(crate) fn with_window_map_mut<R, F: FnOnce(&mut WindowMap) -> R>(&self, f: F) -> R {
         f(&mut self.window_map.lock().unwrap())
-    }
-
-    pub fn lookup_window(&self, window_id: WindowId) -> Option<WindowHandle> {
-        self.window_map.lock().unwrap().lookup_window(window_id)
     }
 
     fn update_windows(&self) {

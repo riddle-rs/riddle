@@ -1,4 +1,4 @@
-use crate::*;
+use crate::{common::*, *};
 
 #[derive(Debug)]
 pub(crate) enum InternalEvent {
@@ -24,15 +24,11 @@ fn convert_winit_window_event(
     event: winit::event::WindowEvent,
 ) -> Option<PlatformEvent> {
     match event {
-        winit::event::WindowEvent::CloseRequested => {
-            Some(PlatformEvent::WindowClose(window.window_id()))
-        }
-        winit::event::WindowEvent::Resized(_) => {
-            Some(PlatformEvent::WindowResize(window.window_id()))
-        }
+        winit::event::WindowEvent::CloseRequested => Some(PlatformEvent::WindowClose(window.id())),
+        winit::event::WindowEvent::Resized(_) => Some(PlatformEvent::WindowResize(window.id())),
         winit::event::WindowEvent::CursorMoved { position, .. } => {
             Some(PlatformEvent::CursorMove {
-                window: window.window_id(),
+                window: window.id(),
                 position: dimensions::logical_pos_from_winit(
                     position.to_logical(window.scale_factor()),
                 ),
@@ -40,11 +36,11 @@ fn convert_winit_window_event(
         }
         winit::event::WindowEvent::MouseInput { state, button, .. } => match state {
             winit::event::ElementState::Pressed => Some(PlatformEvent::MouseButtonDown {
-                window: window.window_id(),
+                window: window.id(),
                 button: winit_mousebutton_to_mousebutton(button),
             }),
             winit::event::ElementState::Released => Some(PlatformEvent::MouseButtonUp {
-                window: window.window_id(),
+                window: window.id(),
                 button: winit_mousebutton_to_mousebutton(button),
             }),
         },
@@ -59,13 +55,13 @@ fn convert_winit_window_event(
             ..
         } => match state {
             winit::event::ElementState::Pressed => Some(PlatformEvent::KeyDown {
-                window: window.window_id(),
+                window: window.id(),
                 platform_scancode: scancode,
                 scancode: scancode.into(),
                 vkey: virtual_keycode.and_then(winit_vkey_to_vkey),
             }),
             winit::event::ElementState::Released => Some(PlatformEvent::KeyUp {
-                window: window.window_id(),
+                window: window.id(),
                 platform_scancode: scancode,
                 scancode: scancode.into(),
                 vkey: virtual_keycode.and_then(winit_vkey_to_vkey),
