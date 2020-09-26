@@ -18,3 +18,6 @@ futures = "0.3"
 thiserror = "1.0"
 wgpu = "0.6"
 mint = "0.5"
+
+[dev-dependencies]
+riddle = {path = "../riddle"}

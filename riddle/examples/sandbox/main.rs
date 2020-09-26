@@ -157,34 +157,29 @@ impl RendererState {
         let mut frame = self.renderer.begin_render()?;
         frame.clear(Color::rgb(0.0, 1.0, 0.0))?;
 
-        frame.push_transform(glam::Mat4::from_scale(glam::vec3(2.0, 2.0, 1.0)).into())?;
+        frame.set_transform(glam::Mat4::from_scale(glam::vec3(2.0, 2.0, 1.0)).into())?;
 
         frame.fill_rect(
             &Rect {
                 location: [100.0, 100.0].into(),
                 dimensions: [50.0, 50.0].into(),
             },
-            [1.0, 0.0, 0.0, 1.0],
+            Color::RED,
         )?;
         frame.fill_rect(
             &Rect {
                 location: [102.0, 102.0].into(),
                 dimensions: [46.0, 46.0].into(),
             },
-            [1.0, 1.0, 1.0, 1.0],
+            Color::WHITE,
         )?;
 
         self.subsprite.render_at(&mut frame, [60.0, 60.0])?;
-        self.label_sprite.render(
-            &mut frame,
-            &SpriteRenderCommand {
-                location: [10.0, 100.0].into(),
-                diffuse_color: [0.0, 0.0, 1.0, 1.0],
-                ..Default::default()
-            },
-        )?;
+        SpriteRenderCommand::new(vec2(10.0, 100.0))
+            .with_color(Color::BLACK)
+            .render(&mut frame, &self.label_sprite)?;
 
-        frame.pop_transform()?;
+        frame.set_transform(glam::Mat4::identity().into())?;
 
         self.target.sprite().render_at(&mut frame, [400.0, 400.0])?;
 

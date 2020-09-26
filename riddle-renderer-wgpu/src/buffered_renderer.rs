@@ -3,7 +3,7 @@ use crate::{math::*, *};
 use wgpu::util::DeviceExt;
 
 #[derive(Clone)]
-pub struct BufferedRenderArgs {
+pub(crate) struct BufferedRenderArgs {
     pub(crate) texture: TextureHandle,
     pub(crate) shader: ShaderHandle,
 }
@@ -181,19 +181,19 @@ impl<'a, R: RenderTargetDesc<'a>> RenderContext for BufferedRenderer<'a, R> {
         }
         Ok(())
     }
+    /*
+        fn push_transform(&mut self, transform: mint::ColumnMatrix4<f32>) -> Result<()> {
+            self.flush()?;
+            self.view_matrix_stack.push(transform);
+            Ok(())
+        }
 
-    fn push_transform(&mut self, transform: mint::ColumnMatrix4<f32>) -> Result<()> {
-        self.flush()?;
-        self.view_matrix_stack.push(transform);
-        Ok(())
-    }
-
-    fn pop_transform(&mut self) -> Result<()> {
-        self.flush()?;
-        self.view_matrix_stack.pop();
-        Ok(())
-    }
-
+        fn pop_transform(&mut self) -> Result<()> {
+            self.flush()?;
+            self.view_matrix_stack.pop();
+            Ok(())
+        }
+    */
     /// Set the clear color and mark the frame buffer for clearing. The actual clear operation
     /// will be performed when the next batched render happens, or when `present` is called,
     /// whichever comes first.
@@ -203,17 +203,19 @@ impl<'a, R: RenderTargetDesc<'a>> RenderContext for BufferedRenderer<'a, R> {
         Ok(())
     }
 
-    fn fill_rect(&mut self, rect: &Rect<f32>, color: [f32; 4]) -> Result<()> {
+    fn fill_rect(&mut self, rect: &Rect<f32>, color: Color<f32>) -> Result<()> {
         let pos_topleft = glam::Vec2::from(rect.location);
         let pos_topright = pos_topleft + glam::vec2(rect.dimensions.x, 0.0);
         let pos_bottomleft = pos_topleft + glam::vec2(0.0, rect.dimensions.y);
         let pos_bottomright = pos_bottomleft + glam::vec2(rect.dimensions.x, 0.0);
 
+        let color_arr: [f32; 4] = color.into();
+
         let vertex_data = [
-            Vertex::ptc(pos_topleft, [0.0, 0.0], &color),
-            Vertex::ptc(pos_bottomleft, [0.0, 0.0], &color),
-            Vertex::ptc(pos_bottomright, [0.0, 0.0], &color),
-            Vertex::ptc(pos_topright, [0.0, 0.0], &color),
+            Vertex::ptc(pos_topleft, [0.0, 0.0], &color_arr),
+            Vertex::ptc(pos_bottomleft, [0.0, 0.0], &color_arr),
+            Vertex::ptc(pos_bottomright, [0.0, 0.0], &color_arr),
+            Vertex::ptc(pos_topright, [0.0, 0.0], &color_arr),
         ];
         let index_data: &[u16] = &[1, 2, 0, 2, 0, 3];
 
@@ -241,7 +243,7 @@ impl<'a, R: RenderTargetDesc<'a>> RenderContext for BufferedRenderer<'a, R> {
         Ok(())
     }
 
-    fn render<S: Renderable>(&mut self, renderable: &S) -> Result<()> {
+    fn render_internal<S: Renderable>(&mut self, renderable: &S) -> Result<()> {
         renderable.with_renderable(|r| {
             self.buffered_render(&BufferedRenderArgs::new(r), r.verts, r.indices)?;
             Ok(())

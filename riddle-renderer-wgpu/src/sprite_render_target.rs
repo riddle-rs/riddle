@@ -1,10 +1,86 @@
 use crate::{ext::*, math::*, *};
 
+/// A target which can be both rendered to and referenced as a [`Sprite`] for rendering.
+///
+/// # Example
+///
+/// ```no_run
+/// # use riddle::{common::Color, image::*, platform::*, renderer::*, math::*, *};
+/// # fn main() -> Result<(), RiddleError> {
+/// # let rdl = RiddleApp::new()?;
+/// # let window = WindowBuilder::new().build(rdl.context())?;
+/// let renderer = Renderer::new_from_window(&window)?;
+///
+/// let target = SpriteRenderTarget::new(&renderer, vec2(100, 100))?;
+///
+/// let mut target_ctx = target.begin_render()?;
+/// target_ctx.clear(Color::BLUE)?;
+/// target_ctx.present()?;
+///
+/// let mut render_ctx = renderer.begin_render()?;
+/// render_ctx.clear(Color::GREEN)?;
+/// target.sprite().render_at(&mut render_ctx, vec2(0.0, 0.0))?;
+/// render_ctx.present()?;
+/// # Ok(()) }
+/// ```
 pub struct SpriteRenderTarget {
     renderer: RendererHandle,
 
     texture: TextureHandle,
     sprite: Sprite,
+}
+
+impl SpriteRenderTarget {
+    /// Create a new render target with the specified dimensions
+    pub fn new(renderer: &Renderer, dimensions: Vector2<u32>) -> Result<SpriteRenderTarget> {
+        let texture = Texture::new(
+            &renderer.wgpu_device().device(),
+            FilterMode::Linear,
+            FilterMode::Linear,
+            TextureType::RenderTarget,
+            dimensions,
+        )?;
+
+        let sprite = Sprite::from_texture(renderer, &texture)?;
+
+        Ok(Self {
+            renderer: renderer.clone_handle(),
+
+            texture,
+            sprite,
+        })
+    }
+
+    /// Get a render context for the current swap chain frame.
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use riddle::{common::Color, platform::*, renderer::*, math::*, *};
+    /// # fn main() -> Result<(), RiddleError> {
+    /// # let rdl = RiddleApp::new()?;
+    /// # let window = WindowBuilder::new().build(rdl.context())?;
+    /// # let renderer = Renderer::new_from_window(&window)?;
+    /// let target = SpriteRenderTarget::new(&renderer, vec2(100, 100))?;
+    ///
+    /// let mut target_ctx = target.begin_render()?;
+    /// target_ctx.clear(Color::RED);
+    /// target_ctx.present();
+    /// # Ok(()) }
+    /// ```
+    pub fn begin_render<'a>(&'a self) -> Result<impl RenderContext + 'a> {
+        let encoder = self
+            .renderer
+            .wgpu_device()
+            .device()
+            .create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
+        BufferedRenderer::new(self, encoder)
+    }
+
+    /// Get the sprite which can be used to render the contents of the render target.
+    pub fn sprite(&self) -> &Sprite {
+        &self.sprite
+    }
 }
 
 impl<'a> RenderTargetDesc<'a> for &'a SpriteRenderTarget {
@@ -38,38 +114,4 @@ impl<'a> RenderTargetDesc<'a> for &'a SpriteRenderTarget {
     }
 
     fn end_render(&self) {}
-}
-
-impl SpriteRenderTarget {
-    pub fn new(renderer: &Renderer, dimensions: Vector2<u32>) -> Result<SpriteRenderTarget> {
-        let texture = Texture::new(
-            &renderer.wgpu_device().device(),
-            FilterMode::Linear,
-            FilterMode::Linear,
-            TextureType::RenderTarget,
-            dimensions,
-        )?;
-
-        let sprite = Sprite::from_texture(renderer, &texture)?;
-
-        Ok(Self {
-            renderer: renderer.clone_handle(),
-
-            texture,
-            sprite,
-        })
-    }
-
-    pub fn begin_render<'a>(&'a self) -> Result<impl RenderContext + 'a> {
-        let encoder = self
-            .renderer
-            .wgpu_device()
-            .device()
-            .create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
-        BufferedRenderer::new(self, encoder)
-    }
-
-    pub fn sprite(&self) -> &Sprite {
-        &self.sprite
-    }
 }

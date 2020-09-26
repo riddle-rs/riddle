@@ -87,7 +87,7 @@ impl ColorElementConversion<f32> for f32 {
 /// let c = Color{ r: 1.0, g: 0.0, b: 0.0, a: 1.0 };
 /// ```
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Color<E> {
     /// Red
     pub r: E,

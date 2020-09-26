@@ -101,6 +101,7 @@ impl Texture {
     }
 }
 
+/// Interpolation mode between texels when rendering
 pub enum FilterMode {
     Nearest,
     Linear,
