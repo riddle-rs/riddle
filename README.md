@@ -14,7 +14,7 @@ greater rust community.
 
 * **Windowing and System Event Loops**
     ([Docs](https://vickles.github.io/riddle/0.1.0/riddle_platform_winit)),
-    exposed through `riddle::window`. Uses `winit`.
+    exposed through `riddle::platform`. Uses `winit`.
 * **Input State Management**
     ([Docs](https://vickles.github.io/riddle/0.1.0/riddle_input)),
     exposed through `riddle::input`. Gamepad, mouse and keyboard support.
@@ -116,10 +116,28 @@ The current set of examples is:
                 as possible to provide quick manual verification of changes to the 
                 library. It is not a learning resource.
 
+## Nightly Rust
+
+Riddle depends heavily on `Arc::new_cyclic` which is currently only available
+on rust nightly. Until this [feature](https://github.com/rust-lang/rust/issues/75861)
+is stablized nightly rust will be required.
+
+## Linux build dependencies
+
+To build on Linux the following packages are required (on Ubuntu at least):
+`libasound2-dev libudev-dev`. These are required for rodio(audio library), and gilrs(controller
+support library) respectively.
+
+They can be installed by running:
+
+```bash
+sudo apt install libasound2-dev libudev-dev
+```
+
 ## Notes
 
-1. A necesary exception is the top level `Riddle::run` function which must be
-   used if `riddle::window` is to be used.
+1. A necesary exception is the top level `RiddleLib::run` function which must be
+   used if `riddle::platform` is to be used.
 2. Currently Riddle depends on some patches to underlying libraries, which are
    being maintained in forked git repositories until the changes are
    integrated upstream. This means Riddle can't be uploaded to crates.io at

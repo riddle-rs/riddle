@@ -11,7 +11,7 @@ The rough feature set is listed here, along with the crates the features are
 primarily built upen. Riddle is only possible due to the massive efforts of the
 greater rust community.
 
-* **Windowing and System Event Loops**, exposed through `riddle::window`. Uses
+* **Windowing and System Event Loops**, exposed through `riddle::platform`. Uses
     `winit`.
 * **Input State Management**, exposed through `riddle::input`.
 * **Image Loading and Basic Graphics Operations**, exposed through
@@ -85,8 +85,8 @@ fn main() -> Result<(), RiddleError> {
 
 ## Notes
 
-1. A necesary exception is the top level `Riddle::run` function which must be
-   used if `riddle::window` is to be used.
+1. A necesary exception is the top level `RiddleLib::run` function which must be
+   used if `riddle::platform` is to be used.
 2. Currently Riddle depends on some patches to underlying libraries, which are
    being maintained in forked git repositories until the changes are
    integrated upstream. This means Riddle can't be uploaded to crates.io at
