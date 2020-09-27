@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["ImageError",""]],"struct":[["Color","An RGBA color, parameterized over color channel type."],["Image","A representation of an image stored in main memory. The image is stored as RGBA32."]]});

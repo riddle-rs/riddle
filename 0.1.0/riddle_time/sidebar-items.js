@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["doctest","DO NOT RELY ON THIS MODULE"]],"struct":[["TimeSystem","The Riddle time system core state."],["TimeSystemHandle",""],["TimeSystemWeak",""],["TimerHandle","A handle to a timer created by [`crate::TimeSystem::register_timer`]."]]});

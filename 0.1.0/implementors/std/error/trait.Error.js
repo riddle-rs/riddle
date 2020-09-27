@@ -1,0 +1,10 @@
+(function() {var implementors = {};
+implementors["riddle"] = [{"text":"impl Error for RiddleError","synthetic":false,"types":[]}];
+implementors["riddle_audio"] = [{"text":"impl Error for AudioError","synthetic":false,"types":[]}];
+implementors["riddle_common"] = [{"text":"impl Error for CommonError","synthetic":false,"types":[]}];
+implementors["riddle_font"] = [{"text":"impl Error for FontError","synthetic":false,"types":[]}];
+implementors["riddle_image"] = [{"text":"impl Error for ImageError","synthetic":false,"types":[]}];
+implementors["riddle_input"] = [{"text":"impl Error for InputError","synthetic":false,"types":[]}];
+implementors["riddle_platform_winit"] = [{"text":"impl Error for PlatformError","synthetic":false,"types":[]}];
+implementors["riddle_renderer_wgpu"] = [{"text":"impl Error for RendererError","synthetic":false,"types":[]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

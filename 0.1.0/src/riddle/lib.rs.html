@@ -1,0 +1,254 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `riddle\src\lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../riddle/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><span class="help-button">?</span>
+                <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
+<span id="2">  2</span>
+<span id="3">  3</span>
+<span id="4">  4</span>
+<span id="5">  5</span>
+<span id="6">  6</span>
+<span id="7">  7</span>
+<span id="8">  8</span>
+<span id="9">  9</span>
+<span id="10"> 10</span>
+<span id="11"> 11</span>
+<span id="12"> 12</span>
+<span id="13"> 13</span>
+<span id="14"> 14</span>
+<span id="15"> 15</span>
+<span id="16"> 16</span>
+<span id="17"> 17</span>
+<span id="18"> 18</span>
+<span id="19"> 19</span>
+<span id="20"> 20</span>
+<span id="21"> 21</span>
+<span id="22"> 22</span>
+<span id="23"> 23</span>
+<span id="24"> 24</span>
+<span id="25"> 25</span>
+<span id="26"> 26</span>
+<span id="27"> 27</span>
+<span id="28"> 28</span>
+<span id="29"> 29</span>
+<span id="30"> 30</span>
+<span id="31"> 31</span>
+<span id="32"> 32</span>
+<span id="33"> 33</span>
+<span id="34"> 34</span>
+<span id="35"> 35</span>
+<span id="36"> 36</span>
+<span id="37"> 37</span>
+<span id="38"> 38</span>
+<span id="39"> 39</span>
+<span id="40"> 40</span>
+<span id="41"> 41</span>
+<span id="42"> 42</span>
+<span id="43"> 43</span>
+<span id="44"> 44</span>
+<span id="45"> 45</span>
+<span id="46"> 46</span>
+<span id="47"> 47</span>
+<span id="48"> 48</span>
+<span id="49"> 49</span>
+<span id="50"> 50</span>
+<span id="51"> 51</span>
+<span id="52"> 52</span>
+<span id="53"> 53</span>
+<span id="54"> 54</span>
+<span id="55"> 55</span>
+<span id="56"> 56</span>
+<span id="57"> 57</span>
+<span id="58"> 58</span>
+<span id="59"> 59</span>
+<span id="60"> 60</span>
+<span id="61"> 61</span>
+<span id="62"> 62</span>
+<span id="63"> 63</span>
+<span id="64"> 64</span>
+<span id="65"> 65</span>
+<span id="66"> 66</span>
+<span id="67"> 67</span>
+<span id="68"> 68</span>
+<span id="69"> 69</span>
+<span id="70"> 70</span>
+<span id="71"> 71</span>
+<span id="72"> 72</span>
+<span id="73"> 73</span>
+<span id="74"> 74</span>
+<span id="75"> 75</span>
+<span id="76"> 76</span>
+<span id="77"> 77</span>
+<span id="78"> 78</span>
+<span id="79"> 79</span>
+<span id="80"> 80</span>
+<span id="81"> 81</span>
+<span id="82"> 82</span>
+<span id="83"> 83</span>
+<span id="84"> 84</span>
+<span id="85"> 85</span>
+<span id="86"> 86</span>
+<span id="87"> 87</span>
+<span id="88"> 88</span>
+<span id="89"> 89</span>
+<span id="90"> 90</span>
+<span id="91"> 91</span>
+<span id="92"> 92</span>
+<span id="93"> 93</span>
+<span id="94"> 94</span>
+<span id="95"> 95</span>
+<span id="96"> 96</span>
+<span id="97"> 97</span>
+<span id="98"> 98</span>
+<span id="99"> 99</span>
+<span id="100">100</span>
+<span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+</pre><div class="example-wrap"><pre class="rust ">
+<span class="doccomment">/*!
+# About Riddle
+
+Riddle is a Rust media library in the vein of SDL, building as far as possible
+on the most active/standard rust libraries (winit, wgpu, image, etc). Riddle
+is **NOT** an engine, or a framework. It is a library devoted to exposing media
+related features in a unified way while avoiding prescribing program structure
+_[note 1]_.
+
+The rough feature set is listed here, along with the crates the features are
+primarily built upen. Riddle is only possible due to the massive efforts of the
+greater rust community.
+
+* **Windowing and System Event Loops**, exposed through `riddle::window`. Uses
+    `winit`.
+* **Input State Management**, exposed through `riddle::input`.
+* **Image Loading and Basic Graphics Operations**, exposed through
+    `riddle::image`. Uses `image`.
+* **Font Loading and Rendering**, exposed through `riddle::font`. Uses
+    `rusttype`.
+* **Math**, exposed through `riddle::math`. Uses `mint` for public APIs. `glam`
+    is used in other crates.
+* **Audio Loading and Playing**. Uses `rodio`.
+* **Basic 2D Renderer**, exposed through `riddle::renderer`. Uses `wgpu`.
+* **Timers and Framerate Tracking**, exposed throug `riddle::time`.
+
+This crate depends on an array of crates, each of which implements a specific
+feature. All sub-crates can be used independently of the top level `riddle`
+crate, but are best used by adding a dependency on `riddle` with appropriate
+feature flags configured.
+
+Each crate fully wraps the underlying libraries to allow for a consistent API
+to be preserved between releases. Crates also contain extension traits, to
+provide direct access to the underlying types. The few exceptions to this,
+where types from other crates are exposed through Riddle&#39;s public API are
+where those crates have become defacto standards for cross crate integration,
+such as `mint`, and `raw-window-handle`.
+
+## Cargo Features
+
+* `renderer` - The `riddle-renderer-wgpu` renderer will be enabled.
+* `audio`- The `riddle-audio`subsystem will be enabled.
+* `font` - The `riddle-font` crate will be included, and reexported through `riddle::font`
+* **default** - All features are enabled.
+
+## Getting started
+
+Add a git dependency in your cargo.toml _[note 2]_.
+
+```text
+[dependency.riddle]
+version = 0.1
+git = &quot;https://github.com/vickles/riddle/&quot;
+branch = &quot;master&quot;
+```
+
+Place the following in main.rs:
+
+```no_run
+use riddle::{*, platform::*, renderer::*, common::Color};
+
+fn main() -&gt; Result&lt;(), RiddleError&gt; {
+    // Initialize the library
+    let rdl =  RiddleLib::new()?;
+
+    // Create a window and renderer
+    let window = WindowBuilder::new().build(rdl.context())?;
+    let renderer = Renderer::new_from_window(&amp;window)?;
+
+    // Start the main event loop
+    rdl.run(move |rdl| {
+        match rdl.event() {
+            Event::Platform(PlatformEvent::WindowClose(_)) =&gt; rdl.quit(),
+            Event::ProcessFrame =&gt; {
+                // Clear the window with black every frame
+                let mut render_ctx = renderer.begin_render().unwrap();
+                render_ctx.clear(Color::BLACK);
+                render_ctx.present();
+            }
+            _ =&gt; (),
+         }
+    })
+}
+```
+
+## Notes
+
+1. A necesary exception is the top level `Riddle::run` function which must be
+   used if `riddle::window` is to be used.
+2. Currently Riddle depends on some patches to underlying libraries, which are
+   being maintained in forked git repositories until the changes are
+   integrated upstream. This means Riddle can&#39;t be uploaded to crates.io at
+   the moment.
+
+*/</span>
+
+<span class="kw">mod</span> <span class="ident">context</span>;
+<span class="kw">mod</span> <span class="ident">error</span>;
+<span class="kw">mod</span> <span class="ident">event</span>;
+<span class="kw">mod</span> <span class="ident">riddle_lib</span>;
+<span class="kw">mod</span> <span class="ident">state</span>;
+
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">riddle_common</span> <span class="kw">as</span> <span class="ident">common</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">riddle_image</span> <span class="kw">as</span> <span class="ident">image</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">riddle_input</span> <span class="kw">as</span> <span class="ident">input</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">riddle_math</span> <span class="kw">as</span> <span class="ident">math</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">riddle_platform_winit</span> <span class="kw">as</span> <span class="ident">platform</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">riddle_time</span> <span class="kw">as</span> <span class="ident">time</span>;
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;riddle-audio&quot;</span>)]</span>
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">riddle_audio</span> <span class="kw">as</span> <span class="ident">audio</span>;
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;riddle-renderer-wgpu&quot;</span>)]</span>
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">riddle_renderer_wgpu</span> <span class="kw">as</span> <span class="ident">renderer</span>;
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;riddle-font&quot;</span>)]</span>
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">riddle_font</span> <span class="kw">as</span> <span class="ident">font</span>;
+
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">context</span>::<span class="kw-2">*</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">error</span>::<span class="kw-2">*</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">event</span>::<span class="kw-2">*</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">riddle_lib</span>::<span class="kw-2">*</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">state</span>::<span class="kw-2">*</span>;
+
+<span class="kw">type</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">result</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">RiddleError</span><span class="op">&gt;</span>;
+</pre></div>
+</section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "riddle";</script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>

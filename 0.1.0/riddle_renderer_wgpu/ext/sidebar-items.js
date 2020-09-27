@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["WindowWGPUDevice","A standard Renderer WGPU device used with `riddle_platform_winit` windows."]],"trait":[["RendererWGPU","Extension trait for [`Renderer`] to support creating renderers on top of custom WGPU devices."],["RendererWGPUDevice","A [`Renderer`] compatible WGPU device."]]});

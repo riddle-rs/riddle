@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["EventPub","Event publisher which can have multiple subscribers."],["EventSub","An event subscriber which can filter incoming messages."]]});

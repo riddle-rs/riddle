@@ -1,0 +1,3 @@
+(function() {var implementors = {};
+implementors["riddle"] = [{"text":"impl&lt;'a&gt; Borrow&lt;PlatformContext&lt;'a&gt;&gt; for RiddleContext&lt;'a&gt;","synthetic":false,"types":[]},{"text":"impl&lt;'a, '_&gt; Borrow&lt;PlatformContext&lt;'a&gt;&gt; for &amp;'_ RiddleContext&lt;'a&gt;","synthetic":false,"types":[]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
