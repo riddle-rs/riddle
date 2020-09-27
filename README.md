@@ -67,7 +67,7 @@ Since the crate isn't on crates.io docs are hosted on Github Pages here:
 Add a git dependency in your cargo.toml _[note 2]_.
 
 ```toml
-[dependency.riddle]
+[dependencies.riddle]
 version = 0.1
 git = "https://github.com/vickles/riddle/"
 tag = "0.1.0"
