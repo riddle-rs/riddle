@@ -12,13 +12,14 @@ primarily built upen. Riddle is only possible due to the massive efforts of the
 greater rust community.
 
 * **Windowing and System Event Loops**, exposed through `riddle::window`. Uses
-  `winit`.
+    `winit`.
 * **Input State Management**, exposed through `riddle::input`.
 * **Image Loading and Basic Graphics Operations**, exposed through
-  `riddle::image`. Uses `image`.
+    `riddle::image`. Uses `image`.
 * **Font Loading and Rendering**, exposed through `riddle::font`. Uses
-  `rusttype`.
-* **Math**, exposed through `riddle::math`. Uses `mint`, and `glam`.
+    `rusttype`.
+* **Math**, exposed through `riddle::math`. Uses `mint` for public APIs. `glam`
+    is used in other crates.
 * **Audio Loading and Playing**. Uses `rodio`.
 * **Basic 2D Renderer**, exposed through `riddle::renderer`. Uses `wgpu`.
 * **Timers and Framerate Tracking**, exposed throug `riddle::time`.
@@ -29,7 +30,7 @@ crate, but are best used by adding a dependency on `riddle` with appropriate
 feature flags configured.
 
 Each crate fully wraps the underlying libraries to allow for a consistent API
-to be preserved between releases. They also contain extension traits, to
+to be preserved between releases. Crates also contain extension traits, to
 provide direct access to the underlying types. The few exceptions to this,
 where types from other crates are exposed through Riddle's public API are
 where those crates have become defacto standards for cross crate integration,
@@ -56,15 +57,26 @@ branch = "master"
 Place the following in main.rs:
 
 ```no_run
-use riddle::{*, platform::*};
+use riddle::{*, platform::*, renderer::*, common::Color};
 
 fn main() -> Result<(), RiddleError> {
-    let rdl = RiddleApp::new()?;
-    let window = WindowBuilder::new().build(rdl.context())?;
+    // Initialize the library
+    let rdl =  RiddleLib::new()?;
 
+    // Create a window and renderer
+    let window = WindowBuilder::new().build(rdl.context())?;
+    let renderer = Renderer::new_from_window(&window)?;
+
+    // Start the main event loop
     rdl.run(move |rdl| {
         match rdl.event() {
             Event::Platform(PlatformEvent::WindowClose(_)) => rdl.quit(),
+            Event::ProcessFrame => {
+                // Clear the window with black every frame
+                let mut render_ctx = renderer.begin_render().unwrap();
+                render_ctx.clear(Color::BLACK);
+                render_ctx.present();
+            }
             _ => (),
          }
     })
@@ -82,10 +94,10 @@ fn main() -> Result<(), RiddleError> {
 
 */
 
-mod app;
 mod context;
 mod error;
 mod event;
+mod riddle_lib;
 mod state;
 
 pub use riddle_common as common;
@@ -104,8 +116,10 @@ pub use riddle_renderer_wgpu as renderer;
 #[cfg(feature = "riddle-font")]
 pub use riddle_font as font;
 
-pub use app::*;
 pub use context::*;
 pub use error::*;
 pub use event::*;
+pub use riddle_lib::*;
 pub use state::*;
+
+type Result<R> = std::result::Result<R, RiddleError>;

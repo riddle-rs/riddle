@@ -18,7 +18,7 @@ lets this crate take full ownership over creating the WGPU device.
 use riddle::{common::Color, platform::*, renderer::*, *};
 
 fn main() -> Result<(), RiddleError> {
-    let rdl = RiddleApp::new()?;
+    let rdl =  RiddleLib::new()?;
     let window = WindowBuilder::new().build(rdl.context())?;
     let renderer = Renderer::new_from_window(&window)?;
 

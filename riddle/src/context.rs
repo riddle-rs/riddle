@@ -2,10 +2,11 @@ use crate::*;
 
 use std::borrow::Borrow;
 
-/// An riddle execution context. A context is always associated with the event that caused
-/// the context to be created.
+/// Riddle main thread context. It can be accessed before the main event loop
+/// is started via [`RiddleLib::context`] and is provided to the event loop update
+/// closure.
 ///
-/// A context is used for creating root resources like [`Window`].
+/// A context is needed for creating some resources, like `Window`s.
 pub struct RiddleContext<'a> {
     pub(crate) window_ctx: platform::PlatformContext<'a>,
     pub(crate) state: &'a RiddleState,
@@ -13,38 +14,60 @@ pub struct RiddleContext<'a> {
 }
 
 impl<'a> RiddleContext<'a> {
-    /// Issue quit request to the window context.
+    /// Issue a quit request. The main loop will terminate once the quit message
+    /// is processed.
     ///
-    /// # Panic
+    /// # Example
     ///
-    /// If the underlying quit function results in an Err, panic. A quit was being requested anyway, probably
-    //  best to err on the side of termination.
+    /// ```no_run
+    /// # use riddle::{*, platform::*, renderer::*, common::Color};
+    /// # fn main() -> Result<(), RiddleError> {
+    /// let rdl = RiddleLib::new()?;
+    ///
+    /// rdl.run(move |rdl| {
+    ///     // Quit issued
+    ///     rdl.quit();
+    ///     // The program will continue to execute until the quit event is handled
+    ///     // by the main event loop.
+    /// })
+    /// # }
+    /// ```
     pub fn quit(&self) {
         self.window_ctx.quit().unwrap();
     }
 
-    /// Get the event associated with this context
+    /// Get the event associated with this context.
+    ///
+    /// If the context was created by [`RiddleLib::context`] the event will be
+    /// [`Event::PreRunPlaceholder`].
+    ///
+    /// [`Event::ProcessFrame`] should be used to execute "per-frame" logic.
     pub fn event(&self) -> &Event {
         &self.event
     }
 
+    /// The Riddle state, allowing systems to be queried.
     pub fn state(&self) -> &RiddleState {
         &self.state
     }
 
+    /// The audio system.
     #[cfg(feature = "riddle-audio")]
     pub fn audio(&self) -> &audio::AudioSystem {
         &self.state.audio
     }
 
+    /// The input system.
     pub fn input(&self) -> &input::InputSystem {
         &self.state.input
     }
 
+    /// The time system.
     pub fn time(&self) -> &time::TimeSystem {
         &self.state.time
     }
 
+    /// The platform system.
     pub fn platform(&self) -> &platform::PlatformSystem {
         &self.state.platform
     }

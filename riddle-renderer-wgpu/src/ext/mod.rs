@@ -54,7 +54,7 @@ use std::sync::Mutex;
 /// }
 ///
 /// fn main() -> Result<(), RiddleError> {
-///     let rdl = RiddleApp::new()?;
+///     let rdl =  RiddleLib::new()?;
 ///     let window = WindowBuilder::new().build(rdl.context())?;
 ///
 ///     let custom_renderer = ACustomRenderer::new();

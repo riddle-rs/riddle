@@ -17,7 +17,7 @@ use riddle::*;
 use std::sync::{Arc, atomic::{AtomicBool, Ordering}};
 
 fn main() -> Result<(), RiddleError> {
-    let rdl = RiddleApp::new()?;
+    let rdl =  RiddleLib::new()?;
 
     let quit_flag = Arc::new(AtomicBool::new(false));
     rdl.state().time().register_timer(std::time::Duration::from_millis(200), {

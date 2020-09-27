@@ -20,7 +20,7 @@ Riddle exposes this crate through `riddle::input`.
 use riddle::{*, platform::*, input::*};
 
 fn main() -> Result<(), RiddleError> {
-    let rdl = RiddleApp::new()?;
+    let rdl =  RiddleLib::new()?;
     let window = WindowBuilder::new().build(rdl.context())?;
 
     rdl.run(move |rdl| {

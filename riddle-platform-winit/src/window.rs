@@ -18,7 +18,7 @@ use std::borrow::Borrow;
 /// ```no_run
 /// # use riddle::{*, platform::*};
 /// # fn main() -> Result<(), RiddleError> {
-/// let rdl = RiddleApp::new()?;
+/// let rdl =  RiddleLib::new()?;
 ///
 /// // Create a window
 /// let mut window = Some(WindowBuilder::new().build(rdl.context())?);
@@ -132,7 +132,7 @@ impl Window {
     /// ```no_run
     /// # use riddle::{*, common::eventpub::*, platform::*};
     /// # fn main() -> Result<(), RiddleError> {
-    /// let rdl = RiddleApp::new()?;
+    /// let rdl =  RiddleLib::new()?;
     /// let subscriber: EventSub<PlatformEvent> = EventSub::new();
     ///
     /// let window = WindowBuilder::new().build(rdl.context())?;
@@ -211,7 +211,7 @@ unsafe impl HasRawWindowHandle for Window {
 /// use riddle::{*, platform::*};
 ///
 /// fn main() -> Result<(), RiddleError> {
-///     let rdl = RiddleApp::new()?;
+///     let rdl =  RiddleLib::new()?;
 ///
 ///     let window: WindowHandle = WindowBuilder::new()
 ///         .title("A Sample Title")

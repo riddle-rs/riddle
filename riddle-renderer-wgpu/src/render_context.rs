@@ -18,7 +18,7 @@ pub trait RenderTargetDesc<'a> {
 /// ```no_run
 /// # use riddle::{common::Color, platform::*, renderer::*, math::*, *};
 /// # fn main() -> Result<(), RiddleError> {
-/// # let rdl = RiddleApp::new()?;
+/// # let rdl =  RiddleLib::new()?;
 /// # let window = WindowBuilder::new().build(rdl.context())?;
 /// # let renderer = Renderer::new_from_window(&window)?;
 /// let mut render_ctx /*: impl RenderContext*/ = renderer.begin_render()?;

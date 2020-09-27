@@ -9,8 +9,8 @@ use std::ops::Deref;
 ///
 /// To acquire a context when using `riddle` (the **recommended** approach):
 ///
-/// * `RiddleApp::context()` returns a `RiddleContext` which implements `Borrow<PlatformContext>`.
-/// * `RiddleApp::run()` passes a `RiddleContext` to the application callback.
+/// * ` RiddleLib::context()` returns a `RiddleContext` which implements `Borrow<PlatformContext>`.
+/// * ` RiddleLib::run()` passes a `RiddleContext` to the application callback.
 ///
 /// To acquire a context when using this crate directly:
 ///
@@ -23,7 +23,7 @@ use std::ops::Deref;
 /// use riddle::{*, platform::*};
 ///
 /// fn main() -> Result<(), RiddleError> {
-///     let rdl = RiddleApp::new()?;
+///     let rdl =  RiddleLib::new()?;
 ///
 ///     // Get a context before the application starts the main event loop.
 ///     let window_a: WindowHandle = WindowBuilder::new().build(rdl.context())?;

@@ -21,7 +21,7 @@ define_handles!(<PlatformSystem>::weak_self, pub PlatformSystemHandle, pub Platf
 impl PlatformSystem {
     /// Create a new platform system and its main thread state pair.
     ///
-    /// **Do not** call if using the `riddle` crate as recommended, as `RiddleApp` manages
+    /// **Do not** call if using the `riddle` crate as recommended, as ` RiddleLib` manages
     /// the creation and platform lifetime automatically.
     ///
     /// # Example
@@ -34,11 +34,12 @@ impl PlatformSystem {
     /// let (platform_system, main_thread_state) = PlatformSystem::new();
     /// let window = WindowBuilder::new().build(main_thread_state.borrow_context())?;
     ///
-    /// main_thread_state.run(move |ctx| {
+    /// main_thread_state.run::<PlatformError, _>(move |ctx| {
     ///     match ctx.event() {
     ///         PlatformEvent::WindowClose(_) => { ctx.quit(); }
     ///         _ => ()
-    ///     }
+    ///     };
+    ///     Ok(())
     /// })
     /// # }
     /// ```
@@ -67,7 +68,7 @@ impl PlatformSystem {
     /// ```no_run
     /// # use riddle::{*, common::eventpub::*, platform::*};
     /// # fn main() -> Result<(), RiddleError> {
-    /// let rdl = RiddleApp::new()?;
+    /// let rdl =  RiddleLib::new()?;
     /// let subscriber: EventSub<PlatformEvent> = EventSub::new();
     ///
     /// // Attach subscriber to the platform event stream
@@ -85,7 +86,7 @@ impl PlatformSystem {
     /// ```no_run
     /// # use riddle::{*, common::eventpub::*, platform::*};
     /// # fn main() -> Result<(), RiddleError> {
-    /// let rdl = RiddleApp::new()?;
+    /// let rdl =  RiddleLib::new()?;
     /// let window = WindowBuilder::new().build(rdl.context())?;
     /// let window_id = window.id();
     /// assert!(WindowHandle::eq(&window,
@@ -125,9 +126,9 @@ impl PlatformMainThreadState {
     /// # Panics
     ///
     /// If run has already been invoked, then this function will panic.
-    pub fn run<F>(self, main_loop: F) -> !
+    pub fn run<Err: std::fmt::Debug, F>(self, main_loop: F) -> !
     where
-        F: FnMut(PlatformContext) + 'static,
+        F: FnMut(PlatformContext) -> std::result::Result<(), Err> + 'static,
     {
         let el = std::mem::replace(&mut *self.event_loop.borrow_mut(), None).unwrap();
         let mut main_loop = main_loop;
@@ -151,7 +152,7 @@ impl PlatformMainThreadState {
                     this.event_pub.dispatch(system_event);
                     this.update_windows();
 
-                    main_loop(ctx);
+                    main_loop(ctx).unwrap();
                 }
                 None => (),
             }

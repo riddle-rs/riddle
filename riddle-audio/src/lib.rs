@@ -14,7 +14,7 @@ Riddle exposes this crate through `riddle::audio`.
 use riddle::*;
 
 fn main() -> Result<(), RiddleError> {
-    let rdl = RiddleApp::new()?;
+    let rdl =  RiddleLib::new()?;
 
     // Load the clip
     let clip_bytes = include_bytes!("../../example_assets/boop.wav");

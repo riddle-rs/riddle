@@ -21,7 +21,7 @@ struct DemoState {
 }
 
 impl DemoState {
-    fn new(rdl: &RiddleApp) -> Result<Self, RiddleError> {
+    fn new(rdl: &RiddleLib) -> Result<Self, RiddleError> {
         let window = WindowBuilder::new().build(rdl.context())?;
 
         let renderer = renderer::Renderer::new_from_window(&window)?;
@@ -193,7 +193,7 @@ impl RendererState {
 }
 
 fn main() -> Result<(), RiddleError> {
-    let rdl = RiddleApp::new()?;
+    let rdl = RiddleLib::new()?;
     let mut state = DemoState::new(&rdl)?;
 
     rdl.run(move |rdl| match rdl.event() {
@@ -201,9 +201,7 @@ fn main() -> Result<(), RiddleError> {
         Event::Input(InputEvent::MouseButtonDown {
             button: MouseButton::Left,
             ..
-        }) => {
-            state.on_mouse_down().unwrap();
-        }
+        }) => state.on_mouse_down().unwrap(),
         Event::Input(InputEvent::MouseButtonDown {
             button: MouseButton::Right,
             ..

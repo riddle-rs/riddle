@@ -9,6 +9,9 @@ use crate::{
     *,
 };
 
+/// Riddle subsystem state handles
+///
+/// Provides access to all the thread-safe state associated with riddle systems.
 #[derive(Clone)]
 pub struct RiddleState {
     pub platform: PlatformSystemHandle,
@@ -20,7 +23,7 @@ pub struct RiddleState {
 }
 
 impl RiddleState {
-    pub(crate) fn new() -> Result<(Self, MainThreadState), RiddleError> {
+    pub(crate) fn new() -> Result<(Self, MainThreadState)> {
         let (platform_system, platform_main_thread) = PlatformSystem::new();
         let (input_system, input_main_thread) = InputSystem::new(platform_system.event_pub())?;
         let time = TimeSystem::new();
@@ -45,18 +48,22 @@ impl RiddleState {
         Ok((riddle_state, main_thread_state))
     }
 
+    /// Platform system state
     pub fn platform(&self) -> &PlatformSystem {
         &self.platform
     }
 
+    /// Input system state
     pub fn input(&self) -> &InputSystem {
         &self.input
     }
 
+    /// Time system state
     pub fn time(&self) -> &TimeSystem {
         &self.time
     }
 
+    /// Audio system state
     pub fn audio(&self) -> &AudioSystem {
         &self.audio
     }
@@ -69,15 +76,15 @@ pub(crate) struct MainThreadState {
 
 impl MainThreadState {
     #[inline]
-    pub fn run<F>(self, state: RiddleState, mut update: F) -> !
+    pub fn run<Err: std::error::Error, F>(self, state: RiddleState, mut update: F) -> !
     where
-        F: FnMut(&RiddleContext) -> () + 'static,
+        F: FnMut(&RiddleContext) -> std::result::Result<(), Err> + 'static,
     {
         let MainThreadState {
             platform,
             mut input,
         } = self;
-        platform.run(move |platform_ctx| {
+        platform.run::<Err, _>(move |platform_ctx| {
             match platform_ctx.event() {
                 platform::PlatformEvent::EventQueueEmpty => {
                     state.time.process_frame();
@@ -100,13 +107,16 @@ impl MainThreadState {
                 state: &state,
                 event,
             };
-            update(&ctx);
+
+            update(&ctx)?;
 
             let input_events = state.input.take_input_events();
             for input_event in input_events {
                 ctx.event = Event::Input(input_event);
-                update(&ctx);
+                update(&ctx)?;
             }
+
+            Ok(())
         })
     }
 }

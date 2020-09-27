@@ -14,7 +14,7 @@ Riddle exposes this crate through `riddle::platform`.
 use riddle::{*, platform::*};
 
 fn main() -> Result<(), RiddleError> {
-    let rdl = RiddleApp::new()?;
+    let rdl =  RiddleLib::new()?;
     let window = WindowBuilder::new().build(rdl.context())?;
 
     rdl.run(move |rdl| {
@@ -39,11 +39,12 @@ fn main() -> Result<(), PlatformError> {
     let (platform_system, main_thread_state) = PlatformSystem::new();
     let window = WindowBuilder::new().build(main_thread_state.borrow_context())?;
 
-    main_thread_state.run(move |ctx| {
+    main_thread_state.run::<PlatformError, _>(move |ctx| {
         match ctx.event() {
             PlatformEvent::WindowClose(_) => { ctx.quit(); }
             _ => ()
-        }
+        };
+        Ok(())
     })
 }
 ```

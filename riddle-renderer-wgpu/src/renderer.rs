@@ -12,7 +12,7 @@ use riddle_common::define_handles;
 /// ```no_run
 /// use riddle::{common::Color, platform::*, renderer::*, math::*, *};
 /// fn main() -> Result<(), RiddleError> {
-///     let rdl = RiddleApp::new()?;
+///     let rdl =  RiddleLib::new()?;
 ///     let window = WindowBuilder::new().build(rdl.context())?;
 ///
 ///     let renderer = Renderer::new_from_window(&window)?;
@@ -45,7 +45,7 @@ impl Renderer {
     /// ```no_run
     /// # use riddle::{common::Color, platform::*, renderer::*, math::*, *};
     /// # fn main() -> Result<(), RiddleError> {
-    /// let rdl = RiddleApp::new()?;
+    /// let rdl =  RiddleLib::new()?;
     /// let window = WindowBuilder::new().build(rdl.context())?;
     ///
     /// let renderer = Renderer::new_from_window(&window)?;
@@ -66,7 +66,7 @@ impl Renderer {
     /// ```no_run
     /// # use riddle::{common::Color, platform::*, renderer::*, math::*, *};
     /// # fn main() -> Result<(), RiddleError> {
-    /// let rdl = RiddleApp::new()?;
+    /// let rdl =  RiddleLib::new()?;
     /// let window = WindowBuilder::new().dimensions(300, 400).build(rdl.context())?;
     ///
     /// let renderer = Renderer::new_from_window(&window)?;
@@ -85,7 +85,7 @@ impl Renderer {
     /// ```no_run
     /// # use riddle::{common::Color, platform::*, renderer::*, math::*, *};
     /// # fn main() -> Result<(), RiddleError> {
-    /// # let rdl = RiddleApp::new()?;
+    /// # let rdl =  RiddleLib::new()?;
     /// # let window = WindowBuilder::new().build(rdl.context())?;
     /// let renderer = Renderer::new_from_window(&window)?;
     ///
