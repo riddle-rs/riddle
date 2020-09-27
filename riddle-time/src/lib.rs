@@ -12,7 +12,7 @@ a centralized place to access a consistent delta_t when running game logic.
 The **recommended** way to use this crate is through the main `riddle` crate.
 Riddle exposes this crate through `riddle::time`.
 
-```
+```no_run
 use riddle::*;
 use std::sync::{Arc, atomic::{AtomicBool, Ordering}};
 
