@@ -12,17 +12,31 @@ The rough feature set is listed here, along with the crates the features are
 primarily built upen. Riddle is only possible due to the massive efforts of the
 greater rust community.
 
-* **Windowing and System Event Loops**, exposed through `riddle::window`. Uses
-  `winit`.
-* **Input State Management**, exposed through `riddle::input`.
-* **Image Loading and Basic Graphics Operations**, exposed through
-  `riddle::image`. Uses `image`.
-* **Font Loading and Rendering**, exposed through `riddle::font`. Uses
-  `rusttype`.
-* **Math**, exposed through `riddle::math`. Uses `mint`, and `glam`.
-* **Audio Loading and Playing**. Uses `rodio`.
-* **Basic 2D Renderer**, exposed through `riddle::renderer`. Uses `wgpu`.
-* **Timers and Framerate Tracking**, exposed throug `riddle::time`.
+* **Windowing and System Event Loops**
+    ([Docs](https://vickles.github.io/riddle/0.1.0/riddle_platform_winit)),
+    exposed through `riddle::window`. Uses `winit`.
+* **Input State Management**
+    ([Docs](https://vickles.github.io/riddle/0.1.0/riddle_input)),
+    exposed through `riddle::input`. Gamepad, mouse and keyboard support.
+    Built on `winit` and `gilrs`
+* **Image Loading and Basic Graphics Operations**
+    ([Docs](https://vickles.github.io/riddle/0.1.0/riddle_image)),
+    exposed through `riddle::image`. Uses `image`.
+* **Font Loading and Rendering**
+    ([Docs](https://vickles.github.io/riddle/0.1.0/riddle_font)),
+    exposed through `riddle::font`. Uses `rusttype`.
+* **Math**
+    ([Docs](https://vickles.github.io/riddle/0.1.0/riddle_math)),
+    exposed through `riddle::math`. Uses `mint`, and `glam`.
+* **Audio Loading and Playing**.
+    ([Docs](https://vickles.github.io/riddle/0.1.0/riddle_audio)),
+    Uses `rodio`.
+* **Basic 2D Renderer**
+    ([Docs](https://vickles.github.io/riddle/0.1.0/riddle_renderer_wgpu)),
+    exposed through `riddle::renderer`. Uses `wgpu`.
+* **Timers and Framerate Tracking**
+    ([Docs](https://vickles.github.io/riddle/0.1.0/riddle_time)),
+    exposed throug `riddle::time`.
 
 This crate depends on an array of crates, each of which implements a specific
 feature. All sub-crates can be used independently of the top level `riddle`
@@ -35,6 +49,11 @@ provide direct access to the underlying types. The few exceptions to this,
 where types from other crates are exposed through Riddle's public API are
 where those crates have become defacto standards for cross crate integration,
 such as `mint`, and `raw-window-handle`.
+
+## Documentation
+
+Since the crate isn't on crates.io docs are hosted on Github Pages here:
+[**Rustdoc Docs**](https://vickles.github.io/riddle/0.1.0/riddle)
 
 ## Cargo Features
 
@@ -51,26 +70,51 @@ Add a git dependency in your cargo.toml _[note 2]_.
 [dependency.riddle]
 version = 0.1
 git = "https://github.com/vickles/riddle/"
-branch = "master"
+tag = "0.1.0"
 ```
 
 Place the following in main.rs:
 
 ```rust
-use riddle::{*, platform::*};
+use riddle::{*, platform::*, renderer::*, common::Color};
 
 fn main() -> Result<(), RiddleError> {
-    let rdl =  RiddleLib::new()?;
-    let window = WindowBuilder::new().build(rdl.context())?;
+    // Initialize the library
+    let rdl = RiddleLib::new()?;
 
+    // Create a window and renderer
+    let window = WindowBuilder::new().build(rdl.context())?;
+    let renderer = Renderer::new_from_window(&window)?;
+
+    // Start the main event loop
     rdl.run(move |rdl| {
         match rdl.event() {
             Event::Platform(PlatformEvent::WindowClose(_)) => rdl.quit(),
+            Event::ProcessFrame => {
+                // Clear the window with black every frame
+                let mut render_ctx = renderer.begin_render().unwrap();
+                render_ctx.clear(Color::BLACK);
+                render_ctx.present();
+            }
             _ => (),
          }
     })
 }
 ```
+
+## Examples
+
+The rustdocs for most public APIs contain example code to illustrate how the
+various riddle systems work, and how they should be used.
+
+More complete examples live in `riddle/examples`.
+
+The current set of examples is:
+
+* **pong** - A simple pong game, using input, basic fill-rect rendering, and audio.
+* **sandbox** - This is a scratchpad example which tries to use as much functionality
+                as possible to provide quick manual verification of changes to the 
+                library. It is not a learning resource.
 
 ## Notes
 

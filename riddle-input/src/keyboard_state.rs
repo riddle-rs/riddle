@@ -29,6 +29,14 @@ impl KeyboardState {
             self.vkeys[vkey as usize] = false;
         }
     }
+
+    pub fn is_key_down(&self, scancode: Scancode) -> bool {
+        self.scankeys[scancode as usize]
+    }
+
+    pub fn is_vkey_down(&self, vkey: VirtualKey) -> bool {
+        self.vkeys[vkey as usize]
+    }
 }
 
 impl Default for KeyboardState {

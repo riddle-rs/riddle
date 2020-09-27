@@ -69,6 +69,11 @@ impl TimeSystem {
         self.frame_time.lock().unwrap().fps
     }
 
+    /// Get the current delta t as calculated based on previous frame durations.
+    pub fn delta_secs(&self) -> f32 {
+        1.0 / self.frame_time.lock().unwrap().fps
+    }
+
     /// Get the reference time for this frame. Captured during [`TimeSystem::process_frame`].
     pub fn frame_instant(&self) -> std::time::Instant {
         self.frame_time.lock().unwrap().frame_instant

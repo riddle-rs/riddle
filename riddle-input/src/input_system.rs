@@ -128,6 +128,74 @@ impl InputSystem {
         self.with_window_state(window, |w| w.mouse.position())
     }
 
+    /// Query the keyboard scancode state with respect to a given window. See
+    /// [`Scancode`] for details on what a scancode represents.
+    ///
+    /// If no keyboard infomation is available for the given window, the button
+    /// will be considered to not be down.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use riddle_input::*; use riddle_common::eventpub::*; use riddle_platform_common::*;
+    /// # fn main() -> Result<(), InputError> {
+    /// # let platform_events: EventPub<PlatformEvent> = EventPub::new();
+    /// # let (input_system, mut main_thread_state) = InputSystem::new(&platform_events)?;
+    /// # let window = WindowId::new(0);
+    /// // The initial key state is that the button is unpressed
+    /// assert_eq!(false, input_system.is_key_down(window, Scancode::Escape));
+    ///
+    /// // The platform system emits key press event
+    /// // [..]
+    /// # platform_events.dispatch(PlatformEvent::KeyDown {
+    /// #     window: WindowId::new(0),
+    /// #     vkey: Some(VirtualKey::Escape),
+    /// #     scancode: Scancode::Escape,
+    /// #     platform_scancode: 0});
+    /// # main_thread_state.process_input();
+    ///
+    /// // The reported key state has changed
+    /// assert_eq!(true, input_system.is_key_down(window, Scancode::Escape));
+    /// # Ok(()) }
+    /// ```
+    pub fn is_key_down(&self, window: WindowId, scancode: Scancode) -> bool {
+        self.with_window_state(window, |w| w.keyboard.is_key_down(scancode))
+    }
+
+    /// Query the keyboard virtual key state with respect to a given window. See
+    /// [`VirtualKey`] for details on what a virtual key represents.
+    ///
+    /// If no keyboard infomation is available for the given window, the button
+    /// will be considered to not be down.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use riddle_input::*; use riddle_common::eventpub::*; use riddle_platform_common::*;
+    /// # fn main() -> Result<(), InputError> {
+    /// # let platform_events: EventPub<PlatformEvent> = EventPub::new();
+    /// # let (input_system, mut main_thread_state) = InputSystem::new(&platform_events)?;
+    /// # let window = WindowId::new(0);
+    /// // The initial key state is that the button is unpressed
+    /// assert_eq!(false, input_system.is_vkey_down(window, VirtualKey::Escape));
+    ///
+    /// // The platform system emits key press event
+    /// // [..]
+    /// # platform_events.dispatch(PlatformEvent::KeyDown {
+    /// #     window: WindowId::new(0),
+    /// #     vkey: Some(VirtualKey::Escape),
+    /// #     scancode: Scancode::Escape,
+    /// #     platform_scancode: 0});
+    /// # main_thread_state.process_input();
+    ///
+    /// // The reported key state has changed
+    /// assert_eq!(true, input_system.is_vkey_down(window, VirtualKey::Escape));
+    /// # Ok(()) }
+    /// ```
+    pub fn is_vkey_down(&self, window: WindowId, vkey: VirtualKey) -> bool {
+        self.with_window_state(window, |w| w.keyboard.is_vkey_down(vkey))
+    }
+
     /// The current state of keyboard modifiers with respect to a given window.
     ///
     /// If no state has been set all modifiers are considered unset.

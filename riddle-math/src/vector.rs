@@ -94,6 +94,14 @@ impl<T: SpacialNumeric> std::ops::Add<Vector2<T>> for Vector2<T> {
     }
 }
 
+impl<T: SpacialNumeric> std::ops::AddAssign<Vector2<T>> for Vector2<T> {
+    #[inline]
+    fn add_assign(&mut self, rhs: Vector2<T>) {
+        self.x = self.x + rhs.x;
+        self.y = self.y + rhs.y;
+    }
+}
+
 impl<T: SpacialNumeric> std::ops::Sub<Vector2<T>> for Vector2<T> {
     type Output = Vector2<T>;
 
@@ -103,6 +111,14 @@ impl<T: SpacialNumeric> std::ops::Sub<Vector2<T>> for Vector2<T> {
             x: self.x - rhs.x,
             y: self.y - rhs.y,
         }
+    }
+}
+
+impl<T: SpacialNumeric> std::ops::SubAssign<Vector2<T>> for Vector2<T> {
+    #[inline]
+    fn sub_assign(&mut self, rhs: Vector2<T>) {
+        self.x = self.x - rhs.x;
+        self.y = self.y - rhs.y;
     }
 }
 
