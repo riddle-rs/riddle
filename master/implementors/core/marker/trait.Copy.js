@@ -1,0 +1,7 @@
+(function() {var implementors = {};
+implementors["riddle_audio"] = [{"text":"impl Copy for ClipFormat","synthetic":false,"types":[]},{"text":"impl Copy for PlayMode","synthetic":false,"types":[]}];
+implementors["riddle_image"] = [{"text":"impl Copy for ImageFormat","synthetic":false,"types":[]}];
+implementors["riddle_input"] = [{"text":"impl Copy for GamePadId","synthetic":false,"types":[]},{"text":"impl Copy for GamePadButton","synthetic":false,"types":[]},{"text":"impl Copy for GamePadAxis","synthetic":false,"types":[]}];
+implementors["riddle_math"] = [{"text":"impl&lt;T:&nbsp;Copy&gt; Copy for Vector2&lt;T&gt;","synthetic":false,"types":[]}];
+implementors["riddle_platform_common"] = [{"text":"impl Copy for LogicalSize","synthetic":false,"types":[]},{"text":"impl Copy for LogicalPosition","synthetic":false,"types":[]},{"text":"impl Copy for LogicalVec2","synthetic":false,"types":[]},{"text":"impl Copy for MouseButton","synthetic":false,"types":[]},{"text":"impl Copy for Scancode","synthetic":false,"types":[]},{"text":"impl Copy for VirtualKey","synthetic":false,"types":[]},{"text":"impl Copy for WindowId","synthetic":false,"types":[]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

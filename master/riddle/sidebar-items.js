@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["Event",""],["RiddleError",""]],"struct":[["RiddleContext","Riddle main thread context. It can be accessed before the main event loop is started via [`RiddleLib::context`] and is provided to the event loop update closure."],["RiddleLib","Riddle library initializer"],["RiddleState","Riddle subsystem state handles"]]});

@@ -1,0 +1,12 @@
+(function() {var implementors = {};
+implementors["riddle"] = [{"text":"impl Debug for RiddleError","synthetic":false,"types":[]}];
+implementors["riddle_audio"] = [{"text":"impl Debug for ClipFormat","synthetic":false,"types":[]},{"text":"impl Debug for AudioError","synthetic":false,"types":[]}];
+implementors["riddle_common"] = [{"text":"impl&lt;E:&nbsp;Debug&gt; Debug for Color&lt;E&gt;","synthetic":false,"types":[]},{"text":"impl Debug for CommonError","synthetic":false,"types":[]}];
+implementors["riddle_font"] = [{"text":"impl Debug for FontError","synthetic":false,"types":[]}];
+implementors["riddle_image"] = [{"text":"impl Debug for ImageError","synthetic":false,"types":[]},{"text":"impl Debug for ImageFormat","synthetic":false,"types":[]}];
+implementors["riddle_input"] = [{"text":"impl Debug for InputError","synthetic":false,"types":[]},{"text":"impl Debug for InputEvent","synthetic":false,"types":[]},{"text":"impl Debug for GamePadId","synthetic":false,"types":[]},{"text":"impl Debug for GamePadButton","synthetic":false,"types":[]},{"text":"impl Debug for GamePadAxis","synthetic":false,"types":[]},{"text":"impl Debug for KeyboardModifiers","synthetic":false,"types":[]}];
+implementors["riddle_math"] = [{"text":"impl&lt;T:&nbsp;Debug&gt; Debug for Rect&lt;T&gt;","synthetic":false,"types":[]},{"text":"impl&lt;T:&nbsp;Debug&gt; Debug for Vector2&lt;T&gt;","synthetic":false,"types":[]}];
+implementors["riddle_platform_common"] = [{"text":"impl Debug for LogicalSize","synthetic":false,"types":[]},{"text":"impl Debug for LogicalPosition","synthetic":false,"types":[]},{"text":"impl Debug for LogicalVec2","synthetic":false,"types":[]},{"text":"impl Debug for MouseButton","synthetic":false,"types":[]},{"text":"impl Debug for Scancode","synthetic":false,"types":[]},{"text":"impl Debug for VirtualKey","synthetic":false,"types":[]},{"text":"impl Debug for WindowId","synthetic":false,"types":[]}];
+implementors["riddle_platform_winit"] = [{"text":"impl Debug for PlatformError","synthetic":false,"types":[]}];
+implementors["riddle_renderer_wgpu"] = [{"text":"impl Debug for RendererError","synthetic":false,"types":[]},{"text":"impl Debug for SpriteRenderCommand","synthetic":false,"types":[]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

@@ -1,0 +1,1 @@
+initSidebarItems({"trait":[["WindowCommon","Functionality Window types need in order to be able to interact with platform common."]]});
