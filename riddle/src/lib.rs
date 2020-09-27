@@ -51,7 +51,7 @@ Add a git dependency in your cargo.toml _[note 2]_.
 [dependency.riddle]
 version = 0.1
 git = "https://github.com/vickles/riddle/"
-branch = "master"
+tag = "0.1.0"
 ```
 
 Place the following in main.rs:
@@ -61,7 +61,7 @@ use riddle::{*, platform::*, renderer::*, common::Color};
 
 fn main() -> Result<(), RiddleError> {
     // Initialize the library
-    let rdl =  RiddleLib::new()?;
+    let rdl = RiddleLib::new()?;
 
     // Create a window and renderer
     let window = WindowBuilder::new().build(rdl.context())?;
