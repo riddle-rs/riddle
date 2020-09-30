@@ -3,7 +3,7 @@ use crate::*;
 use riddle_math::*;
 
 use riddle_common::{Color, ColorElementConversion};
-use std::io::{Read, Seek};
+use std::io::Read;
 
 /// A representation of an image stored in main memory. The image is stored
 /// as RGBA32.
@@ -23,8 +23,14 @@ impl Image {
     /// let png_img = Image::new_from_png(std::io::Cursor::new(&png_bytes[..]))?;
     /// # Ok(()) }
     /// ```
-    pub fn new_from_png<R: Read + Seek>(r: R) -> Result<Self> {
-        let img = ::image::load(std::io::BufReader::new(r), ::image::ImageFormat::Png)?;
+    pub fn new_from_png<R: Read>(mut r: R) -> Result<Self> {
+        let mut buf = vec![];
+        r.read_to_end(&mut buf)
+            .map_err(|err| CommonError::IOError(err))?;
+        let img = ::image::load(
+            std::io::BufReader::new(std::io::Cursor::new(buf)),
+            ::image::ImageFormat::Png,
+        )?;
         Ok(Image {
             img: img.into_rgba(),
         })
