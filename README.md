@@ -113,7 +113,7 @@ The current set of examples is:
 
 * **pong** - A simple pong game, using input, basic fill-rect rendering, and audio.
 * **sandbox** - This is a scratchpad example which tries to use as much functionality
-                as possible to provide quick manual verification of changes to the 
+                as possible to provide quick manual verification of changes to the
                 library. It is not a learning resource.
 
 ## Nightly Rust
