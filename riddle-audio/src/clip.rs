@@ -11,7 +11,7 @@ use std::{io::Cursor, io::Read, sync::Arc};
 /// ```
 /// # use riddle_audio::*; fn main() -> Result<(), AudioError> {
 /// let clip_bytes = include_bytes!("../../example_assets/boop.wav");
-/// let clip = Clip::new(&clip_bytes[..])?;
+/// let clip = Clip::load(&clip_bytes[..], ClipFormat::Wav)?;
 /// # Ok(()) }
 /// ```
 #[derive(Clone)]
@@ -24,16 +24,21 @@ impl Clip {
     /// Reads the entirety of the data reader in to memory.
     ///
     /// An [`AudioError::ClipDecodeError`] value will be returned if the data isn't a known format.
-    pub fn new<R>(mut data: R) -> Result<Clip>
+    pub fn load<R>(mut data: R, format: ClipFormat) -> Result<Clip>
     where
         R: Read,
     {
         let mut owned_data: Vec<u8> = vec![];
         data.read_to_end(&mut owned_data)
             .map_err(|e| CommonError::IOError(e))?;
+        let cursor = Cursor::new(owned_data.clone());
 
-        let source = Decoder::new(Cursor::new(owned_data.clone()))
-            .map_err(|_| AudioError::ClipDecodeError)?;
+        let source = match format {
+            ClipFormat::Wav => Decoder::new_wav(cursor),
+            ClipFormat::Vorbis => Decoder::new_vorbis(cursor),
+        }
+        .map_err(|_| AudioError::ClipDecodeError)?;
+
         let duration = source.total_duration();
 
         Ok(Self {
@@ -49,7 +54,7 @@ impl Clip {
     /// ```
     /// # use riddle_audio::*; fn main() -> Result<(), AudioError> {
     /// let clip_bytes = include_bytes!("../../example_assets/boop.wav");
-    /// let clip = Clip::new(&clip_bytes[..])?;
+    /// let clip = Clip::load(&clip_bytes[..], ClipFormat::Wav)?;
     ///
     /// assert!(clip.duration().unwrap() > std::time::Duration::from_secs(0));
     /// # Ok(()) }
@@ -74,4 +79,11 @@ impl AsRef<[u8]> for ClipData {
     fn as_ref(&self) -> &[u8] {
         Arc::as_ref(&self.data).as_ref()
     }
+}
+
+/// The set of support audio file formats which [`Clip`] can load
+#[derive(Debug, Eq, PartialEq, Copy, Clone)]
+pub enum ClipFormat {
+    Wav,
+    Vorbis,
 }

@@ -1,11 +1,9 @@
-use time::TimeSystemHandle;
-
 #[cfg(feature = "riddle-audio")]
-use crate::audio::{AudioSystem, AudioSystemHandle};
+use crate::audio::{AudioMainThreadState, AudioSystem, AudioSystemHandle};
 use crate::{
     input::{InputMainThreadState, InputSystem, InputSystemHandle},
     platform::{PlatformMainThreadState, PlatformSystem, PlatformSystemHandle},
-    time::TimeSystem,
+    time::{TimeSystem, TimeSystemHandle},
     *,
 };
 
@@ -29,7 +27,7 @@ impl RiddleState {
         let time = TimeSystem::new();
 
         #[cfg(feature = "riddle-audio")]
-        let audio = AudioSystem::new()?;
+        let (audio, audio_main_thread) = AudioSystem::new()?;
 
         let riddle_state = RiddleState {
             platform: platform_system,
@@ -43,6 +41,9 @@ impl RiddleState {
         let main_thread_state = MainThreadState {
             platform: platform_main_thread,
             input: input_main_thread,
+
+            #[cfg(feature = "riddle-audio")]
+            audio: audio_main_thread,
         };
 
         Ok((riddle_state, main_thread_state))
@@ -72,6 +73,9 @@ impl RiddleState {
 pub(crate) struct MainThreadState {
     pub(crate) platform: PlatformMainThreadState,
     input: InputMainThreadState,
+
+    #[cfg(feature = "riddle-audio")]
+    pub audio: AudioMainThreadState,
 }
 
 impl MainThreadState {
@@ -83,6 +87,7 @@ impl MainThreadState {
         let MainThreadState {
             platform,
             mut input,
+            audio: _audio,
         } = self;
         platform.run::<Err, _>(move |platform_ctx| {
             match platform_ctx.event() {

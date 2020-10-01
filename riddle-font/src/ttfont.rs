@@ -18,10 +18,10 @@ impl TTFont {
     /// # use riddle_font::*;
     /// # fn main() -> Result<(), FontError> {
     /// let ttf_bytes = include_bytes!("../../example_assets/Roboto-Regular.ttf");
-    /// let font = TTFont::new(&ttf_bytes[..])?;
+    /// let font = TTFont::load(&ttf_bytes[..])?;
     /// # Ok (()) }
     /// ```
-    pub fn new<R: Read>(mut r: R) -> Result<Self> {
+    pub fn load<R: Read>(mut r: R) -> Result<Self> {
         let mut data = vec![0u8; 0];
         r.read_to_end(&mut data)
             .map_err(|e| CommonError::IOError(e))?;
@@ -45,7 +45,7 @@ impl TTFont {
     /// # use riddle_font::*;
     /// # fn main() -> Result<(), FontError> {
     /// # let ttf_bytes = include_bytes!("../../example_assets/Roboto-Regular.ttf");
-    /// let font = TTFont::new(&ttf_bytes[..])?;
+    /// let font = TTFont::load(&ttf_bytes[..])?;
     /// let image = font.render_simple("A String", 24)?;
     /// # Ok (()) }
     /// ```

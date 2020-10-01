@@ -1,13 +1,12 @@
 use riddle::{
     common::Color,
-    input::{InputEvent, VirtualKey},
+    input::{InputEvent, KeyboardModifiers, MouseButton, VirtualKey},
     math::*,
     platform::{PlatformEvent, WindowBuilder},
     renderer::*,
     *,
 };
 
-use input::{KeyboardModifiers, MouseButton};
 use std::sync::{Arc, Mutex};
 
 struct DemoState {
@@ -28,22 +27,22 @@ impl DemoState {
 
         let img = {
             let img_bytes = include_bytes!("../../../example_assets/image.png");
-            image::Image::new_from_png(&img_bytes[..])?
+            image::Image::load(&img_bytes[..], image::ImageFormat::Png)?
         };
 
         let font = {
             let font_bytes = include_bytes!("../../../example_assets/Roboto-Regular.ttf");
-            font::TTFont::new(&font_bytes[..])?
+            font::TTFont::load(&font_bytes[..])?
         };
 
         let clip = {
             let clip_bytes = include_bytes!("../../../example_assets/boop.wav");
-            audio::Clip::new(&clip_bytes[..])?
+            audio::Clip::load(&clip_bytes[..], audio::ClipFormat::Wav)?
         };
 
         let music = {
             let music_bytes = include_bytes!("../../../example_assets/music.ogg");
-            audio::Clip::new(&music_bytes[..])?
+            audio::Clip::load(&music_bytes[..], audio::ClipFormat::Vorbis)?
         };
 
         let label = font.render_simple("Hello World", 30)?;

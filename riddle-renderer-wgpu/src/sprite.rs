@@ -29,7 +29,7 @@ use riddle_common::Color;
 ///
 /// // Load an image and create a sprite from it
 /// let png_bytes = include_bytes!("../../example_assets/image.png");
-/// let img = Image::new_from_png(std::io::Cursor::new(&png_bytes[..]))?;
+/// let img = Image::load(&png_bytes[..], ImageFormat::Png)?;
 /// let sprite = SpriteBuilder::new(img).build(&renderer)?;
 ///
 /// // Render the sprite at the top left corner of the screen

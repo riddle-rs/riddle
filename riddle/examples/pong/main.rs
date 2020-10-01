@@ -42,7 +42,7 @@ impl Pong {
 
         let clip = {
             let clip_bytes = include_bytes!("../../../example_assets/boop.wav");
-            audio::Clip::new(&clip_bytes[..])?
+            audio::Clip::load(&clip_bytes[..], audio::ClipFormat::Wav)?
         };
 
         Ok(Self {
