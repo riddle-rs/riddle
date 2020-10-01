@@ -10,5 +10,6 @@ edition = "2018"
 riddle-math = {path = "../riddle-math"}
 riddle-common = {path = "../riddle-common"}
 
+futures = "0.3"
 image = "0.23"
 thiserror = "1.0"

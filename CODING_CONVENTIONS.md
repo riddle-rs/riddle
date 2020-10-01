@@ -2,7 +2,9 @@
 
 ## Naming Conventions
 
-* Methods which take a `Read` instance to construct an asset type should be named `Type::load[_optional_suffix]`.
+* Methods which take a `Read` instance to construct an asset type should be named `Type::load[_optional_part]`.
+* Methods which take an `AsyncRead` instance to construct an asset shoudlbe named `Type::load[_optional_part]_async`.
+* Methods which directly construct an assert from a `&[u8]` should be named `Type::from[_optional_part]_bytes`.
 
 ## Misc
 
