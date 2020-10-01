@@ -1,33 +1,31 @@
-/*!
-An event pubsub utility.
-
-Publishers can have multiple subscribers, and subscribers can filter the events
-they accept.
-
-# Example
-
-```
-# use riddle_common::eventpub::*;
-#[derive(Clone, Eq, PartialEq, Debug)]
-enum Message {
-    Test
-}
-
-fn main() {
-    // Make a new pub and sub
-    let publisher: EventPub<Message> = EventPub::new();
-    let subscriber: EventSub<Message> = EventSub::new();
-    publisher.attach(&subscriber);
-
-    // Send a message through the pub
-    publisher.dispatch(Message::Test);
-
-    // Take the messages from the sub
-    let messages = subscriber.collect();
-    assert_eq!(vec![Message::Test], messages);
-}
-```
-*/
+//! An event pubsub utility.
+//!
+//! Publishers can have multiple subscribers, and subscribers can filter the events
+//! they accept.
+//!
+//! # Example
+//!
+//! ```
+//! # use riddle_common::eventpub::*;
+//! #[derive(Clone, Eq, PartialEq, Debug)]
+//! enum Message {
+//!     Test
+//! }
+//!
+//! fn main() {
+//!     // Make a new pub and sub
+//!     let publisher: EventPub<Message> = EventPub::new();
+//!     let subscriber: EventSub<Message> = EventSub::new();
+//!     publisher.attach(&subscriber);
+//!
+//!     // Send a message through the pub
+//!     publisher.dispatch(Message::Test);
+//!
+//!     // Take the messages from the sub
+//!     let messages = subscriber.collect();
+//!     assert_eq!(vec![Message::Test], messages);
+//! }
+//! ```
 
 use std::sync::{Arc, Mutex, RwLock, Weak};
 

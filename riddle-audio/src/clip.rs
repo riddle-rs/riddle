@@ -62,6 +62,9 @@ impl Clip {
         let source = match format {
             ClipFormat::Wav => Decoder::new_wav(cursor),
             ClipFormat::Vorbis => Decoder::new_vorbis(cursor),
+
+            #[cfg(feature = "riddle-mp3")]
+            ClipFormat::Mp3 => Decoder::new_mp3(cursor),
         }
         .map_err(|_| AudioError::ClipDecodeError)?;
 
@@ -112,4 +115,8 @@ impl AsRef<[u8]> for ClipData {
 pub enum ClipFormat {
     Wav,
     Vorbis,
+
+    #[cfg(feature = "riddle-mp3")]
+    #[doc(cfg(feature = "riddle-mp3"))]
+    Mp3,
 }

@@ -12,12 +12,12 @@ use crate::{
 /// Provides access to all the thread-safe state associated with riddle systems.
 #[derive(Clone)]
 pub struct RiddleState {
-    pub platform: PlatformSystemHandle,
-    pub input: InputSystemHandle,
-    pub time: TimeSystemHandle,
+    platform: PlatformSystemHandle,
+    input: InputSystemHandle,
+    time: TimeSystemHandle,
 
     #[cfg(feature = "riddle-audio")]
-    pub audio: AudioSystemHandle,
+    audio: AudioSystemHandle,
 }
 
 impl RiddleState {
@@ -65,6 +65,8 @@ impl RiddleState {
     }
 
     /// Audio system state
+    #[cfg(feature = "riddle-audio")]
+    #[doc(cfg(feature = "riddle-audio"))]
     pub fn audio(&self) -> &AudioSystem {
         &self.audio
     }

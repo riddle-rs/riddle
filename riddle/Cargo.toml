@@ -6,10 +6,10 @@ edition = "2018"
 license = "MIT OR Apache-2.0"
 
 [features]
-default = ["renderer", "audio", "font"]
-renderer = ["riddle-renderer-wgpu"]
-audio = ["riddle-audio"]
-font = ["riddle-font"]
+default = ["riddle-renderer", "riddle-audio", "riddle-font"]
+riddle-renderer = ["riddle-renderer-wgpu"]
+
+riddle-mp3 = ["riddle-audio/riddle-mp3"]
 
 [dependencies]
 riddle-audio = {version = "0.1", path = "../riddle-audio", optional = true}

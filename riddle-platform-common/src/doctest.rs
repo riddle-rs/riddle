@@ -1,13 +1,9 @@
-/*!
-
-**DO NOT RELY ON THIS MODULE**
-
-**TEST CODE ONLY**
-
-This module contains utilities for use during doctest builds. To be removed from the public API when
-[rust#67295](https://github.com/rust-lang/rust/pull/67295) is resolved.
-
-*/
+//! **DO NOT RELY ON THIS MODULE**
+//!
+//! **TEST CODE ONLY**
+//!
+//! This module contains utilities for use during doctest builds. To be removed from the public API when
+//! [rust#67295](https://github.com/rust-lang/rust/pull/67295) is resolved.
 
 use crate::*;
 
