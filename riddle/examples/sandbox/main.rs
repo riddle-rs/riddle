@@ -28,8 +28,7 @@ impl DemoState {
 
         let img = {
             let img_bytes = include_bytes!("../../../example_assets/image.png");
-            let img_cursor = std::io::Cursor::new(&img_bytes[..]);
-            image::Image::new_from_png(img_cursor)?
+            image::Image::new_from_png(&img_bytes[..])?
         };
 
         let font = {

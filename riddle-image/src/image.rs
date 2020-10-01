@@ -13,14 +13,14 @@ pub struct Image {
 }
 
 impl Image {
-    /// Load an image from a `Read + Seek` instance which emits png file data.
+    /// Load an image from a `Read` instance which emits png file data.
     ///
     /// # Example
     ///
     /// ```
     /// # use riddle_image::*; fn main() -> Result<(), ImageError> {
     /// let png_bytes = include_bytes!("../../example_assets/image.png");
-    /// let png_img = Image::new_from_png(std::io::Cursor::new(&png_bytes[..]))?;
+    /// let png_img = Image::new_from_png(&png_bytes[..])?;
     /// # Ok(()) }
     /// ```
     pub fn new_from_png<R: Read>(mut r: R) -> Result<Self> {
