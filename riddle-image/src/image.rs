@@ -3,7 +3,7 @@ use crate::*;
 use riddle_math::*;
 
 use riddle_common::{Color, ColorElementConversion};
-use std::io::Read;
+use std::io::{BufReader, Cursor, Read};
 
 /// A representation of an image stored in main memory. The image is stored
 /// as RGBA32.
@@ -13,24 +13,33 @@ pub struct Image {
 }
 
 impl Image {
-    /// Load an image from a `Read` instance which emits png file data.
+    /// Load an image from a `Read` instance which emits image file data in the
+    /// specified format.
     ///
     /// # Example
     ///
     /// ```
     /// # use riddle_image::*; fn main() -> Result<(), ImageError> {
     /// let png_bytes = include_bytes!("../../example_assets/image.png");
-    /// let png_img = Image::new_from_png(&png_bytes[..])?;
+    /// let png_img = Image::load(&png_bytes[..], ImageFormat::Png)?;
     /// # Ok(()) }
     /// ```
-    pub fn new_from_png<R: Read>(mut r: R) -> Result<Self> {
+    pub fn load<R: Read>(mut r: R, format: ImageFormat) -> Result<Self> {
         let mut buf = vec![];
         r.read_to_end(&mut buf)
             .map_err(|err| CommonError::IOError(err))?;
-        let img = ::image::load(
-            std::io::BufReader::new(std::io::Cursor::new(buf)),
-            ::image::ImageFormat::Png,
-        )?;
+        let buf_reader = BufReader::new(Cursor::new(buf));
+        let img = match format {
+            ImageFormat::Png => {
+                ::image::DynamicImage::from_decoder(::image::png::PngDecoder::new(buf_reader)?)?
+            }
+            ImageFormat::Bmp => {
+                ::image::DynamicImage::from_decoder(::image::bmp::BmpDecoder::new(buf_reader)?)?
+            }
+            ImageFormat::Jpeg => {
+                ::image::DynamicImage::from_decoder(::image::jpeg::JpegDecoder::new(buf_reader)?)?
+            }
+        };
         Ok(Image {
             img: img.into_rgba(),
         })
@@ -220,4 +229,12 @@ impl Image {
     pub(crate) fn create_view_mut<'a>(&'a mut self, rect: Rect<u32>) -> ImageViewMut<'a> {
         ImageViewMut::new(self, rect)
     }
+}
+
+/// The set of support image file formats which [`Image`] can load
+#[derive(Debug, Eq, PartialEq, Copy, Clone)]
+pub enum ImageFormat {
+    Png,
+    Bmp,
+    Jpeg,
 }

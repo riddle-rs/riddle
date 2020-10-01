@@ -14,7 +14,7 @@ const QUICK_FADE_DURATION_SECONDS: f32 = 0.2;
 /// ```no_run
 /// # use riddle_audio::*; doctest::simple(|audio_system| {
 /// let bytes = include_bytes!("../../example_assets/boop.wav");
-/// let clip = Clip::new(&bytes[..])?;
+/// let clip = Clip::load(&bytes[..], ClipFormat::Wav)?;
 ///
 /// // Play the clip
 /// let mut player = ClipPlayerBuilder::new(&audio_system).play(&clip)?;
@@ -40,7 +40,11 @@ impl ClipPlayer {
     }
 
     fn play(&mut self, mode: PlayMode, paused: bool) -> Result<()> {
-        let sink: Arc<Sink> = Sink::new(&self.audio.device).into();
+        let sink: Arc<Sink> = Sink::try_new(&self.audio.stream_handle)
+            .map_err(|_| AudioError::PlayError {
+                cause: "Error making rodio Sink",
+            })?
+            .into();
 
         if paused {
             sink.pause();
@@ -82,7 +86,7 @@ impl ClipPlayer {
     /// ```no_run
     /// # use riddle_audio::*; doctest::simple(|audio_system| {
     /// # let bytes = include_bytes!("../../example_assets/boop.wav");
-    /// # let clip = Clip::new(&bytes[..])?;
+    /// # let clip = Clip::load(&bytes[..], ClipFormat::Wav)?;
     /// // The player starts with all volumes at 1.0
     /// let mut player = ClipPlayerBuilder::new(&audio_system).play(&clip)?;
     /// assert_eq!(1.0, player.get_nominal_volume());
@@ -155,7 +159,7 @@ impl ClipPlayer {
     /// ```no_run
     /// # use riddle_audio::*; doctest::simple(|audio_system| {
     /// # let bytes = include_bytes!("../../example_assets/boop.wav");
-    /// # let clip = Clip::new(&bytes[..])?;
+    /// # let clip = Clip::load(&bytes[..], ClipFormat::Wav)?;
     /// // The player starts with all volumes at 1.0
     /// let mut player = ClipPlayerBuilder::new(&audio_system).play(&clip)?;
     /// assert_eq!(1.0, player.get_nominal_volume());
@@ -194,7 +198,7 @@ impl ClipPlayer {
     /// ```no_run
     /// # use riddle_audio::*; doctest::simple(|audio_system| {
     /// # let bytes = include_bytes!("../../example_assets/boop.wav");
-    /// # let clip = Clip::new(&bytes[..])?;
+    /// # let clip = Clip::load(&bytes[..], ClipFormat::Wav)?;
     /// // The paused player starts with an observed volume of 0.0
     /// let mut player = ClipPlayerBuilder::new(&audio_system).paused(&clip)?;
     /// assert_eq!(1.0, player.get_nominal_volume());
@@ -266,7 +270,7 @@ pub enum PlayMode {
 /// ```no_run
 /// # use riddle_audio::*; doctest::simple(|audio_system| {
 /// let bytes = include_bytes!("../../example_assets/boop.wav");
-/// let clip = Clip::new(&bytes[..])?;
+/// let clip = Clip::load(&bytes[..], ClipFormat::Wav)?;
 ///
 /// // Play the clip
 /// let player = ClipPlayerBuilder::new(&audio_system)

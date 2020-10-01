@@ -18,7 +18,7 @@ fn main() -> Result<(), RiddleError> {
 
     // Load the clip
     let clip_bytes = include_bytes!("../../example_assets/boop.wav");
-    let clip = audio::Clip::new(&clip_bytes[..])?;
+    let clip = audio::Clip::load(&clip_bytes[..], audio::ClipFormat::Wav)?;
 
     // Play the clip
     let player = audio::ClipPlayerBuilder::new(&rdl.context().audio())
@@ -41,11 +41,11 @@ If you don't want to depend on `riddle`, you can use this crate directly.
 use riddle_audio::*;
 
 fn main() -> Result<(), AudioError> {
-    let audio_system = AudioSystem::new()?;
+    let (audio_system, _audio_main_thread_state) = AudioSystem::new()?;
 
     // Load the clip
     let clip_bytes = include_bytes!("../../example_assets/boop.wav");
-    let clip = Clip::new(&clip_bytes[..])?;
+    let clip = Clip::load(&clip_bytes[..], ClipFormat::Wav)?;
 
     // Play the clip
     let player = ClipPlayerBuilder::new(&audio_system)

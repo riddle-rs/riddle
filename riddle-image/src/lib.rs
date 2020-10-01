@@ -10,7 +10,7 @@ Built largely on the back of `::image` and its dependencies.
 # fn main() -> Result<(), ImageError> {
 // Load an image from a png
 let png_bytes = include_bytes!("../../example_assets/image.png");
-let png_img = Image::new_from_png(&png_bytes[..])?;
+let png_img = Image::load(&png_bytes[..], ImageFormat::Png)?;
 
 // Make a blank image and blit the png on to it
 let mut blank_img = Image::new(256, 256);

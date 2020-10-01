@@ -1,6 +1,5 @@
 use crate::*;
 
-use rodio::Device;
 use std::{collections::HashMap, sync::Mutex, time::Instant};
 
 /// The Riddle audio system core state.
@@ -14,8 +13,7 @@ use std::{collections::HashMap, sync::Mutex, time::Instant};
 /// using the `riddle` crate to manage the [`AudioSystem`] automatically.
 pub struct AudioSystem {
     weak_self: AudioSystemWeak,
-    pub(super) device: Device,
-
+    pub(super) stream_handle: rodio::OutputStreamHandle,
     fades: Mutex<HashMap<FadeKey, Fade>>,
 }
 
@@ -23,15 +21,20 @@ define_handles!(<AudioSystem>::weak_self, pub AudioSystemHandle, pub AudioSystem
 
 impl AudioSystem {
     /// Create the audio system, connected to the default audio output device.
-    pub fn new() -> Result<AudioSystemHandle> {
-        let device = rodio::default_output_device().ok_or(AudioError::InitFailed {
-            cause: "Failed to get rodio output device",
-        })?;
-        Ok(AudioSystemHandle::new(|weak_self| AudioSystem {
-            weak_self,
-            device,
-            fades: Mutex::new(HashMap::new()),
-        }))
+    pub fn new() -> Result<(AudioSystemHandle, AudioMainThreadState)> {
+        let (stream, stream_handle) =
+            rodio::OutputStream::try_default().map_err(|_| AudioError::InitFailed {
+                cause: "Failed to get rodio output device",
+            })?;
+        let main_thread_state = AudioMainThreadState { _stream: stream };
+        Ok((
+            AudioSystemHandle::new(|weak_self| AudioSystem {
+                weak_self,
+                stream_handle,
+                fades: Mutex::new(HashMap::new()),
+            }),
+            main_thread_state,
+        ))
     }
 
     /// Update the system's state.
@@ -42,7 +45,7 @@ impl AudioSystem {
     /// # Example
     /// ```no_run
     /// # use riddle_audio::*; fn main() -> Result<(), AudioError> {
-    /// let audio_system = AudioSystem::new()?;
+    /// let (audio_system, _audio_main_thread_state) = AudioSystem::new()?;
     ///
     /// // Tick the audio system every 100ms
     /// let start_time = std::time::Instant::now();
@@ -69,4 +72,8 @@ impl AudioSystem {
         let mut fades = self.fades.lock().unwrap();
         fades.retain(|_, f| f.update(now));
     }
+}
+
+pub struct AudioMainThreadState {
+    _stream: rodio::OutputStream,
 }

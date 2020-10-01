@@ -7,6 +7,9 @@ pub enum AudioError {
     #[error("Error acquiring rodio device")]
     InitFailed { cause: &'static str },
 
+    #[error("Error playing clip")]
+    PlayError { cause: &'static str },
+
     #[error("Error decoding clip")]
     ClipDecodeError,
 
