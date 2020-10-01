@@ -1,8 +1,9 @@
 use crate::*;
 
+use riddle_common::{Color, ColorElementConversion};
 use riddle_math::*;
 
-use riddle_common::{Color, ColorElementConversion};
+use futures::{AsyncRead, AsyncReadExt};
 use std::io::{BufReader, Cursor, Read};
 
 /// A representation of an image stored in main memory. The image is stored
@@ -26,9 +27,43 @@ impl Image {
     /// ```
     pub fn load<R: Read>(mut r: R, format: ImageFormat) -> Result<Self> {
         let mut buf = vec![];
-        r.read_to_end(&mut buf)
-            .map_err(|err| CommonError::IOError(err))?;
-        let buf_reader = BufReader::new(Cursor::new(buf));
+        r.read_to_end(&mut buf)?;
+        Self::from_bytes(&buf, format)
+    }
+
+    /// Load an image from a `AsyncRead` instance which emits image file data in the
+    /// specified format.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use riddle_image::*; fn main() -> Result<(), ImageError> { futures::executor::block_on(async_main()) }
+    /// # async fn async_main() -> Result<(), ImageError> {
+    /// let png_bytes = include_bytes!("../../example_assets/image.png");
+    /// let png_img = Image::load_async(&png_bytes[..], ImageFormat::Png).await?;
+    /// # Ok(()) }
+    /// ```
+    pub async fn load_async<R>(mut data: R, format: ImageFormat) -> Result<Self>
+    where
+        R: AsyncRead + Unpin,
+    {
+        let mut buf = vec![];
+        data.read_to_end(&mut buf).await?;
+        Self::from_bytes(&buf, format)
+    }
+
+    /// Load an image from a byte slice in the specified format.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use riddle_image::*; fn main() -> Result<(), ImageError> {
+    /// let png_bytes = include_bytes!("../../example_assets/image.png");
+    /// let png_img = Image::from_bytes(&png_bytes[..], ImageFormat::Png)?;
+    /// # Ok(()) }
+    /// ```
+    pub fn from_bytes(bytes: &[u8], format: ImageFormat) -> Result<Self> {
+        let buf_reader = BufReader::new(Cursor::new(bytes));
         let img = match format {
             ImageFormat::Png => {
                 ::image::DynamicImage::from_decoder(::image::png::PngDecoder::new(buf_reader)?)?

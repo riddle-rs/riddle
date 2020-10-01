@@ -19,3 +19,9 @@ impl From<riddle_image::ImageError> for FontError {
         FontError::ImageError(e)
     }
 }
+
+impl From<std::io::Error> for FontError {
+    fn from(err: std::io::Error) -> Self {
+        FontError::CommonError(CommonError::IOError(err))
+    }
+}

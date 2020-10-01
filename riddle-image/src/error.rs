@@ -29,3 +29,9 @@ impl From<::image::ImageError> for ImageError {
         }
     }
 }
+
+impl From<std::io::Error> for ImageError {
+    fn from(err: std::io::Error) -> Self {
+        ImageError::CommonError(CommonError::IOError(err))
+    }
+}

@@ -1,5 +1,6 @@
 use crate::*;
 
+use futures::AsyncReadExt;
 use rodio::{decoder::Decoder, Source};
 use std::{io::Cursor, io::Read, sync::Arc};
 
@@ -29,8 +30,33 @@ impl Clip {
         R: Read,
     {
         let mut owned_data: Vec<u8> = vec![];
-        data.read_to_end(&mut owned_data)
-            .map_err(|e| CommonError::IOError(e))?;
+        data.read_to_end(&mut owned_data)?;
+        Self::from_owned_bytes(owned_data, format)
+    }
+
+    /// Reads the entirety of the data reader in to memory, asynchronously.
+    ///
+    /// An [`AudioError::ClipDecodeError`] value will be returned if the data isn't a known format.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use riddle_audio::*; fn main() -> Result<(), AudioError> { futures::executor::block_on(async_main()) }
+    /// # async fn async_main() -> Result<(), AudioError> {
+    /// let clip_bytes = include_bytes!("../../example_assets/boop.wav");
+    /// let clip = Clip::load_async(&clip_bytes[..], ClipFormat::Wav).await?;
+    /// # Ok(()) }
+    /// ```
+    pub async fn load_async<R>(mut data: R, format: ClipFormat) -> Result<Clip>
+    where
+        R: futures::io::AsyncRead + std::marker::Unpin,
+    {
+        let mut owned_data: Vec<u8> = vec![];
+        data.read_to_end(&mut owned_data).await?;
+        Self::from_owned_bytes(owned_data, format)
+    }
+
+    fn from_owned_bytes(owned_data: Vec<u8>, format: ClipFormat) -> Result<Clip> {
         let cursor = Cursor::new(owned_data.clone());
 
         let source = match format {

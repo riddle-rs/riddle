@@ -3,6 +3,7 @@ use crate::*;
 use riddle_common::Color;
 use riddle_image::Image;
 
+use futures::{AsyncRead, AsyncReadExt};
 use std::io::Read;
 
 /// Represents a parsed TTF file, and facilitates simple rendering
@@ -14,6 +15,8 @@ impl TTFont {
     /// Construct a new TTFont from a `Read` instance. The source will be read to
     /// the end, and the entire buffer parsed as a TTF font file.
     ///
+    /// # Example
+    ///
     /// ```
     /// # use riddle_font::*;
     /// # fn main() -> Result<(), FontError> {
@@ -23,8 +26,27 @@ impl TTFont {
     /// ```
     pub fn load<R: Read>(mut r: R) -> Result<Self> {
         let mut data = vec![0u8; 0];
-        r.read_to_end(&mut data)
-            .map_err(|e| CommonError::IOError(e))?;
+        r.read_to_end(&mut data)?;
+
+        let font = rusttype::Font::try_from_vec(data).ok_or(FontError::FontParseFailed)?;
+        Ok(TTFont { font })
+    }
+
+    /// Construct a new TTFont from an `AsyncRead` instance. The source will be read
+    /// the end, and the entire buffer parsed as a TTF font file.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use riddle_font::*; fn main() -> Result<(), FontError> { futures::executor::block_on(async_main()) }
+    /// # async fn async_main() -> Result<(), FontError> {
+    /// let ttf_bytes = include_bytes!("../../example_assets/Roboto-Regular.ttf");
+    /// let font = TTFont::load_async(&ttf_bytes[..]).await?;
+    /// # Ok(()) }
+    /// ```
+    pub async fn load_async<R: AsyncRead + Unpin>(mut r: R) -> Result<Self> {
+        let mut data = vec![0u8; 0];
+        r.read_to_end(&mut data).await?;
 
         let font = rusttype::Font::try_from_vec(data).ok_or(FontError::FontParseFailed)?;
         Ok(TTFont { font })

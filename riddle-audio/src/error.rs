@@ -16,3 +16,9 @@ pub enum AudioError {
     #[error(transparent)]
     CommonError(#[from] CommonError),
 }
+
+impl From<std::io::Error> for AudioError {
+    fn from(err: std::io::Error) -> Self {
+        AudioError::CommonError(CommonError::IOError(err))
+    }
+}
