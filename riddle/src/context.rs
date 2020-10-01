@@ -53,23 +53,24 @@ impl<'a> RiddleContext<'a> {
 
     /// The audio system.
     #[cfg(feature = "riddle-audio")]
+    #[doc(cfg(feature = "riddle-audio"))]
     pub fn audio(&self) -> &audio::AudioSystem {
-        &self.state.audio
+        &self.state.audio()
     }
 
     /// The input system.
     pub fn input(&self) -> &input::InputSystem {
-        &self.state.input
+        &self.state.input()
     }
 
     /// The time system.
     pub fn time(&self) -> &time::TimeSystem {
-        &self.state.time
+        &self.state.time()
     }
 
     /// The platform system.
     pub fn platform(&self) -> &platform::PlatformSystem {
-        &self.state.platform
+        &self.state.platform()
     }
 }
 

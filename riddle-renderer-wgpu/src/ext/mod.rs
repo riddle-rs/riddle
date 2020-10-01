@@ -1,11 +1,7 @@
-/*!
-
-Traits and structs required to use custom WGPU devices.
-
-If using [`Renderer`] by itself through `riddle` there should be no need to use this
-module.
-
-*/
+//! Traits and structs required to use custom WGPU devices.
+//!
+//! If using [`Renderer`] by itself through `riddle` there should be no need to use this
+//! module.
 
 use crate::{
     eventpub::EventSub,

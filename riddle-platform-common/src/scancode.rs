@@ -1,9 +1,7 @@
-/*!
-    Derive standardized scancodes based on per platform definitions.
-
-    Linux definitions: https://github.com/torvalds/linux/blob/master/include/uapi/linux/input-event-codes.h
-    Windows definitions: https://download.microsoft.com/download/1/6/1/161ba512-40e2-4cc9-843a-923143f3456c/scancode.doc
-*/
+//! Derive standardized scancodes based on per platform definitions.
+//!
+//! Linux definitions: https://github.com/torvalds/linux/blob/master/include/uapi/linux/input-event-codes.h
+//! Windows definitions: https://download.microsoft.com/download/1/6/1/161ba512-40e2-4cc9-843a-923143f3456c/scancode.doc
 
 /// Supported scancodes.
 ///

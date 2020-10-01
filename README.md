@@ -57,10 +57,10 @@ Since the crate isn't on crates.io docs are hosted on Github Pages here:
 
 ## Cargo Features
 
-* `renderer` - The `riddle-renderer-wgpu` renderer will be enabled.
-* `audio`- The `riddle-audio`subsystem will be enabled.
-* `font` - The `riddle-font` crate will be included, and reexported through `riddle::font`
-* **default** - All features are enabled.
+* `riddle-renderer` - The `riddle-renderer-wgpu` renderer will be enabled. **default**
+* `riddle-audio`- The `riddle-audio` subsystem will be enabled. **default**
+* `riddle-font` - The `riddle-font` crate will be included, and reexported through `riddle::font`.  **default**
+* `riddle-mp3` - Enable mp3 support in `riddle-audio`.
 
 ## Getting started
 
