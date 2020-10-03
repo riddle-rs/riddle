@@ -25,5 +25,10 @@ riddle-platform-winit = {version = "0.1", path = "../riddle-platform-winit"}
 thiserror = "1.0"
 
 [dev-dependencies]
-mint = "0.5"
+anyhow = "1.0"
+bytemuck = "1.4"
+futures = "0.3"
 glam = {version= "0.9", features=["mint"]}
+mint = "0.5"
+rand = "0.7"
+wgpu = "0.6"

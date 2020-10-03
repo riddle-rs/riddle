@@ -40,6 +40,25 @@ pub trait CloneHandle {
 ///     });
 /// }
 /// ```
+///
+/// # Generic Example
+///
+/// ```
+/// # #![feature(arc_new_cyclic)]
+/// # use riddle_common::*;
+/// struct GenericStruct<T: Clone> {
+///     weak_self: GenericStructWeak<T>,
+///     value: T,
+/// }
+/// define_handles!(<GenericStruct<T> where T: Clone>::weak_self, GenericStructHandle<T>, GenericStructWeak<T>);
+///
+/// fn main() {
+///     let handle: GenericStructHandle<bool> = GenericStructHandle::new(|weak_self| GenericStruct {
+///         weak_self,
+///         value: true,
+///     });
+/// }
+/// ```
 #[macro_export]
 macro_rules! define_handles {
     (< $t:ty > :: $i:ident , $sv:vis $s:ident , $wv:vis $w:ident) => {
@@ -112,6 +131,91 @@ macro_rules! define_handles {
             #[inline]
             pub fn upgrade(this: &$w) -> Option<$s> {
                 std::sync::Weak::upgrade(&this.handle).map(|s| $s { handle: s.clone() })
+            }
+        }
+    };
+    (< $t:ident<T> where T: $ta:ident > :: $i:ident , $sv:vis $s:ident<T> , $wv:vis $w:ident<T>) => {
+        impl<T: $ta> riddle_common::CloneHandle for $t<T> {
+            type Handle = $s<T>;
+            type WeakHandle = $w<T>;
+
+            #[inline]
+            fn clone_handle(&self) -> $s<T> {
+                <$w<T>>::upgrade(&self.$i).unwrap()
+            }
+
+            #[inline]
+            fn clone_weak_handle(&self) -> $w<T> {
+                self.$i.clone()
+            }
+        }
+
+        $sv struct $s<T: $ta> {
+            handle: std::sync::Arc<$t<T>>,
+        }
+
+        impl<T: $ta> $s<T> {
+            /// Downgrade this handle to a weak handle
+            #[inline]
+            pub fn downgrade(this: &Self) -> $w<T> {
+                $w {
+                    handle: std::sync::Arc::downgrade(&this.handle)
+                }
+            }
+
+            /// Instantiate a new instance of the underlying object. A copy of
+            /// the weak reference is passed to the closure with which to construct
+            /// the object
+            #[inline]
+            pub(crate) fn new<F: FnOnce($w<T>) -> $t<T>>(f: F) -> Self {
+                $s {
+                    handle: std::sync::Arc::new_cyclic(|weak_sync| {
+                        let weak_self = $w { handle: weak_sync.clone() };
+                        f(weak_self)
+                    })
+                }
+            }
+
+            /// Test whether two handles point to the same location in memory
+            #[inline]
+            pub fn eq(a: &Self, b: &Self) -> bool {
+                std::sync::Arc::ptr_eq(&a.handle, &b.handle)
+            }
+        }
+
+        impl<T: $ta> std::ops::Deref for $s<T> {
+            type Target = $t<T>;
+
+            #[inline]
+            fn deref(&self) -> &$t<T> {
+                std::ops::Deref::deref(&self.handle)
+            }
+        }
+
+        impl<T: $ta> Clone for $s<T> {
+            #[inline]
+            fn clone(&self) -> Self {
+                Self { handle: self.handle.clone() }
+            }
+        }
+
+        $wv struct $w<T: $ta> {
+            handle: std::sync::Weak<$t<T>>,
+        }
+
+        impl<T: $ta> $w<T> {
+            /// Upgrade a weak handle to a strong handle. Returns None if the weak
+            /// reference no longer points to a live object
+            #[inline]
+            pub fn upgrade(this: &Self) -> Option<$s<T>> {
+                std::sync::Weak::upgrade(&this.handle).map(|s| $s { handle: s.clone() })
+            }
+        }
+
+        impl<T: $ta> Clone for $w<T> {
+            #[inline]
+            fn clone(&self) -> Self {
+                Self { handle: self.handle.clone() }
             }
         }
     };

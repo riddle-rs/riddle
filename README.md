@@ -52,8 +52,10 @@ such as `mint`, and `raw-window-handle`.
 
 ## Documentation
 
-Since the crate isn't on crates.io docs are hosted on Github Pages here:
-[**Rustdoc Docs**](https://vickles.github.io/riddle/0.1.0/riddle)
+Since the crate isn't on crates.io docs are hosted on Github Pages:
+
+* **master**: [Link](https://vickles.github.io/riddle/master/riddle)
+* **0.1.0**: [Link](https://vickles.github.io/riddle/0.1.0/riddle)
 
 ## Cargo Features
 
@@ -112,9 +114,11 @@ More complete examples live in `riddle/examples`.
 The current set of examples is:
 
 * **pong** - A simple pong game, using input, basic fill-rect rendering, and audio.
+* **wgpu-renderer-overlay** - A demo showing how to use riddle to create a window, in
+    which a custom WGPU 3d renderer co-exists with a Riddle 2d renderer.
 * **sandbox** - This is a scratchpad example which tries to use as much functionality
-                as possible to provide quick manual verification of changes to the
-                library. It is not a learning resource.
+    as possible to provide quick manual verification of changes to the library. It is
+    not a learning resource.
 
 ## Nightly Rust
 

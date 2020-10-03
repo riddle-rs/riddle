@@ -11,5 +11,7 @@
 * image, font, audio: Add `load_async` methods to asset types.
 * **breaking** riddle: rename cargo features to be consistent with crate names.
 * audio, riddle: add optional mp3 support behind feature `riddle-mp3`.
+* renderer: Make renderer generic over underlying device to remove the Send + Sync restriction on the underlying device.
+* docs: Add an example combining the riddle renderer with a custom wgpu renderer.
 
 ## 0.1.0 - Initial Release

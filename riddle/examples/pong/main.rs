@@ -1,3 +1,6 @@
+//! Minimal pong demo. Uses keyboard input, audio, windowing, and very basic usage
+//! of the 2d renderer.
+
 use riddle::{common::Color, input::*, math::*, platform::*, renderer::*, *};
 
 fn main() -> Result<(), RiddleError> {
