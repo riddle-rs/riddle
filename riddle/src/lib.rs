@@ -50,9 +50,9 @@
 //!
 //! ```text
 //! [dependencies.riddle]
-//! version = 0.1
+//! version = 0.2.0-dev
 //! git = "https://github.com/vickles/riddle/"
-//! tag = "0.1.0"
+//! branch = "master"
 //! ```
 //!
 //! Place the following in main.rs:
