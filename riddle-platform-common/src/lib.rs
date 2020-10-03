@@ -13,7 +13,9 @@ mod scancode;
 mod virtualkey;
 mod window_id;
 
+#[doc(hidden)]
 pub mod doctest;
+
 pub mod traits;
 
 pub use dimensions::*;

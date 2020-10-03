@@ -67,6 +67,7 @@ mod clip_player;
 mod error;
 mod fades;
 
+#[doc(hidden)]
 pub mod doctest;
 
 use fades::*;

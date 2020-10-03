@@ -64,6 +64,7 @@
 mod time_system;
 mod timer;
 
+#[doc(hidden)]
 pub mod doctest;
 
 pub use time_system::*;
