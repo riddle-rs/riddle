@@ -1,14 +1,4 @@
-use crate::{math::*, *};
-
-#[doc(hidden)]
-pub trait RenderTargetDesc<'a> {
-    fn begin_render(&self) -> Result<()>;
-    fn end_render(&self);
-    fn wgpu_device(&self) -> &dyn ext::RendererWGPUDevice;
-    fn dimensions(&self) -> Vector2<f32>;
-    fn standard_resources(&self) -> &StandardResources;
-    fn with_view<F: FnMut(&wgpu::TextureView) -> Result<()>>(&self, f: F) -> Result<()>;
-}
+use crate::wgpu_ext::*;
 
 /// Types which accept render calls, tracks current world transform, and are consumed
 /// when the calls are presented.
@@ -42,33 +32,11 @@ pub trait RenderContext {
     /// Render a `Renderable` to the target with the current world transform.
     ///
     /// This is only called by internal crate code.
-    fn render_internal<R: Renderable>(&mut self, renderable: &R) -> Result<()>;
+    fn render_internal<R: WGPURenderable>(&mut self, renderable: &R) -> Result<()>;
 
     /// Draw a solid rect with the given color.
     fn fill_rect(&mut self, rect: &Rect<f32>, color: Color<f32>) -> Result<()>;
 
     /// Consume the context and present any outstanding draw calls.
     fn present(self) -> Result<()>;
-}
-
-#[doc(hidden)]
-pub struct RenderableDesc<'a> {
-    pub(crate) texture: TextureHandle,
-    pub(crate) shader: ShaderHandle,
-    pub(crate) verts: &'a [Vertex],
-    pub(crate) indices: &'a [u16],
-}
-
-impl<'a> Renderable for RenderableDesc<'a> {
-    fn with_renderable<R, F>(&self, f: F) -> Result<R>
-    where
-        F: FnOnce(&RenderableDesc) -> Result<R>,
-    {
-        f(self)
-    }
-}
-
-#[doc(hidden)]
-pub trait Renderable {
-    fn with_renderable<R, F: FnOnce(&RenderableDesc) -> Result<R>>(&self, f: F) -> Result<R>;
 }

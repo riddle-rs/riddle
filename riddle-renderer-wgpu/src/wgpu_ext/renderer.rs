@@ -1,6 +1,4 @@
-use crate::{ext::*, math::*, platform::*, *};
-
-use riddle_common::define_handles;
+use crate::wgpu_ext::*;
 
 /// A simple 2D sprite based renderer.
 ///
@@ -28,16 +26,16 @@ use riddle_common::define_handles;
 ///     Ok(())
 /// }
 /// ```
-pub struct Renderer {
-    weak_self: RendererWeak,
-
-    wgpu_device: Box<dyn RendererWGPUDevice>,
+pub struct WGPURenderer<Device: WGPUDevice> {
+    weak_self: WGPURendererWeak<Device>,
+    wgpu_device: Device,
     standard_res: StandardResources,
 }
 
-define_handles!(<Renderer>::weak_self, pub RendererHandle, pub RendererWeak);
+define_handles!(<WGPURenderer<T> where T: WGPUDevice>::weak_self, 
+pub WGPURendererHandle<T>, pub WGPURendererWeak<T>);
 
-impl Renderer {
+impl WGPURenderer<WindowWGPUDevice> {
     /// Initialize a new Renderer, creating a WGPU device for the window.
     ///
     /// # Example
@@ -51,12 +49,14 @@ impl Renderer {
     /// let renderer = Renderer::new_from_window(&window)?;
     /// # Ok(()) }
     /// ```
-    pub fn new_from_window(window: &Window) -> Result<RendererHandle> {
+    pub fn new_from_window(window: &Window) -> Result<WGPURendererHandle<WindowWGPUDevice>> {
         let wgpu_device = WindowWGPUDevice::new(window)?;
-        Self::new_from_device(Box::new(wgpu_device))
+        Self::new_from_device(wgpu_device)
     }
+}
 
-    /// Get the frame dimensions as reported by the [`RendererWGPUDevice`].
+impl<Device: WGPUDevice> WGPURenderer<Device> {
+    /// Get the frame dimensions as reported by the [`WGPUDevice`].
     ///
     /// In the case of a default Window renderer, this will be the internal size of
     /// the window in logical units.
@@ -95,10 +95,11 @@ impl Renderer {
     /// # Ok(()) }
     /// ```
     pub fn begin_render<'a>(&'a self) -> Result<impl RenderContext + 'a> {
-        let encoder = self
-            .wgpu_device
-            .device()
-            .create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
+        let encoder = self.wgpu_device.with_device_info(|info| {
+            Ok(info
+                .device
+                .create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None }))
+        })?;
 
         let target = SwapChainFrameTarget::new(self, self.dimensions());
         BufferedRenderer::new(target, encoder)
@@ -107,43 +108,45 @@ impl Renderer {
     pub(crate) fn standard_res(&self) -> &StandardResources {
         &self.standard_res
     }
-}
 
-impl RendererWGPU for Renderer {
-    fn wgpu_device(&self) -> &dyn RendererWGPUDevice {
-        Box::as_ref(&self.wgpu_device)
+    pub fn wgpu_device(&self) -> &Device {
+        &self.wgpu_device
     }
 
     /// Or the renderer can be built on top of existing WGPU contexts, to allow the simple
     /// renderer to be used on top of custom renderers.
-    fn new_from_device(wgpu_device: Box<dyn RendererWGPUDevice>) -> Result<RendererHandle> {
-        let vs = include_bytes!("shaders/default.vert.spv");
-        let fs = include_bytes!("shaders/default.frag.spv");
-        let sprite_shader = Shader::from_readers(
-            wgpu_device.device(),
-            std::io::Cursor::new(&vs[..]),
-            std::io::Cursor::new(&fs[..]),
-            wgpu::PrimitiveTopology::TriangleList,
-        )?;
+    pub fn new_from_device(wgpu_device: Device) -> Result<WGPURendererHandle<Device>> {
+        let (default_shader, white_tex) = wgpu_device.with_device_info(|info| {
+            let vs = include_bytes!("../shaders/default.vert.spv");
+            let fs = include_bytes!("../shaders/default.frag.spv");
+            let sprite_shader = WGPUShader::from_readers(
+                info.device,
+                std::io::Cursor::new(&vs[..]),
+                std::io::Cursor::new(&fs[..]),
+                wgpu::PrimitiveTopology::TriangleList,
+            )?;
 
-        let mut white_img = image::Image::new(1, 1);
-        white_img.set_pixel(0, 0, Color::from([0xFF; 4]));
-        let white_tex = Texture::from_image(
-            wgpu_device.device(),
-            wgpu_device.queue(),
-            white_img,
-            FilterMode::Nearest,
-            FilterMode::Nearest,
-            TextureType::Plain,
-        )?
-        .into();
+            let mut white_img = image::Image::new(1, 1);
+            white_img.set_pixel(0, 0, Color::from([0xFF; 4]));
+            let white_tex = WGPUTexture::from_image(
+                info.device,
+                info.queue,
+                white_img,
+                FilterMode::Nearest,
+                FilterMode::Nearest,
+                TextureType::Plain,
+            )?
+            .into();
+
+            Ok((sprite_shader, white_tex))
+        })?;
 
         let standard_res = StandardResources {
-            default_shader: sprite_shader,
+            default_shader,
             white_tex,
         };
 
-        Ok(RendererHandle::new(|weak_self| Self {
+        Ok(WGPURendererHandle::new(|weak_self| Self {
             weak_self,
             wgpu_device,
             standard_res,
@@ -154,6 +157,6 @@ impl RendererWGPU for Renderer {
 #[doc(hidden)]
 #[derive(Clone)]
 pub struct StandardResources {
-    pub(super) default_shader: ShaderHandle,
-    pub(super) white_tex: TextureHandle,
+    pub(super) default_shader: WGPUShaderHandle,
+    pub(super) white_tex: WGPUTextureHandle,
 }

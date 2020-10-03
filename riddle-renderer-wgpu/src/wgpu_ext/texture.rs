@@ -2,16 +2,16 @@ use crate::*;
 
 use riddle_math::Vector2;
 
-pub(super) struct Texture {
-    weak_self: TextureWeak,
+pub(crate) struct WGPUTexture {
+    weak_self: WGPUTextureWeak,
     pub(crate) texture: wgpu::Texture,
     pub(crate) sampler: wgpu::Sampler,
     pub dimensions: Vector2<u32>,
 }
 
-define_handles!(<Texture>::weak_self, pub(crate) TextureHandle, pub(crate) TextureWeak);
+define_handles!(<WGPUTexture>::weak_self, pub(crate) WGPUTextureHandle, pub(crate) WGPUTextureWeak);
 
-impl Texture {
+impl WGPUTexture {
     pub fn from_image(
         device: &wgpu::Device,
         queue: &wgpu::Queue,
@@ -19,8 +19,9 @@ impl Texture {
         mag_filter: FilterMode,
         min_filter: FilterMode,
         tex_type: TextureType,
-    ) -> Result<TextureHandle> {
-        let texture = Texture::new(device, mag_filter, min_filter, tex_type, image.dimensions())?;
+    ) -> Result<WGPUTextureHandle> {
+        let texture =
+            WGPUTexture::new(device, mag_filter, min_filter, tex_type, image.dimensions())?;
 
         let texture_extent = wgpu::Extent3d {
             width: image.width(),
@@ -52,7 +53,7 @@ impl Texture {
         min_filter: FilterMode,
         tex_type: TextureType,
         dimensions: Vector2<u32>,
-    ) -> Result<TextureHandle> {
+    ) -> Result<WGPUTextureHandle> {
         let texture_extent = wgpu::Extent3d {
             width: dimensions.x,
             height: dimensions.y,
@@ -92,7 +93,7 @@ impl Texture {
             ..Default::default()
         });
 
-        Ok(TextureHandle::new(|weak_self| Texture {
+        Ok(WGPUTextureHandle::new(|weak_self| WGPUTexture {
             weak_self,
             texture,
             sampler,

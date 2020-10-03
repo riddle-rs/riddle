@@ -1,4 +1,4 @@
-use crate::{ext::*, math::*, *};
+use crate::wgpu_ext::*;
 
 /// A target which can be both rendered to and referenced as a [`Sprite`] for rendering.
 ///
@@ -23,25 +23,30 @@ use crate::{ext::*, math::*, *};
 /// render_ctx.present()?;
 /// # Ok(()) }
 /// ```
-pub struct SpriteRenderTarget {
-    renderer: RendererHandle,
+pub struct WGPUSpriteRenderTarget<Device: WGPUDevice> {
+    renderer: WGPURendererHandle<Device>,
 
-    texture: TextureHandle,
-    sprite: Sprite,
+    texture: WGPUTextureHandle,
+    sprite: WGPUSprite<Device>,
 }
 
-impl SpriteRenderTarget {
+impl<Device> WGPUSpriteRenderTarget<Device>
+where
+    Device: WGPUDevice,
+{
     /// Create a new render target with the specified dimensions
-    pub fn new(renderer: &Renderer, dimensions: Vector2<u32>) -> Result<SpriteRenderTarget> {
-        let texture = Texture::new(
-            &renderer.wgpu_device().device(),
-            FilterMode::Linear,
-            FilterMode::Linear,
-            TextureType::RenderTarget,
-            dimensions,
-        )?;
+    pub fn new(renderer: &WGPURenderer<Device>, dimensions: Vector2<u32>) -> Result<Self> {
+        let texture = renderer.wgpu_device().with_device_info(|info| {
+            Ok(WGPUTexture::new(
+                info.device,
+                FilterMode::Linear,
+                FilterMode::Linear,
+                TextureType::RenderTarget,
+                dimensions,
+            )?)
+        })?;
 
-        let sprite = Sprite::from_texture(renderer, &texture)?;
+        let sprite = WGPUSprite::from_texture(renderer, &texture)?;
 
         Ok(Self {
             renderer: renderer.clone_handle(),
@@ -69,25 +74,29 @@ impl SpriteRenderTarget {
     /// # Ok(()) }
     /// ```
     pub fn begin_render<'a>(&'a self) -> Result<impl RenderContext + 'a> {
-        let encoder = self
-            .renderer
-            .wgpu_device()
-            .device()
-            .create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
+        let encoder = self.renderer.wgpu_device().with_device_info(|info| {
+            Ok(info
+                .device
+                .create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None }))
+        })?;
         BufferedRenderer::new(self, encoder)
     }
 
     /// Get the sprite which can be used to render the contents of the render target.
-    pub fn sprite(&self) -> &Sprite {
+    pub fn sprite(&self) -> &WGPUSprite<Device> {
         &self.sprite
     }
 }
 
-impl<'a> RenderTargetDesc<'a> for &'a SpriteRenderTarget {
+impl<'a, Device> WGPURenderTargetDesc<'a, Device> for &'a WGPUSpriteRenderTarget<Device>
+where
+    Device: WGPUDevice,
+{
     fn dimensions(&self) -> Vector2<f32> {
         self.sprite.dimensions()
     }
 
+    #[inline]
     fn with_view<F: FnOnce(&wgpu::TextureView) -> Result<()>>(&self, f: F) -> Result<()> {
         let view = self
             .texture
@@ -101,8 +110,8 @@ impl<'a> RenderTargetDesc<'a> for &'a SpriteRenderTarget {
         f(&view)
     }
 
-    fn wgpu_device(&self) -> &dyn ext::RendererWGPUDevice {
-        self.renderer.wgpu_device()
+    fn renderer(&self) -> &WGPURenderer<Device> {
+        &self.renderer
     }
 
     fn standard_resources(&self) -> &StandardResources {

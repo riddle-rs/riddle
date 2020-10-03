@@ -1,8 +1,6 @@
-use crate::{ext::*, math::*, *};
+use crate::wgpu_ext::*;
 
-use std::rc::Rc;
-
-/// Construct a set of [`Sprite`]s from a set of `riddle_image::Image`s which share a texture atlas.
+/// Construct a set of [`WGPUSprite`]s from a set of `riddle_image::Image`s which share a texture atlas.
 ///
 /// # Example
 ///
@@ -28,8 +26,8 @@ use std::rc::Rc;
 /// assert!(sprite2.is_some());
 /// # Ok(()) }
 /// ```
-pub struct SpriteAtlasBuilder<'a> {
-    images: Vec<(image::Image, &'a mut Option<Sprite>)>,
+pub struct WGPUSpriteAtlasBuilder<'a, Device: WGPUDevice> {
+    images: Vec<(image::Image, &'a mut Option<WGPUSprite<Device>>)>,
 
     mag_filter: FilterMode,
     min_filter: FilterMode,
@@ -38,7 +36,10 @@ pub struct SpriteAtlasBuilder<'a> {
     total_width: u32,
 }
 
-impl<'a> SpriteAtlasBuilder<'a> {
+impl<'a, Device> WGPUSpriteAtlasBuilder<'a, Device>
+where
+    Device: WGPUDevice,
+{
     /// A new empty atlas builder
     pub fn new() -> Self {
         Self {
@@ -52,7 +53,11 @@ impl<'a> SpriteAtlasBuilder<'a> {
 
     /// Add an image to be packed in to the atlas, along with a reference
     /// to the `Option<Sprite>` which will store the sprite when the atlas is built.
-    pub fn with_image(mut self, img: image::Image, sprite: &'a mut Option<Sprite>) -> Self {
+    pub fn with_image(
+        mut self,
+        img: image::Image,
+        sprite: &'a mut Option<WGPUSprite<Device>>,
+    ) -> Self {
         self.total_width += img.width();
         self.max_height = self.max_height.max(img.height());
         self.images.push((img, sprite));
@@ -68,11 +73,20 @@ impl<'a> SpriteAtlasBuilder<'a> {
 
     /// Construct the atlas texture from the given set of images, and update the
     /// `Option<Sprite>` references.
-    pub fn build(self, renderer: &Renderer) -> Result<()> {
-        let mut atlas = image::Image::new(self.total_width, self.max_height);
+    pub fn build(self, renderer: &WGPURenderer<Device>) -> Result<()> {
+        let WGPUSpriteAtlasBuilder {
+            images,
+            mag_filter,
+            min_filter,
+            total_width,
+            max_height,
+        } = self;
+
+        let mut atlas = image::Image::new(total_width, max_height);
         let mut sprite_bounds = vec![];
         let mut x = 0;
-        for (img, sprite) in self.images {
+
+        for (img, sprite) in images {
             sprite_bounds.push((
                 Rect {
                     location: Vector2 { x: x, y: 0 },
@@ -84,17 +98,19 @@ impl<'a> SpriteAtlasBuilder<'a> {
             x += img.width();
         }
 
-        let texture = Rc::new(Texture::from_image(
-            renderer.wgpu_device().device(),
-            renderer.wgpu_device().queue(),
-            atlas,
-            self.mag_filter,
-            self.min_filter,
-            TextureType::Plain,
-        )?);
+        let texture = renderer.wgpu_device().with_device_info(|info| {
+            Ok(WGPUTexture::from_image(
+                info.device,
+                info.queue,
+                atlas,
+                mag_filter,
+                min_filter,
+                TextureType::Plain,
+            )?)
+        })?;
 
         for (bounds, sprite) in sprite_bounds {
-            *sprite = Some(Sprite::from_texture_with_bounds(
+            *sprite = Some(WGPUSprite::from_texture_with_bounds(
                 renderer,
                 &texture,
                 bounds.convert(),

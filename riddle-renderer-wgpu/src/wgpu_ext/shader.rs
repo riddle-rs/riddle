@@ -1,23 +1,23 @@
-use crate::{math::*, *};
+use crate::wgpu_ext::*;
 
 use wgpu::util::DeviceExt;
 use wgpu::{CommandEncoder, RenderPass, TextureView};
 
-pub(super) struct Shader {
-    weak_self: ShaderWeak,
+pub(crate) struct WGPUShader {
+    weak_self: WGPUShaderWeak,
     pub bind_group_layout: wgpu::BindGroupLayout,
     pipeline: wgpu::RenderPipeline,
 }
 
-define_handles!(<Shader>::weak_self, pub(super) ShaderHandle, pub(super) ShaderWeak);
+define_handles!(<WGPUShader>::weak_self, pub(crate) WGPUShaderHandle, pub(crate) WGPUShaderWeak);
 
-impl Shader {
+impl WGPUShader {
     pub(crate) fn from_readers<VR, FR>(
         device: &wgpu::Device,
         mut vs: VR,
         mut fs: FR,
         primitive_type: wgpu::PrimitiveTopology,
-    ) -> Result<ShaderHandle>
+    ) -> Result<WGPUShaderHandle>
     where
         VR: std::io::Read + std::io::Seek,
         FR: std::io::Read + std::io::Seek,
@@ -135,7 +135,7 @@ impl Shader {
             alpha_to_coverage_enabled: false,
         });
 
-        Ok(ShaderHandle::new(|weak_self| Shader {
+        Ok(WGPUShaderHandle::new(|weak_self| Self {
             weak_self,
             bind_group_layout,
             pipeline: render_pipeline,
@@ -147,7 +147,7 @@ impl Shader {
         device: &wgpu::Device,
         camera_size: Vector2<f32>,
         view_matrix: mint::ColumnMatrix4<f32>,
-        texture: &Texture,
+        texture: &WGPUTexture,
     ) -> wgpu::BindGroup {
         let ortho_matrix =
             glam::Mat4::orthographic_lh(0.0, camera_size.x, camera_size.y, 0.0, 0.0, 1.0);

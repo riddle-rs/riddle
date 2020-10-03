@@ -1,3 +1,6 @@
+//! Sandbox demo, using a wide range of riddle features to allow quick manual
+//! testing of changes.
+
 use riddle::{
     common::Color,
     input::{InputEvent, KeyboardModifiers, MouseButton, VirtualKey},
