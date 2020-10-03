@@ -107,3 +107,9 @@ impl TTFont {
         }
     }
 }
+
+impl rusttype_ext::RustTypeTTFontExt for TTFont {
+    fn rustype_font(&self) -> &rusttype::Font<'static> {
+        &self.font
+    }
+}

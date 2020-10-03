@@ -266,6 +266,12 @@ impl Image {
     }
 }
 
+impl image_ext::ImageImageExt for Image {
+    fn image_rgbaimage(&self) -> &::image::RgbaImage {
+        &self.img
+    }
+}
+
 /// The set of support image file formats which [`Image`] can load
 #[derive(Debug, Eq, PartialEq, Copy, Clone)]
 pub enum ImageFormat {

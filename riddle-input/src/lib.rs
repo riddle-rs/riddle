@@ -37,7 +37,7 @@
 //! to the input system via the `EventPub` it is constructed with.
 //!
 //! ```no_run
-//! use riddle_input::*;
+//! use riddle_input::{ext::*, *};
 //! use riddle_common::eventpub::*;
 //! use riddle_platform_common::*;
 //!
@@ -64,6 +64,8 @@ mod gamepad_state;
 mod input_system;
 mod keyboard_state;
 mod mouse_state;
+
+pub mod ext;
 
 use gamepad_state::*;
 use mouse_state::*;

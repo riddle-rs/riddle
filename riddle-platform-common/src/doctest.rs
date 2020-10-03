@@ -9,7 +9,7 @@ use crate::*;
 
 pub struct MockWindow {}
 
-impl traits::WindowExt for MockWindow {
+impl traits::WindowCommon for MockWindow {
     fn logical_to_physical<L: Into<LogicalVec2>>(&self, vec2: L) -> (u32, u32) {
         let v = vec2.into();
         (v.x * 2, v.y * 2)

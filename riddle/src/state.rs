@@ -1,9 +1,9 @@
 #[cfg(feature = "riddle-audio")]
-use crate::audio::{AudioMainThreadState, AudioSystem, AudioSystemHandle};
+use crate::audio::{ext::*, AudioMainThreadState, AudioSystem, AudioSystemHandle};
 use crate::{
-    input::{InputMainThreadState, InputSystem, InputSystemHandle},
-    platform::{PlatformMainThreadState, PlatformSystem, PlatformSystemHandle},
-    time::{TimeSystem, TimeSystemHandle},
+    input::{ext::*, InputMainThreadState, InputSystem, InputSystemHandle},
+    platform::{ext::*, PlatformMainThreadState, PlatformSystem, PlatformSystemHandle},
+    time::{ext::*, TimeSystem, TimeSystemHandle},
     *,
 };
 

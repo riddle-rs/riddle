@@ -29,74 +29,6 @@ pub struct InputSystem {
 define_handles!(<InputSystem>::weak_self, pub InputSystemHandle, pub InputSystemWeak);
 
 impl InputSystem {
-    /// Create the input system, initializing any input device libraries needed.
-    ///
-    /// This will be instantiated automatically if `riddle` is being used.
-    ///
-    /// Returns a pair of objects, one of which is the system state which is like
-    /// most other riddle system states - it is thread safe, stored in `RiddleState`
-    /// and is the main means by which client code interacts with the system.
-    ///
-    /// The other return value stores the portion of this object's state that should
-    /// stay on the main thread - [`InputMainThreadState`].
-    pub fn new(
-        sys_events: &EventPub<PlatformEvent>,
-    ) -> Result<(InputSystemHandle, InputMainThreadState)> {
-        let event_sub = EventSub::new_with_filter(Self::event_filter);
-        sys_events.attach(&event_sub);
-
-        let gilrs = gilrs::Gilrs::new().map_err(|_| InputError::InitError("Gilrs init failure"))?;
-
-        let system = InputSystemHandle::new(|weak_self| InputSystem {
-            weak_self,
-            window_states: Mutex::new(HashMap::new()),
-            gamepad_states: Mutex::new(GamePadStateMap::new()),
-            outgoing_input_events: Mutex::new(vec![]),
-        });
-
-        let main_thread = InputMainThreadState {
-            system: system.clone(),
-            event_sub,
-            gilrs,
-        };
-
-        Ok((system, main_thread))
-    }
-
-    /// Collect any buffered [`InputEvent`]s emitted by the input system.
-    ///
-    /// This clears the system's buffer, so should only be called from a single location.
-    ///
-    /// **Do not** call this if you are using `riddle`. `riddle` manages taking these
-    /// events and passing them to the main application closure.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// # use riddle_input::*; use riddle_common::eventpub::*; use riddle_platform_common::*;
-    /// # fn main() -> Result<(), InputError> {
-    /// let platform_events: EventPub<PlatformEvent> = EventPub::new();
-    /// let (input_system, mut main_thread_state) = InputSystem::new(&platform_events)?;
-    ///
-    /// // Platform dispatches an event, and input processes it
-    /// platform_events.dispatch(PlatformEvent::MouseButtonDown{
-    ///     window: WindowId::new(0),
-    ///     button: MouseButton::Left});
-    /// main_thread_state.process_input();
-    ///
-    /// // Having processed the incoming platform event, there is now an InputEvent available
-    /// let input_events: Vec<InputEvent> = input_system.take_input_events();
-    ///
-    /// assert_eq!(vec![InputEvent::MouseButtonDown{
-    ///     window: WindowId::new(0),
-    ///     button: MouseButton::Left
-    /// }], input_events);
-    /// # Ok(()) }
-    /// ```
-    pub fn take_input_events(&self) -> Vec<InputEvent> {
-        std::mem::replace(&mut self.outgoing_input_events.lock().unwrap(), vec![])
-    }
-
     /// Query the cursor position with respect to a given window.
     ///
     /// If no mouse position infomation is available for the given window, the
@@ -105,7 +37,7 @@ impl InputSystem {
     /// # Example
     ///
     /// ```
-    /// # use riddle_input::*; use riddle_common::eventpub::*; use riddle_platform_common::*;
+    /// # use riddle_input::{ext::*, *}; use riddle_common::eventpub::*; use riddle_platform_common::*;
     /// # fn main() -> Result<(), InputError> {
     /// # let platform_events: EventPub<PlatformEvent> = EventPub::new();
     /// # let (input_system, mut main_thread_state) = InputSystem::new(&platform_events)?;
@@ -137,7 +69,7 @@ impl InputSystem {
     /// # Example
     ///
     /// ```
-    /// # use riddle_input::*; use riddle_common::eventpub::*; use riddle_platform_common::*;
+    /// # use riddle_input::{ext::*, *}; use riddle_common::eventpub::*; use riddle_platform_common::*;
     /// # fn main() -> Result<(), InputError> {
     /// # let platform_events: EventPub<PlatformEvent> = EventPub::new();
     /// # let (input_system, mut main_thread_state) = InputSystem::new(&platform_events)?;
@@ -171,7 +103,7 @@ impl InputSystem {
     /// # Example
     ///
     /// ```
-    /// # use riddle_input::*; use riddle_common::eventpub::*; use riddle_platform_common::*;
+    /// # use riddle_input::{ext::*, *}; use riddle_common::eventpub::*; use riddle_platform_common::*;
     /// # fn main() -> Result<(), InputError> {
     /// # let platform_events: EventPub<PlatformEvent> = EventPub::new();
     /// # let (input_system, mut main_thread_state) = InputSystem::new(&platform_events)?;
@@ -203,7 +135,7 @@ impl InputSystem {
     /// # Example
     ///
     /// ```
-    /// # use riddle_input::*; use riddle_common::eventpub::*; use riddle_platform_common::*;
+    /// # use riddle_input::{ext::*, *}; use riddle_common::eventpub::*; use riddle_platform_common::*;
     /// # fn main() -> Result<(), InputError> {
     /// # let platform_events: EventPub<PlatformEvent> = EventPub::new();
     /// # let (input_system, mut main_thread_state) = InputSystem::new(&platform_events)?;
@@ -237,7 +169,7 @@ impl InputSystem {
     /// # Example
     ///
     /// ```no_run
-    /// # use riddle_input::*; use riddle_common::eventpub::*; use riddle_platform_common::*;
+    /// # use riddle_input::{ext::*, *}; use riddle_common::eventpub::*; use riddle_platform_common::*;
     /// # fn main() -> Result<(), InputError> {
     /// # let platform_events: EventPub<PlatformEvent> = EventPub::new();
     /// # let (input_system, mut main_thread_state) = InputSystem::new(&platform_events)?;
@@ -263,7 +195,7 @@ impl InputSystem {
     /// If no state has been set all buttons are considered not to be down.
     ///
     /// ```no_run
-    /// # use riddle_input::*;
+    /// # use riddle_input::{ext::*, *};
     /// # let input_system: InputSystemHandle = todo!();
     /// # let gamepad: GamePadId = todo!();
     /// // The initial button state is false
@@ -289,7 +221,7 @@ impl InputSystem {
     /// If no state has been set all axes are considered to have value `0.0`.
     ///
     /// ```no_run
-    /// # use riddle_input::*;
+    /// # use riddle_input::{ext::*, *};
     /// # let input_system: InputSystemHandle = todo!();
     /// # let gamepad: GamePadId = todo!();
     /// // The initial button state is false
@@ -392,6 +324,36 @@ impl InputSystem {
     }
 }
 
+impl ext::InputSystemExt for InputSystem {
+    fn new(
+        sys_events: &EventPub<PlatformEvent>,
+    ) -> Result<(InputSystemHandle, InputMainThreadState)> {
+        let event_sub = EventSub::new_with_filter(Self::event_filter);
+        sys_events.attach(&event_sub);
+
+        let gilrs = gilrs::Gilrs::new().map_err(|_| InputError::InitError("Gilrs init failure"))?;
+
+        let system = InputSystemHandle::new(|weak_self| InputSystem {
+            weak_self,
+            window_states: Mutex::new(HashMap::new()),
+            gamepad_states: Mutex::new(GamePadStateMap::new()),
+            outgoing_input_events: Mutex::new(vec![]),
+        });
+
+        let main_thread = InputMainThreadState {
+            system: system.clone(),
+            event_sub,
+            gilrs,
+        };
+
+        Ok((system, main_thread))
+    }
+
+    fn take_input_events(&self) -> Vec<InputEvent> {
+        std::mem::replace(&mut self.outgoing_input_events.lock().unwrap(), vec![])
+    }
+}
+
 impl Default for WindowInputState {
     fn default() -> Self {
         Self {
@@ -403,7 +365,7 @@ impl Default for WindowInputState {
 
 /// The portion of the input system that needs to remain on a single thread.
 ///
-/// Constructed paired with its thread-safe counterpart via [`InputSystem::new`].
+/// Constructed paired with its thread-safe counterpart via [`ext::InputSystemExt::new`].
 pub struct InputMainThreadState {
     system: InputSystemHandle,
 
@@ -415,7 +377,7 @@ impl InputMainThreadState {
     /// Process all input sources, updating the static view of the known input
     /// devices.
     ///
-    /// This may produce InputEvents which can be consumed via [`InputSystem::take_input_events`].
+    /// This may produce InputEvents which can be consumed via [`ext::InputSystemExt::take_input_events`].
     pub fn process_input(&mut self) {
         while let Some(gilrs::Event { event, id, .. }) = self.gilrs.next_event() {
             use std::convert::TryFrom;

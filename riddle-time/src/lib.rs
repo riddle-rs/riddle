@@ -40,7 +40,7 @@
 //! If you don't want to depend on `riddle`, you can use this crate directly.
 //!
 //! ```
-//! use riddle_time::*;
+//! use riddle_time::{ext::*, *};
 //! use std::sync::{Arc, atomic::{AtomicBool, Ordering}};
 //!
 //! fn main() {
@@ -63,6 +63,8 @@
 
 mod time_system;
 mod timer;
+
+pub mod ext;
 
 #[doc(hidden)]
 pub mod doctest;

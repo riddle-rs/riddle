@@ -38,7 +38,7 @@
 //! If you don't want to depend on `riddle`, you can use this crate directly.
 //!
 //! ```no_run
-//! use riddle_audio::*;
+//! use riddle_audio::{ext::*, *};
 //!
 //! fn main() -> Result<(), AudioError> {
 //!     let (audio_system, _audio_main_thread_state) = AudioSystem::new()?;
@@ -66,6 +66,8 @@ mod clip;
 mod clip_player;
 mod error;
 mod fades;
+
+pub mod ext;
 
 #[doc(hidden)]
 pub mod doctest;
