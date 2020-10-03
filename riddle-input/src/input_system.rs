@@ -228,6 +228,36 @@ impl InputSystem {
         self.with_window_state(window, |w| w.keyboard.modifiers())
     }
 
+    /// Get the [`GamePadId`] of the last gamepad which issued any event.
+    ///
+    /// Can be used a very simple way to pick a gamepad to consider the "active"
+    /// gamepad. Handling [`InputEvent::GamePadConnected`] and similar events
+    /// allows for more fine grained control.
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use riddle_input::*; use riddle_common::eventpub::*; use riddle_platform_common::*;
+    /// # fn main() -> Result<(), InputError> {
+    /// # let platform_events: EventPub<PlatformEvent> = EventPub::new();
+    /// # let (input_system, mut main_thread_state) = InputSystem::new(&platform_events)?;
+    /// # let window = WindowId::new(0);
+    /// // The initial gamepad is None
+    /// assert_eq!(None, input_system.last_active_gamepad());
+    ///
+    /// // Controller button press events are processed
+    /// // [..]
+    /// # // Currently no support for faking a controller event
+    /// # panic!();
+    ///
+    /// // The reported active controller has changed
+    /// assert_ne!(None, input_system.last_active_gamepad());
+    /// # Ok(()) }
+    /// ```
+    pub fn last_active_gamepad(&self) -> Option<GamePadId> {
+        self.gamepad_states.lock().unwrap().last_active_pad()
+    }
+
     /// Check if a specific button is pressed for a given gamepad.
     ///
     /// If no state has been set all buttons are considered not to be down.
@@ -242,6 +272,7 @@ impl InputSystem {
     /// // Controller button press events are processed
     /// // [..]
     /// # // Currently no support for faking a controller event
+    /// # panic!();
     ///
     /// // The reported button state has changed
     /// assert_eq!(true, input_system.is_gamepad_button_down(gamepad, GamePadButton::North));
@@ -251,6 +282,32 @@ impl InputSystem {
             .lock()
             .unwrap()
             .is_button_down(gamepad, button)
+    }
+
+    /// Get the value of a specific axis for a specific gamepad
+    ///
+    /// If no state has been set all axes are considered to have value `0.0`.
+    ///
+    /// ```no_run
+    /// # use riddle_input::*;
+    /// # let input_system: InputSystemHandle = todo!();
+    /// # let gamepad: GamePadId = todo!();
+    /// // The initial button state is false
+    /// assert_eq!(0.0, input_system.gamepad_axis_value(gamepad, GamePadAxis::LeftStickX));
+    ///
+    /// // Controller axis events are processed
+    /// // [..]
+    /// # // Currently no support for faking a controller event
+    /// # panic!();
+    ///
+    /// // The reported axis value has changed
+    /// assert_ne!(0.0, input_system.gamepad_axis_value(gamepad, GamePadAxis::LeftStickX));
+    /// ```
+    pub fn gamepad_axis_value(&self, gamepad: GamePadId, axis: GamePadAxis) -> f32 {
+        self.gamepad_states
+            .lock()
+            .unwrap()
+            .axis_value(gamepad, axis)
     }
 
     fn with_window_state<'a, R, F>(&'a self, window: WindowId, f: F) -> R
@@ -393,6 +450,11 @@ impl InputMainThreadState {
                 gilrs::EventType::ButtonChanged(_, _, _) => {}
                 gilrs::EventType::AxisChanged(axis, value, _) => {
                     if let Ok(axis) = GamePadAxis::try_from(axis) {
+                        self.system.gamepad_states.lock().unwrap().set_axis_value(
+                            id.into(),
+                            axis,
+                            value,
+                        );
                         self.system
                             .send_input_event(InputEvent::GamePadAxisChanged {
                                 gamepad: id.into(),

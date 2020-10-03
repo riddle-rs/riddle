@@ -1,5 +1,5 @@
 /// An identifier mapping to a particular gamepad, used for querying state from [`crate::InputSystem`]
-#[derive(Clone, Eq, PartialEq, Hash, Debug)]
+#[derive(Clone, Copy, Eq, PartialEq, Hash, Debug)]
 pub struct GamePadId {
     id: gilrs::GamepadId,
 }
@@ -20,7 +20,7 @@ impl From<GamePadId> for gilrs::GamepadId {
 ///
 /// Assumes a layout similar to an Xbox controller, with the exception that
 /// the A, B, X, and Y buttons have been renamed South, East, West, North respectively.
-#[derive(Clone, Eq, PartialEq, Hash, Debug)]
+#[derive(Clone, Copy, Eq, PartialEq, Hash, Debug)]
 pub enum GamePadButton {
     South,
     North,
@@ -103,7 +103,7 @@ impl From<GamePadButton> for gilrs::Button {
 /// GamePad axis identifiers.
 ///
 /// Does not include an axis mapping for the DPad, that is exposed via button presses.
-#[derive(Clone, Eq, PartialEq, Hash, Debug)]
+#[derive(Clone, Copy, Eq, PartialEq, Hash, Debug)]
 pub enum GamePadAxis {
     LeftStickX,
     LeftStickY,

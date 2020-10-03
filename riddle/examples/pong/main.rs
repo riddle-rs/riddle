@@ -1,5 +1,5 @@
-//! Minimal pong demo. Uses keyboard input, audio, windowing, and very basic usage
-//! of the 2d renderer.
+//! Minimal pong demo. Uses keyboard & gamepad input, audio, windowing, and very
+//! basic usage of the 2d renderer.
 
 use riddle::{common::Color, input::*, math::*, platform::*, renderer::*, *};
 
@@ -81,18 +81,10 @@ impl Pong {
         let paddle_delta = vec2(0.0, 200.0) * self.state.time().delta_secs();
 
         // Paddle controls
-        if self
-            .state
-            .input()
-            .is_vkey_down(self.window.id(), VirtualKey::Up)
-        {
+        if self.is_input_paddle_up() {
             self.left_paddle.location -= paddle_delta;
             self.right_paddle.location -= paddle_delta;
-        } else if self
-            .state
-            .input()
-            .is_vkey_down(self.window.id(), VirtualKey::Down)
-        {
+        } else if self.is_input_paddle_down() {
             self.left_paddle.location += paddle_delta;
             self.right_paddle.location += paddle_delta;
         }
@@ -139,5 +131,25 @@ impl Pong {
         }
 
         Ok(())
+    }
+
+    fn is_input_paddle_up(&self) -> bool {
+        let input = self.state.input();
+        let up_key = input.is_vkey_down(self.window.id(), VirtualKey::Up);
+        let left_stick = input
+            .last_active_gamepad()
+            .map(|pad| input.gamepad_axis_value(pad, GamePadAxis::LeftStickY) > 0.0)
+            .unwrap_or(false);
+        up_key || left_stick
+    }
+
+    fn is_input_paddle_down(&self) -> bool {
+        let input = self.state.input();
+        let down_key = input.is_vkey_down(self.window.id(), VirtualKey::Down);
+        let left_stick = input
+            .last_active_gamepad()
+            .map(|pad| input.gamepad_axis_value(pad, GamePadAxis::LeftStickY) < 0.0)
+            .unwrap_or(false);
+        down_key || left_stick
     }
 }
