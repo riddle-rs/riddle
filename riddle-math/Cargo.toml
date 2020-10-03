@@ -1,6 +1,6 @@
 [package]
 name = "riddle-math"
-version = "0.1.0"
+version = "0.2.0-dev"
 authors = ["vickles <vicklesort@gmail.com>"]
 edition = "2018"
 

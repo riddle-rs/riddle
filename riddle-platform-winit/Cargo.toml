@@ -1,6 +1,6 @@
 [package]
 name = "riddle-platform-winit"
-version = "0.1.0"
+version = "0.2.0-dev"
 authors = ["vickles <vicklesort@gmail.com>"]
 edition = "2018"
 
@@ -13,13 +13,7 @@ riddle-platform-common = {path = "../riddle-platform-common"}
 raw-window-handle = "0.3"
 thiserror = "1.0"
 
-winit = { version="0.22", git = "https://github.com/vickles/winit/", branch="windows-multibyte-scancodes" }
-
-#[target.'cfg(target = "wasm32-unknown-unknown")'.dependencies]
-#winit = {version = "0.22", git = "https://github.com/rust-windowing/winit", branch = "master", features=["web-sys"]}
-
-#[target.'cfg(not(target = "wasm32-unknown-unknown"))'.dependencies]
-#winit = {version = "0.22", git = "https://github.com/rust-windowing/winit", branch = "master"}
+winit = { version="0.23", git = "https://github.com/vickles/winit/", branch="riddle0.2.0" }
 
 [dev-dependencies]
 riddle = {path = "../riddle"}
