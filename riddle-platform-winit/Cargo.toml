@@ -13,7 +13,7 @@ riddle-platform-common = {path = "../riddle-platform-common"}
 raw-window-handle = "0.3"
 thiserror = "1.0"
 
-winit = { version="0.22", git = "https://github.com/vickles/winit/", branch="windows-multibyte-scancodes" }
+winit = { version="0.22", git = "https://github.com/vickles/winit/", branch="riddle0.1.0" }
 
 #[target.'cfg(target = "wasm32-unknown-unknown")'.dependencies]
 #winit = {version = "0.22", git = "https://github.com/rust-windowing/winit", branch = "master", features=["web-sys"]}
