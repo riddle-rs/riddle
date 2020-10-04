@@ -31,7 +31,7 @@
 //! `winit` in to Riddle.
 //!
 //! ```no_run
-//! use riddle_platform_winit::*;
+//! use riddle_platform_winit::{ext::*, *};
 //!
 //! fn main() -> Result<(), PlatformError> {
 //!     let (platform_system, main_thread_state) = PlatformSystem::new();
@@ -54,6 +54,9 @@ mod platform_context;
 mod platform_system;
 mod window;
 mod window_map;
+
+pub mod ext;
+pub mod winit_ext;
 
 pub use error::PlatformError;
 pub use platform_context::*;

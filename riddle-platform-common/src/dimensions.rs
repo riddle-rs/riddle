@@ -1,4 +1,4 @@
-use crate::traits::WindowExt;
+use crate::traits::WindowCommon;
 
 use riddle_math::Vector2;
 
@@ -42,7 +42,7 @@ impl LogicalSize {
     /// let size = LogicalSize{ width: 10, height: 10 };
     /// assert_eq!((20, 20), size.into_physical(&window));
     /// ```
-    pub fn into_physical<W: WindowExt>(self, window: &W) -> (u32, u32) {
+    pub fn into_physical<W: WindowCommon>(self, window: &W) -> (u32, u32) {
         window.logical_to_physical(self)
     }
 }
@@ -87,7 +87,7 @@ impl LogicalPosition {
     /// let position = LogicalPosition{ x: 10, y: 10 };
     /// assert_eq!((20, 20), position.into_physical(&window));
     /// ```
-    pub fn into_physical<W: WindowExt>(self, window: &W) -> (u32, u32) {
+    pub fn into_physical<W: WindowCommon>(self, window: &W) -> (u32, u32) {
         window.logical_to_physical(self)
     }
 }
@@ -138,7 +138,7 @@ impl LogicalVec2 {
     /// let vector = LogicalVec2{ x: 10, y: 10 };
     /// assert_eq!((20, 20), vector.into_physical(&window));
     /// ```
-    pub fn into_physical<W: WindowExt>(self, window: &W) -> (u32, u32) {
+    pub fn into_physical<W: WindowCommon>(self, window: &W) -> (u32, u32) {
         window.logical_to_physical(self)
     }
 }

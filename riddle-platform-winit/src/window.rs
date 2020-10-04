@@ -3,7 +3,7 @@ use crate::{common::*, *};
 use riddle_common::eventpub::*;
 
 use raw_window_handle::{HasRawWindowHandle, RawWindowHandle};
-use riddle_platform_common::traits::WindowExt;
+use riddle_platform_common::traits::WindowCommon;
 use std::borrow::Borrow;
 
 /// A platform native window.
@@ -166,7 +166,13 @@ impl Window {
     }
 }
 
-impl WindowExt for Window {
+impl winit_ext::WinitWindowExt for Window {
+    fn winit_window(&self) -> &winit::window::Window {
+        &self.winit_window
+    }
+}
+
+impl WindowCommon for Window {
     fn logical_to_physical<L: Into<LogicalVec2>>(&self, vec2: L) -> (u32, u32) {
         let winit_pos = dimensions::logical_vec_to_winit(vec2.into());
         let physical_size = winit_pos.to_physical(self.scale_factor());

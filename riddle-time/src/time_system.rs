@@ -9,8 +9,8 @@ use std::sync::Mutex;
 /// Manages tracking framerate and timer state.
 ///
 /// It is possible to manage the audio system state independantly - the most important
-/// thing to note is that [`TimeSystem::process_frame`] must be called once per "frame".
-/// The default Riddle integration calls that method whenever the
+/// thing to note is that [`ext::TimeSystemExt::process_frame`] must be called once per
+/// "frame". The default Riddle integration calls that method whenever the
 /// `riddle::Event::ProcessFrame` event is fired.
 pub struct TimeSystem {
     weak_self: TimeSystemWeak,
@@ -21,49 +21,6 @@ pub struct TimeSystem {
 define_handles!(<TimeSystem>::weak_self, pub TimeSystemHandle, pub TimeSystemWeak);
 
 impl TimeSystem {
-    /// Create a new time system. The time the system is created is used as the time
-    /// of the 0th frame.
-    pub fn new() -> TimeSystemHandle {
-        TimeSystemHandle::new(|weak_self| Self {
-            weak_self,
-            frame_time: Mutex::new(FrameTime::new()),
-            timers: TimerSet::new(),
-        })
-    }
-
-    /// Update the time system state, marking the beginning of a the next frame.
-    ///
-    /// The instant that this method is called is taken as the reference time for
-    /// the frame that is about to be executed.
-    ///
-    /// Timers will also be triggered during this function call if they are due
-    /// to trigger.
-    ///
-    /// **Do not** call this function directly if you are using this through the
-    /// `riddle` crate.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// # use riddle_time::*; doctest::simple(|time_system| {
-    /// let frame_1 = time_system.frame_instant();
-    ///
-    /// // A while later
-    /// # doctest::pump_for_secs(time_system, 1);
-    /// let frame_n = time_system.frame_instant();
-    ///
-    /// assert_eq!(true, frame_n - frame_1 > std::time::Duration::from_secs(0));
-    /// # });
-    /// ```
-    pub fn process_frame(&self) {
-        let mut locked_time = self.frame_time.lock().unwrap();
-        locked_time.update();
-        let delta = locked_time.frame_delta;
-        drop(locked_time);
-
-        self.timers.update(delta);
-    }
-
     /// Get the current FPS as calculated based on previous frame durations.
     pub fn fps(&self) -> f32 {
         self.frame_time.lock().unwrap().fps
@@ -74,7 +31,7 @@ impl TimeSystem {
         1.0 / self.frame_time.lock().unwrap().fps
     }
 
-    /// Get the reference time for this frame. Captured during [`TimeSystem::process_frame`].
+    /// Get the reference time for this frame. Captured during [`ext::TimeSystemExt::process_frame`].
     pub fn frame_instant(&self) -> std::time::Instant {
         self.frame_time.lock().unwrap().frame_instant
     }
@@ -105,6 +62,25 @@ impl TimeSystem {
         F: FnOnce() + Send + 'static,
     {
         self.timers.register_timer(duration, Box::new(callback))
+    }
+}
+
+impl ext::TimeSystemExt for TimeSystem {
+    fn new() -> TimeSystemHandle {
+        TimeSystemHandle::new(|weak_self| Self {
+            weak_self,
+            frame_time: Mutex::new(FrameTime::new()),
+            timers: TimerSet::new(),
+        })
+    }
+
+    fn process_frame(&self) {
+        let mut locked_time = self.frame_time.lock().unwrap();
+        locked_time.update();
+        let delta = locked_time.frame_delta;
+        drop(locked_time);
+
+        self.timers.update(delta);
     }
 }
 

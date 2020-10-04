@@ -20,6 +20,8 @@
 mod error;
 mod ttfont;
 
+pub mod rusttype_ext;
+
 pub use error::*;
 pub use ttfont::TTFont;
 
