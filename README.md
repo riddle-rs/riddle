@@ -66,13 +66,22 @@ Since the crate isn't on crates.io docs are hosted on Github Pages:
 
 ## Getting started
 
-Add a git dependency in your cargo.toml _[note 2]_.
+Add a git dependency in your cargo.toml to the most recent release _[note 2]_:
 
 ```toml
 [dependencies.riddle]
-version = 0.1
+version = "0.1"
 git = "https://github.com/vickles/riddle/"
 tag = "0.1.0"
+```
+
+If you want to use the bleeding edge insert the following in to your cargo.toml:
+
+```toml
+[dependencies.riddle]
+version = "0.2.0-dev"
+git = "https://github.com/vickles/riddle/"
+branch = "master"
 ```
 
 Place the following in main.rs:
