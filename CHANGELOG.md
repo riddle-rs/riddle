@@ -16,5 +16,6 @@
 * input: Add `InputSystem::gamepad_axis_value` and `InputSystem::last_active_gamepad`.
 * docs: Update pong example to support gamepad input
 * **breaking**: Put internal system methods in to Ext traits, expose underlying types with crate specific Ext traits.
+* input: MacOS scancode normalization
 
 ## 0.1.0 - Initial Release
