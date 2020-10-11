@@ -14,7 +14,7 @@ riddle-mp3 = ["rodio/mp3"]
 riddle-common = {path = "../riddle-common"}
 
 futures = "0.3"
-rodio = { version = "0.11", git = "https://github.com/vickles/rodio/", branch="riddle0.2.0", default-features=false, features=["wav", "vorbis"] }
+rodio = { version = "0.12", features=["wav", "vorbis"] }
 thiserror = "1.0"
 
 
