@@ -74,7 +74,7 @@ impl RiddleLib {
     /// })
     /// # }
     /// ```
-    pub fn run_with_err<Err: std::error::Error, F>(self, update: F) -> !
+    pub fn run_with_err<Err: std::fmt::Debug, F>(self, update: F) -> !
     where
         F: FnMut(&RiddleContext) -> std::result::Result<(), Err> + 'static,
     {

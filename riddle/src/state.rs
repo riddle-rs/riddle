@@ -82,7 +82,7 @@ pub(crate) struct MainThreadState {
 
 impl MainThreadState {
     #[inline]
-    pub fn run<Err: std::error::Error, F>(self, state: RiddleState, mut update: F) -> !
+    pub fn run<Err: std::fmt::Debug, F>(self, state: RiddleState, mut update: F) -> !
     where
         F: FnMut(&RiddleContext) -> std::result::Result<(), Err> + 'static,
     {
