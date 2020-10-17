@@ -44,7 +44,7 @@ impl RiddleLib {
     /// ```
     pub fn run<F>(self, mut update: F) -> !
     where
-        F: FnMut(&RiddleContext) -> () + 'static,
+        F: FnMut(&RiddleContext) + 'static,
     {
         self.run_with_err::<RiddleError, _>(move |ctx| {
             update(ctx);

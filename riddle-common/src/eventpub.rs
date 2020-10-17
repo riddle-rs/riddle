@@ -183,6 +183,12 @@ impl<T: Clone> EventPub<T> {
     }
 }
 
+impl<T: Clone> Default for EventPub<T> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 /////////////////////////////////////////////////////////////////////////////
 // struct EventSub
 /////////////////////////////////////////////////////////////////////////////
@@ -274,5 +280,11 @@ impl<T> EventSub<T> {
     /// ```
     pub fn collect(&self) -> Vec<T> {
         self.events.collect()
+    }
+}
+
+impl<T: Clone> Default for EventSub<T> {
+    fn default() -> Self {
+        Self::new()
     }
 }

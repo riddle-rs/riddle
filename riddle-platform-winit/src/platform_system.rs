@@ -74,7 +74,7 @@ impl PlatformSystem {
 }
 
 impl ext::PlatformSystemExt for PlatformSystem {
-    fn new() -> (PlatformSystemHandle, PlatformMainThreadState) {
+    fn new_shared() -> (PlatformSystemHandle, PlatformMainThreadState) {
         let event_loop = winit::event_loop::EventLoop::with_user_event();
         let event_proxy = event_loop.create_proxy();
         let system = PlatformSystemHandle::new(|weak_self| PlatformSystem {
@@ -119,20 +119,17 @@ impl PlatformMainThreadState {
                 _ => *cf = winit::event_loop::ControlFlow::Poll,
             }
 
-            match event::convert_winit_event(&this, event) {
-                Some(system_event) => {
-                    let ctx = PlatformContext {
-                        main_thread_state: &self,
-                        event_loop: Some(el),
-                        triggering_event: system_event.clone(),
-                    };
+            if let Some(system_event) = event::convert_winit_event(&this, event) {
+                let ctx = PlatformContext {
+                    main_thread_state: &self,
+                    event_loop: Some(el),
+                    triggering_event: system_event.clone(),
+                };
 
-                    this.event_pub.dispatch(system_event);
-                    this.update_windows();
+                this.event_pub.dispatch(system_event);
+                this.update_windows();
 
-                    main_loop(ctx).unwrap();
-                }
-                None => (),
+                main_loop(ctx).unwrap();
             }
         })
     }

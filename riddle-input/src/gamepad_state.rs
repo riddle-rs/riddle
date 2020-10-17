@@ -28,10 +28,7 @@ impl GamePadState {
     }
 
     fn axis_value(&self, axis: GamePadAxis) -> f32 {
-        self.axis_values
-            .get(&axis)
-            .map(|v| v.clone())
-            .unwrap_or_default()
+        self.axis_values.get(&axis).copied().unwrap_or_default()
     }
 
     fn set_axis_value(&mut self, axis: GamePadAxis, value: f32) {
@@ -87,9 +84,7 @@ impl GamePadStateMap {
     }
 
     fn get_pad_mut(&mut self, pad: GamePadId) -> &mut GamePadState {
-        if !self.gamepads.contains_key(&pad) {
-            self.gamepads.insert(pad, GamePadState::new());
-        }
+        self.gamepads.entry(pad).or_insert_with(GamePadState::new);
         self.gamepads.get_mut(&pad).unwrap()
     }
 }

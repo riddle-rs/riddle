@@ -37,7 +37,7 @@ where
     /// Create a new render target with the specified dimensions
     pub fn new(renderer: &WGPURenderer<Device>, dimensions: Vector2<u32>) -> Result<Self> {
         let texture = renderer.wgpu_device().with_device_info(|info| {
-            Ok(WGPUTexture::new(
+            Ok(WGPUTexture::new_shared(
                 info.device,
                 FilterMode::Linear,
                 FilterMode::Linear,
@@ -73,7 +73,7 @@ where
     /// target_ctx.present();
     /// # Ok(()) }
     /// ```
-    pub fn begin_render<'a>(&'a self) -> Result<impl RenderContext + 'a> {
+    pub fn begin_render(&self) -> Result<impl RenderContext + '_> {
         let encoder = self.renderer.wgpu_device().with_device_info(|info| {
             Ok(info
                 .device

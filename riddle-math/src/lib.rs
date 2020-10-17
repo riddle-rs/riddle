@@ -1,3 +1,5 @@
+#![deny(clippy::all)]
+
 //! Riddle crate supplying basic math types and utilities to allow easy interop between
 //! riddle crates.
 //!

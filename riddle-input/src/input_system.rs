@@ -40,7 +40,7 @@ impl InputSystem {
     /// # use riddle_input::{ext::*, *}; use riddle_common::eventpub::*; use riddle_platform_common::*;
     /// # fn main() -> Result<(), InputError> {
     /// # let platform_events: EventPub<PlatformEvent> = EventPub::new();
-    /// # let (input_system, mut main_thread_state) = InputSystem::new(&platform_events)?;
+    /// # let (input_system, mut main_thread_state) = InputSystem::new_shared(&platform_events)?;
     /// # let window = WindowId::new(0);
     /// // The initial mouse position is (0,0)
     /// assert_eq!(LogicalPosition{ x: 0, y: 0}, input_system.mouse_pos(window));
@@ -72,7 +72,7 @@ impl InputSystem {
     /// # use riddle_input::{ext::*, *}; use riddle_common::eventpub::*; use riddle_platform_common::*;
     /// # fn main() -> Result<(), InputError> {
     /// # let platform_events: EventPub<PlatformEvent> = EventPub::new();
-    /// # let (input_system, mut main_thread_state) = InputSystem::new(&platform_events)?;
+    /// # let (input_system, mut main_thread_state) = InputSystem::new_shared(&platform_events)?;
     /// # let window = WindowId::new(0);
     /// // The initial key state is that the button is unpressed
     /// assert_eq!(false, input_system.is_key_down(window, Scancode::Escape));
@@ -106,7 +106,7 @@ impl InputSystem {
     /// # use riddle_input::{ext::*, *}; use riddle_common::eventpub::*; use riddle_platform_common::*;
     /// # fn main() -> Result<(), InputError> {
     /// # let platform_events: EventPub<PlatformEvent> = EventPub::new();
-    /// # let (input_system, mut main_thread_state) = InputSystem::new(&platform_events)?;
+    /// # let (input_system, mut main_thread_state) = InputSystem::new_shared(&platform_events)?;
     /// # let window = WindowId::new(0);
     /// // The initial key state is that the button is unpressed
     /// assert_eq!(false, input_system.is_vkey_down(window, VirtualKey::Escape));
@@ -138,7 +138,7 @@ impl InputSystem {
     /// # use riddle_input::{ext::*, *}; use riddle_common::eventpub::*; use riddle_platform_common::*;
     /// # fn main() -> Result<(), InputError> {
     /// # let platform_events: EventPub<PlatformEvent> = EventPub::new();
-    /// # let (input_system, mut main_thread_state) = InputSystem::new(&platform_events)?;
+    /// # let (input_system, mut main_thread_state) = InputSystem::new_shared(&platform_events)?;
     /// # let window = WindowId::new(0);
     /// // The initial mouse position is (0,0)
     /// assert_eq!(false, input_system.keyboard_modifiers(window).ctrl);
@@ -172,7 +172,7 @@ impl InputSystem {
     /// # use riddle_input::{ext::*, *}; use riddle_common::eventpub::*; use riddle_platform_common::*;
     /// # fn main() -> Result<(), InputError> {
     /// # let platform_events: EventPub<PlatformEvent> = EventPub::new();
-    /// # let (input_system, mut main_thread_state) = InputSystem::new(&platform_events)?;
+    /// # let (input_system, mut main_thread_state) = InputSystem::new_shared(&platform_events)?;
     /// # let window = WindowId::new(0);
     /// // The initial gamepad is None
     /// assert_eq!(None, input_system.last_active_gamepad());
@@ -242,7 +242,7 @@ impl InputSystem {
             .axis_value(gamepad, axis)
     }
 
-    fn with_window_state<'a, R, F>(&'a self, window: WindowId, f: F) -> R
+    fn with_window_state<R, F>(&self, window: WindowId, f: F) -> R
     where
         F: FnOnce(&WindowInputState) -> R,
     {
@@ -253,7 +253,7 @@ impl InputSystem {
         f(ms.get(&window).unwrap())
     }
 
-    fn with_window_state_mut<'a, R, F>(&'a self, window: WindowId, f: F) -> R
+    fn with_window_state_mut<R, F>(&self, window: WindowId, f: F) -> R
     where
         F: FnOnce(&mut WindowInputState) -> R,
     {
@@ -325,7 +325,7 @@ impl InputSystem {
 }
 
 impl ext::InputSystemExt for InputSystem {
-    fn new(
+    fn new_shared(
         sys_events: &EventPub<PlatformEvent>,
     ) -> Result<(InputSystemHandle, InputMainThreadState)> {
         let event_sub = EventSub::new_with_filter(Self::event_filter);
@@ -388,7 +388,7 @@ impl InputMainThreadState {
                             .gamepad_states
                             .lock()
                             .unwrap()
-                            .button_down(id.into(), button.clone());
+                            .button_down(id.into(), button);
                         self.system.send_input_event(InputEvent::GamePadButtonDown {
                             gamepad: id.into(),
                             button,
@@ -402,7 +402,7 @@ impl InputMainThreadState {
                             .gamepad_states
                             .lock()
                             .unwrap()
-                            .button_up(id.into(), button.clone());
+                            .button_up(id.into(), button);
                         self.system.send_input_event(InputEvent::GamePadButtonUp {
                             gamepad: id.into(),
                             button,

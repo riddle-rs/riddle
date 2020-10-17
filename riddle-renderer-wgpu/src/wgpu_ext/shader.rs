@@ -23,15 +23,13 @@ impl WGPUShader {
         FR: std::io::Read + std::io::Seek,
     {
         let mut vs_buf = vec![];
-        vs.read_to_end(&mut vs_buf)
-            .map_err(|e| CommonError::IOError(e))?;
+        vs.read_to_end(&mut vs_buf).map_err(CommonError::IOError)?;
         let vs_module = device.create_shader_module(wgpu::ShaderModuleSource::SpirV(
             std::borrow::Cow::from(bytemuck::cast_slice(&vs_buf)),
         ));
 
         let mut fs_buf = vec![];
-        fs.read_to_end(&mut fs_buf)
-            .map_err(|e| CommonError::IOError(e))?;
+        fs.read_to_end(&mut fs_buf).map_err(CommonError::IOError)?;
         let fs_module = device.create_shader_module(wgpu::ShaderModuleSource::SpirV(
             std::borrow::Cow::from(bytemuck::cast_slice(&fs_buf)),
         ));

@@ -66,11 +66,8 @@ impl Fade {
 
         let finished = t >= 1.0;
         if finished {
-            match &self.fade_type {
-                FadeType::Pause => {
-                    self.sink.pause();
-                }
-                _ => (),
+            if let FadeType::Pause = &self.fade_type {
+                self.sink.pause();
             }
         }
 

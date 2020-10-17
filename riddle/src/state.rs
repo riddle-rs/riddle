@@ -22,20 +22,21 @@ pub struct RiddleState {
 
 impl RiddleState {
     pub(crate) fn new() -> Result<(Self, MainThreadState)> {
-        let (platform_system, platform_main_thread) = PlatformSystem::new();
-        let (input_system, input_main_thread) = InputSystem::new(platform_system.event_pub())?;
-        let time = TimeSystem::new();
+        let (platform_system, platform_main_thread) = PlatformSystem::new_shared();
+        let (input_system, input_main_thread) =
+            InputSystem::new_shared(platform_system.event_pub())?;
+        let time = TimeSystem::new_shared();
 
         #[cfg(feature = "riddle-audio")]
-        let (audio, audio_main_thread) = AudioSystem::new()?;
+        let (audio, audio_main_thread) = AudioSystem::new_shared()?;
 
         let riddle_state = RiddleState {
             platform: platform_system,
             input: input_system,
-            time: time,
+            time,
 
             #[cfg(feature = "riddle-audio")]
-            audio: audio,
+            audio,
         };
 
         let main_thread_state = MainThreadState {
@@ -92,14 +93,11 @@ impl MainThreadState {
             audio: _audio,
         } = self;
         platform.run::<Err, _>(move |platform_ctx| {
-            match platform_ctx.event() {
-                platform::PlatformEvent::EventQueueEmpty => {
-                    state.time.process_frame();
+            if let platform::PlatformEvent::EventQueueEmpty = platform_ctx.event() {
+                state.time.process_frame();
 
-                    #[cfg(feature = "riddle-audio")]
-                    state.audio.process_frame();
-                }
-                _ => (),
+                #[cfg(feature = "riddle-audio")]
+                state.audio.process_frame();
             };
 
             input.process_input();

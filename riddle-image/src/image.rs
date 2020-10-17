@@ -107,7 +107,7 @@ impl Image {
     /// assert_eq!(Color::rgba(0,0,0,0), img.get_pixel(0, 0));
     /// ```
     pub fn get_pixel(&self, x: u32, y: u32) -> Color<u8> {
-        let c: ::image::Rgba<u8> = self.img.get_pixel(x, y).clone();
+        let c: ::image::Rgba<u8> = *self.img.get_pixel(x, y);
         Color::rgba(c[0], c[1], c[2], c[3])
     }
 
@@ -257,11 +257,11 @@ impl Image {
         }
     }
 
-    pub(crate) fn create_view<'a>(&'a self, rect: Rect<u32>) -> ImageView<'a> {
+    pub(crate) fn create_view(&self, rect: Rect<u32>) -> ImageView {
         ImageView::new(self, rect)
     }
 
-    pub(crate) fn create_view_mut<'a>(&'a mut self, rect: Rect<u32>) -> ImageViewMut<'a> {
+    pub(crate) fn create_view_mut(&mut self, rect: Rect<u32>) -> ImageViewMut {
         ImageViewMut::new(self, rect)
     }
 }

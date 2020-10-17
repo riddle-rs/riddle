@@ -94,7 +94,7 @@ impl<Device: WGPUDevice> WGPURenderer<Device> {
     /// render_ctx.present();
     /// # Ok(()) }
     /// ```
-    pub fn begin_render<'a>(&'a self) -> Result<impl RenderContext + 'a> {
+    pub fn begin_render(&self) -> Result<impl RenderContext + '_> {
         let encoder = self.wgpu_device.with_device_info(|info| {
             Ok(info
                 .device
@@ -135,8 +135,7 @@ impl<Device: WGPUDevice> WGPURenderer<Device> {
                 FilterMode::Nearest,
                 FilterMode::Nearest,
                 TextureType::Plain,
-            )?
-            .into();
+            )?;
 
             Ok((sprite_shader, white_tex))
         })?;
