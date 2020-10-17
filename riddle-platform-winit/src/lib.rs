@@ -1,4 +1,5 @@
 #![feature(arc_new_cyclic)]
+#![deny(clippy::all)]
 
 //! Riddle platform system implementation based on `winit`, managing the OS's main
 //! event loop and windowing system.
@@ -34,7 +35,7 @@
 //! use riddle_platform_winit::{ext::*, *};
 //!
 //! fn main() -> Result<(), PlatformError> {
-//!     let (platform_system, main_thread_state) = PlatformSystem::new();
+//!     let (platform_system, main_thread_state) = PlatformSystem::new_shared();
 //!     let window = WindowBuilder::new().build(main_thread_state.borrow_context())?;
 //!
 //!     main_thread_state.run::<PlatformError, _>(move |ctx| {

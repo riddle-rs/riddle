@@ -1,4 +1,5 @@
 #![feature(doc_cfg)]
+#![deny(clippy::all)]
 
 //! # About Riddle
 //!

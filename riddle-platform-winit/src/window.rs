@@ -88,7 +88,7 @@ impl Window {
         let window = WindowHandle::new(|weak_self| Self {
             weak_self,
             window_system: system.clone(),
-            winit_window: winit_window,
+            winit_window,
             event_sub,
             event_pub: EventPub::new(),
             id: system.with_window_map_mut(|wmap| wmap.take_next_window_id()),
@@ -159,10 +159,7 @@ impl Window {
     }
 
     fn event_filter(event: &PlatformEvent) -> bool {
-        match event {
-            PlatformEvent::WindowResize(_) => true,
-            _ => false,
-        }
+        matches!(event, PlatformEvent::WindowResize(_))
     }
 }
 

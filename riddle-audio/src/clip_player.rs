@@ -217,18 +217,15 @@ impl ClipPlayer {
     /// # Ok(player) });
     /// ```
     pub fn resume(&mut self) {
-        match &self.sink {
-            Some(sink) => {
-                if sink.is_paused() {
-                    sink.play();
-                    self.fade_volume_with_type(
-                        self.volume,
-                        Duration::from_secs_f32(QUICK_FADE_DURATION_SECONDS),
-                        FadeType::Resume,
-                    );
-                }
+        if let Some(sink) = &self.sink {
+            if sink.is_paused() {
+                sink.play();
+                self.fade_volume_with_type(
+                    self.volume,
+                    Duration::from_secs_f32(QUICK_FADE_DURATION_SECONDS),
+                    FadeType::Resume,
+                );
             }
-            _ => (),
         }
     }
 
@@ -236,17 +233,14 @@ impl ClipPlayer {
     ///
     /// This is equivalent to calling [`ClipPlayer::pause`] and then dropping the player
     /// after the fade is complete
-    pub fn stop(mut self) -> () {
+    pub fn stop(mut self) {
         self.pause();
     }
 
     fn fade_volume_with_type(&mut self, volume: f32, duration: Duration, fade_type: FadeType) {
-        match &self.sink {
-            Some(sink) => {
-                let fade = Fade::new(sink.clone(), volume, duration, fade_type);
-                self.audio.register_fade(fade);
-            }
-            _ => (),
+        if let Some(sink) = &self.sink {
+            let fade = Fade::new(sink.clone(), volume, duration, fade_type);
+            self.audio.register_fade(fade);
         }
     }
 }

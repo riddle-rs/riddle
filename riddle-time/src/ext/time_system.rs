@@ -3,7 +3,7 @@ use crate::*;
 pub trait TimeSystemExt {
     /// Create a new time system. The time the system is created is used as the time
     /// of the 0th frame.
-    fn new() -> TimeSystemHandle;
+    fn new_shared() -> TimeSystemHandle;
 
     /// Update the time system state, marking the beginning of a the next frame.
     ///

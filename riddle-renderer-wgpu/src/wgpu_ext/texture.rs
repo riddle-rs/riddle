@@ -21,7 +21,7 @@ impl WGPUTexture {
         tex_type: TextureType,
     ) -> Result<WGPUTextureHandle> {
         let texture =
-            WGPUTexture::new(device, mag_filter, min_filter, tex_type, image.dimensions())?;
+            WGPUTexture::new_shared(device, mag_filter, min_filter, tex_type, image.dimensions())?;
 
         let texture_extent = wgpu::Extent3d {
             width: image.width(),
@@ -47,7 +47,7 @@ impl WGPUTexture {
         Ok(texture)
     }
 
-    pub fn new(
+    pub fn new_shared(
         device: &wgpu::Device,
         mag_filter: FilterMode,
         min_filter: FilterMode,

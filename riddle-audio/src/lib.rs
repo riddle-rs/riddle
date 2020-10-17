@@ -1,5 +1,6 @@
 #![feature(arc_new_cyclic)]
 #![feature(doc_cfg)]
+#![deny(clippy::all)]
 
 //! Riddle crate for loading and playing audio data.
 //!
@@ -41,7 +42,7 @@
 //! use riddle_audio::{ext::*, *};
 //!
 //! fn main() -> Result<(), AudioError> {
-//!     let (audio_system, _audio_main_thread_state) = AudioSystem::new()?;
+//!     let (audio_system, _audio_main_thread_state) = AudioSystem::new_shared()?;
 //!
 //!     // Load the clip
 //!     let clip_bytes = include_bytes!("../../example_assets/boop.wav");

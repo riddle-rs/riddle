@@ -1,3 +1,5 @@
+#![deny(clippy::all)]
+
 //! Riddle crate containing common utilities and types needed by platform implementations
 //! and which other crates can use to interact with a platform service without needing to
 //! know or genericize for the platform system type being used.

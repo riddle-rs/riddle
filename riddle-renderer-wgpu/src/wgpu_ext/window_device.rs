@@ -65,9 +65,8 @@ impl WindowWGPUDevice {
     fn handle_window_events(&self) {
         let mut dirty_swap_chain = false;
         for event in self.window_event_sub.collect().iter() {
-            match event {
-                PlatformEvent::WindowResize(_) => dirty_swap_chain = true,
-                _ => (),
+            if let PlatformEvent::WindowResize(_) = event {
+                dirty_swap_chain = true;
             }
         }
 
@@ -99,7 +98,7 @@ impl WindowWGPUDevice {
         Ok(())
     }
 
-    fn present_current_frame(&self) -> () {
+    fn present_current_frame(&self) {
         let mut frame = self.current_frame.lock().unwrap();
         *frame = None;
     }

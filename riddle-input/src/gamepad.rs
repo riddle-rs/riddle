@@ -72,7 +72,7 @@ impl std::convert::TryFrom<gilrs::Button> for GamePadButton {
             gilrs::Button::Start => GamePadButton::Start,
             gilrs::Button::Select => GamePadButton::Back,
 
-            _ => Err(button)?,
+            _ => return Err(button),
         })
     }
 }
@@ -120,7 +120,7 @@ impl std::convert::TryFrom<gilrs::Axis> for GamePadAxis {
             gilrs::Axis::LeftStickY => GamePadAxis::LeftStickY,
             gilrs::Axis::RightStickX => GamePadAxis::RightStickX,
             gilrs::Axis::RightStickY => GamePadAxis::RightStickY,
-            _ => Err(axis)?,
+            _ => return Err(axis),
         })
     }
 }

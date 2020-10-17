@@ -66,7 +66,7 @@ impl TimeSystem {
 }
 
 impl ext::TimeSystemExt for TimeSystem {
-    fn new() -> TimeSystemHandle {
+    fn new_shared() -> TimeSystemHandle {
         TimeSystemHandle::new(|weak_self| Self {
             weak_self,
             frame_time: Mutex::new(FrameTime::new()),

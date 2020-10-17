@@ -1,3 +1,5 @@
+#![deny(clippy::all)]
+
 //! Riddle crate for loading and manipulating image data in main memory.
 //!
 //! Built largely on the back of `::image` and its dependencies.

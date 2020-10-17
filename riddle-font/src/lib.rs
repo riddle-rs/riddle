@@ -1,3 +1,5 @@
+#![deny(clippy::all)]
+
 //! Riddle crate for loading font files and rendering text to riddle_image images.
 //!
 //! Built largely on the back of `rusttype` and its dependencies.

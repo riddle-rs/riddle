@@ -124,7 +124,7 @@ impl<Device: WGPUDevice> WGPUSprite<Device> {
     /// ```
     pub fn subsprite(&self, source_rect: &Rect<f32>) -> Self {
         let mut translated_source = source_rect.clone();
-        translated_source.location = translated_source.location + self.source_rect.location;
+        translated_source.location += self.source_rect.location;
 
         WGPUSprite {
             renderer: self.renderer.clone(),

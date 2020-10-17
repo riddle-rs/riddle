@@ -1,4 +1,5 @@
 #![feature(arc_new_cyclic)]
+#![deny(clippy::all)]
 
 //! Riddle crate supporting some basic game-centric time functionality.
 //!
@@ -43,21 +44,18 @@
 //! use riddle_time::{ext::*, *};
 //! use std::sync::{Arc, atomic::{AtomicBool, Ordering}};
 //!
-//! fn main() {
-//!     let time = TimeSystem::new();
+//! let time = TimeSystem::new_shared();
 //!
-//!     let quit_flag = Arc::new(AtomicBool::new(false));
-//!     time.register_timer(std::time::Duration::from_millis(200), {
-//!         let quit_flag = quit_flag.clone();
-//!         move || { quit_flag.store(true, Ordering::Relaxed); }
-//!     });
+//! let quit_flag = Arc::new(AtomicBool::new(false));
+//! time.register_timer(std::time::Duration::from_millis(200), {
+//!     let quit_flag = quit_flag.clone();
+//!     move || { quit_flag.store(true, Ordering::Relaxed); }
+//! });
 //!
-//!     while !quit_flag.load(Ordering::Relaxed) {
-//!         std::thread::sleep(std::time::Duration::from_millis(100));
-//!         time.process_frame();
-//!
-//!         // FPS: time.fps()
-//!     }
+//! while !quit_flag.load(Ordering::Relaxed) {
+//!     std::thread::sleep(std::time::Duration::from_millis(100));
+//!     time.process_frame();
+//!     // FPS: time.fps()
 //! }
 //! ```
 

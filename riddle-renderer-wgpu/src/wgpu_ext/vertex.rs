@@ -23,7 +23,7 @@ impl Vertex {
         Vertex {
             _pos: [pos.x, pos.y],
             _uv: uv.into(),
-            _color: color.clone(),
+            _color: *color,
         }
     }
 }

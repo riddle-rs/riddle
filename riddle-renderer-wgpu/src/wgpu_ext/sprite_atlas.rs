@@ -89,7 +89,7 @@ where
         for (img, sprite) in images {
             sprite_bounds.push((
                 Rect {
-                    location: Vector2 { x: x, y: 0 },
+                    location: Vector2 { x, y: 0 },
                     dimensions: img.dimensions(),
                 },
                 sprite,
@@ -118,5 +118,14 @@ where
         }
 
         Ok(())
+    }
+}
+
+impl<'a, Device> Default for WGPUSpriteAtlasBuilder<'a, Device>
+where
+    Device: WGPUDevice,
+{
+    fn default() -> Self {
+        Self::new()
     }
 }

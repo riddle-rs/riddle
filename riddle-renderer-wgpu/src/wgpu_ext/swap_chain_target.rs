@@ -8,7 +8,7 @@ pub(crate) struct SwapChainFrameTarget<'a, Device: WGPUDevice> {
 impl<'a, Device: WGPUDevice> SwapChainFrameTarget<'a, Device> {
     pub fn new(renderer: &'a WGPURenderer<Device>, dimensions: Vector2<f32>) -> Self {
         Self {
-            renderer: renderer,
+            renderer,
             dimensions,
         }
     }

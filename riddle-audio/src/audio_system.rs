@@ -36,7 +36,7 @@ impl AudioSystem {
 }
 
 impl ext::AudioSystemExt for AudioSystem {
-    fn new() -> Result<(AudioSystemHandle, AudioMainThreadState)> {
+    fn new_shared() -> Result<(AudioSystemHandle, AudioMainThreadState)> {
         let (stream, stream_handle) =
             rodio::OutputStream::try_default().map_err(|_| AudioError::InitFailed {
                 cause: "Failed to get rodio output device",

@@ -1,4 +1,5 @@
 #![feature(arc_new_cyclic)]
+#![deny(clippy::all)]
 
 //! Riddle simple sprite-based renderer built on `wgpu`.
 //!
