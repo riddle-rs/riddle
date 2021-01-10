@@ -23,6 +23,10 @@ impl MouseState {
     pub fn position(&self) -> LogicalPosition {
         self.logical_position
     }
+
+    pub fn is_button_down(&self, button: MouseButton) -> bool {
+        self.buttons.contains(&button)
+    }
 }
 
 impl Default for MouseState {

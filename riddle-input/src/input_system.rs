@@ -60,6 +60,37 @@ impl InputSystem {
         self.with_window_state(window, |w| w.mouse.position())
     }
 
+    /// Check if the specified mouse button is down with respect to a given window.
+    ///
+    /// If there is no state recorded for the mouse for the given window the result will
+    /// be false
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use riddle_input::{ext::*, *}; use riddle_common::eventpub::*; use riddle_platform_common::*;
+    /// # fn main() -> Result<(), InputError> {
+    /// # let platform_events: EventPub<PlatformEvent> = EventPub::new();
+    /// # let (input_system, mut main_thread_state) = InputSystem::new_shared(&platform_events)?;
+    /// # let window = WindowId::new(0);
+    /// // The initial mouse position is (0,0)
+    /// assert_eq!(false, input_system.is_mouse_button_down(window, MouseButton::Left));
+    ///
+    /// // The platform system emits cursor move events
+    /// // [..]
+    /// # platform_events.dispatch(PlatformEvent::MouseButtonDown {
+    /// #     window: WindowId::new(0),
+    /// #     button: MouseButton::Left});
+    /// # main_thread_state.process_input();
+    ///
+    /// // The reported mouse position has changed
+    /// assert_eq!(true, input_system.is_mouse_button_down(window, MouseButton::Left));
+    /// # Ok(()) }
+    /// ```
+    pub fn is_mouse_button_down(&self, window: WindowId, button: MouseButton) -> bool {
+        self.with_window_state(window, |w| w.mouse.is_button_down(button))
+    }
+
     /// Query the keyboard scancode state with respect to a given window. See
     /// [`Scancode`] for details on what a scancode represents.
     ///
