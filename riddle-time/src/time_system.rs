@@ -102,7 +102,7 @@ impl FrameTime {
     fn update(&mut self) {
         let now = std::time::Instant::now();
         self.frame_delta = now.duration_since(self.frame_instant);
-        self.fps = 1.0 / self.frame_delta.as_secs_f32().max(0.001);
+        self.fps = 1.0 / self.frame_delta.as_secs_f32().max(0.0001);
         self.frame_instant = now;
     }
 }
