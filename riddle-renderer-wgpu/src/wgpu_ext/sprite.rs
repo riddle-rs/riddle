@@ -80,6 +80,7 @@ impl<Device: WGPUDevice> WGPUSprite<Device> {
         )
     }
 
+    #[allow(clippy::unnecessary_wraps)]
     pub(crate) fn from_texture_with_bounds(
         renderer: &WGPURenderer<Device>,
         texture: &WGPUTexture,

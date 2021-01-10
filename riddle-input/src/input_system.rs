@@ -309,14 +309,14 @@ impl InputSystem {
     }
 
     fn event_filter(event: &PlatformEvent) -> bool {
-        match event {
-            PlatformEvent::CursorMove { .. } => true,
-            PlatformEvent::MouseButtonUp { .. } => true,
-            PlatformEvent::MouseButtonDown { .. } => true,
-            PlatformEvent::KeyUp { .. } => true,
-            PlatformEvent::KeyDown { .. } => true,
-            _ => false,
-        }
+        matches!(
+            event,
+            PlatformEvent::CursorMove { .. }
+                | PlatformEvent::MouseButtonUp { .. }
+                | PlatformEvent::MouseButtonDown { .. }
+                | PlatformEvent::KeyUp { .. }
+                | PlatformEvent::KeyDown { .. }
+        )
     }
 
     fn send_input_event(&self, event: InputEvent) {
