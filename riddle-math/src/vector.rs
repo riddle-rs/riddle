@@ -166,13 +166,10 @@ impl<T: SpacialNumericConversion<f32>> From<Vector2<T>> for glam::Vec2 {
     }
 }
 
-impl<T: SpacialNumeric> Into<mint::Vector2<T>> for Vector2<T> {
+impl<T: SpacialNumeric> From<Vector2<T>> for mint::Vector2<T> {
     #[inline]
-    fn into(self) -> mint::Vector2<T> {
-        mint::Vector2 {
-            x: self.x,
-            y: self.y,
-        }
+    fn from(vec: Vector2<T>) -> Self {
+        mint::Vector2 { x: vec.x, y: vec.y }
     }
 }
 
