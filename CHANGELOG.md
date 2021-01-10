@@ -21,5 +21,6 @@
 * **breaking**: Add clippy to the CI, and fix a variety of issues. Visible change is `new` methods which return a handle
     type have been renamed `new_shared`.
 * time: Reduce the minimum frame dt, previously set equivalent max FPS as 1000FPS, now 10,000FPS
+* input: Add `InputSystem::is_mouse_button_down`
 
 ## 0.1.0 - Initial Release
