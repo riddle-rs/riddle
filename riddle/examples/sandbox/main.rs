@@ -19,7 +19,7 @@ struct DemoState {
 
     clip: audio::Clip,
     music_player: audio::ClipPlayer,
-    blip_player: Option<audio::ClipPlayer>,
+    _blip_player: Option<audio::ClipPlayer>,
 }
 
 impl DemoState {
@@ -110,12 +110,12 @@ impl DemoState {
 
             clip,
             music_player,
-            blip_player: None,
+            _blip_player: None,
         })
     }
 
     pub fn on_mouse_down(&mut self) -> Result<(), RiddleError> {
-        self.blip_player = Some(
+        self._blip_player = Some(
             audio::ClipPlayerBuilder::new(&self.state.audio())
                 .with_mode(audio::PlayMode::OneShot)
                 .play(&self.clip)?,

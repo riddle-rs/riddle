@@ -24,5 +24,4 @@
 * input: Add `InputSystem::is_mouse_button_down`
 * **breaking** riddle: Update dependencies (winit, glam, gilrs, rodio)
 
-
 ## 0.1.0 - Initial Release
