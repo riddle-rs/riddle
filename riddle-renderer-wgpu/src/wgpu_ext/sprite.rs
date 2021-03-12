@@ -53,14 +53,14 @@ impl<Device: WGPUDevice> WGPUSprite<Device> {
         min_filter: FilterMode,
     ) -> Result<Self> {
         let texture = renderer.wgpu_device().with_device_info(|info| {
-            Ok(WGPUTexture::from_image(
+            WGPUTexture::from_image(
                 info.device,
                 info.queue,
                 img,
                 mag_filter,
                 min_filter,
                 TextureType::Plain,
-            )?)
+            )
         })?;
         Self::from_texture(renderer, &texture)
     }
