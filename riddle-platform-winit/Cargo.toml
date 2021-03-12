@@ -13,7 +13,7 @@ riddle-platform-common = {path = "../riddle-platform-common"}
 raw-window-handle = "0.3"
 thiserror = "1.0"
 
-winit = { version="0.23", git = "https://github.com/vickles/winit/", branch="riddle0.2.0" }
+winit = "0.24"
 
 [dev-dependencies]
 riddle = {path = "../riddle"}
