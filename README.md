@@ -55,6 +55,7 @@ such as `mint`, and `raw-window-handle`.
 Since the crate isn't on crates.io docs are hosted on Github Pages:
 
 * **master**: [Link](https://vickles.github.io/riddle/master/riddle)
+* **0.2.0**: [Link](https://vickles.github.io/riddle/0.2.0/riddle)
 * **0.1.0**: [Link](https://vickles.github.io/riddle/0.1.0/riddle)
 
 ## Cargo Features
@@ -70,16 +71,16 @@ Add a git dependency in your cargo.toml to the most recent release _[note 2]_:
 
 ```toml
 [dependencies.riddle]
-version = "0.1"
+version = "0.2"
 git = "https://github.com/vickles/riddle/"
-tag = "0.1.0"
+tag = "0.2.0"
 ```
 
 If you want to use the bleeding edge insert the following in to your cargo.toml:
 
 ```toml
 [dependencies.riddle]
-version = "0.2.0-dev"
+version = "0.2.0"
 git = "https://github.com/vickles/riddle/"
 branch = "master"
 ```

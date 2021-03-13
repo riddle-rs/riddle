@@ -1,6 +1,6 @@
 [package]
 name = "riddle-renderer-wgpu"
-version = "0.2.0-dev"
+version = "0.2.0"
 authors = ["vickles <vicklesort@gmail.com>"]
 edition = "2018"
 

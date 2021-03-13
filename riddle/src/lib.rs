@@ -51,7 +51,7 @@
 //!
 //! ```text
 //! [dependencies.riddle]
-//! version = 0.2.0-dev
+//! version = 0.2.0
 //! git = "https://github.com/vickles/riddle/"
 //! branch = "master"
 //! ```

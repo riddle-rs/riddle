@@ -396,7 +396,7 @@ impl Default for WindowInputState {
 
 /// The portion of the input system that needs to remain on a single thread.
 ///
-/// Constructed paired with its thread-safe counterpart via [`ext::InputSystemExt::new`].
+/// Constructed paired with its thread-safe counterpart via [`ext::InputSystemExt::new_shared`].
 pub struct InputMainThreadState {
     system: InputSystemHandle,
 
