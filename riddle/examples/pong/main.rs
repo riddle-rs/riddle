@@ -25,7 +25,7 @@ struct Pong {
     state: RiddleState,
 
     clip: audio::Clip,
-    clip_player: Option<audio::ClipPlayer>,
+    _clip_player: Option<audio::ClipPlayer>,
 
     left_paddle: Rect<f32>,
     right_paddle: Rect<f32>,
@@ -53,7 +53,7 @@ impl Pong {
             renderer,
             state: rdl.state().clone(),
             clip,
-            clip_player: None,
+            _clip_player: None,
             left_paddle: Rect::new(vec2(20.0, 0.0), vec2(20.0, 60.0)),
             right_paddle: Rect::new(vec2(760.0, 0.0), vec2(20.0, 60.0)),
             ball: Rect::new(vec2(395.0, 295.0), vec2(10.0, 10.0)),
@@ -117,7 +117,7 @@ impl Pong {
         }
 
         if bounced {
-            self.clip_player = Some(
+            self._clip_player = Some(
                 audio::ClipPlayerBuilder::new(self.state.audio())
                     .with_mode(audio::PlayMode::OneShot)
                     .play(&self.clip)?,

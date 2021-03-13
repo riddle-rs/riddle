@@ -37,13 +37,13 @@ where
     /// Create a new render target with the specified dimensions
     pub fn new(renderer: &WGPURenderer<Device>, dimensions: Vector2<u32>) -> Result<Self> {
         let texture = renderer.wgpu_device().with_device_info(|info| {
-            Ok(WGPUTexture::new_shared(
+            WGPUTexture::new_shared(
                 info.device,
                 FilterMode::Linear,
                 FilterMode::Linear,
                 TextureType::RenderTarget,
                 dimensions,
-            )?)
+            )
         })?;
 
         let sprite = WGPUSprite::from_texture(renderer, &texture)?;

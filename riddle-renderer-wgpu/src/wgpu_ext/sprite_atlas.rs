@@ -99,14 +99,14 @@ where
         }
 
         let texture = renderer.wgpu_device().with_device_info(|info| {
-            Ok(WGPUTexture::from_image(
+            WGPUTexture::from_image(
                 info.device,
                 info.queue,
                 atlas,
                 mag_filter,
                 min_filter,
                 TextureType::Plain,
-            )?)
+            )
         })?;
 
         for (bounds, sprite) in sprite_bounds {

@@ -153,8 +153,8 @@ where
     #[inline]
     fn from(v: glam::Vec2) -> Self {
         Self {
-            x: v.x().convert(),
-            y: v.y().convert(),
+            x: v.x.convert(),
+            y: v.y.convert(),
         }
     }
 }

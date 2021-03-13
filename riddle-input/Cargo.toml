@@ -11,7 +11,7 @@ riddle-common = {path = "../riddle-common"}
 riddle-platform-common = {path = "../riddle-platform-common"}
 
 bitflags = "1.2.1"
-gilrs = "0.7.4"
+gilrs = "0.8"
 thiserror = "1.0"
 
 [dev-dependencies]
