@@ -23,14 +23,13 @@ impl WindowWGPUDevice {
 
         let adapter =
             futures::executor::block_on(instance.request_adapter(&wgpu::RequestAdapterOptions {
-                power_preference: wgpu::PowerPreference::Default,
+                power_preference: wgpu::PowerPreference::HighPerformance,
                 compatible_surface: Some(&surface),
             }))
             .ok_or(RendererError::APIInitError("Failed to get WGPU adapter"))?;
 
         let (device, queue) = futures::executor::block_on(adapter.request_device(
             &wgpu::DeviceDescriptor {
-                shader_validation: true,
                 ..Default::default()
             },
             None,
@@ -39,7 +38,7 @@ impl WindowWGPUDevice {
 
         let (width, height) = window.physical_size();
         let sc_desc = wgpu::SwapChainDescriptor {
-            usage: wgpu::TextureUsage::OUTPUT_ATTACHMENT,
+            usage: wgpu::TextureUsage::RENDER_ATTACHMENT,
             format: wgpu::TextureFormat::Bgra8UnormSrgb,
             width,
             height,
@@ -73,7 +72,7 @@ impl WindowWGPUDevice {
         if dirty_swap_chain {
             let (width, height) = self.window.physical_size();
             let sc_desc = wgpu::SwapChainDescriptor {
-                usage: wgpu::TextureUsage::OUTPUT_ATTACHMENT,
+                usage: wgpu::TextureUsage::RENDER_ATTACHMENT,
                 format: wgpu::TextureFormat::Bgra8UnormSrgb,
                 width,
                 height,
@@ -86,7 +85,7 @@ impl WindowWGPUDevice {
     }
 
     fn ensure_current_frame(&self) -> Result<()> {
-        let mut swap_chain = self.swap_chain.lock().unwrap();
+        let swap_chain = self.swap_chain.lock().unwrap();
         let mut frame = self.current_frame.lock().unwrap();
 
         let new_frame = swap_chain

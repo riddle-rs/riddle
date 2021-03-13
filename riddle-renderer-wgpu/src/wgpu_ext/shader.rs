@@ -24,15 +24,23 @@ impl WGPUShader {
     {
         let mut vs_buf = vec![];
         vs.read_to_end(&mut vs_buf).map_err(CommonError::IOError)?;
-        let vs_module = device.create_shader_module(wgpu::ShaderModuleSource::SpirV(
-            std::borrow::Cow::from(bytemuck::cast_slice(&vs_buf)),
-        ));
+        let vs_module = device.create_shader_module(&wgpu::ShaderModuleDescriptor {
+            source: wgpu::ShaderSource::SpirV(std::borrow::Cow::from(bytemuck::cast_slice(
+                &vs_buf,
+            ))),
+            flags: wgpu::ShaderFlags::VALIDATION,
+            label: None,
+        });
 
         let mut fs_buf = vec![];
         fs.read_to_end(&mut fs_buf).map_err(CommonError::IOError)?;
-        let fs_module = device.create_shader_module(wgpu::ShaderModuleSource::SpirV(
-            std::borrow::Cow::from(bytemuck::cast_slice(&fs_buf)),
-        ));
+        let fs_module = device.create_shader_module(&wgpu::ShaderModuleDescriptor {
+            source: wgpu::ShaderSource::SpirV(std::borrow::Cow::from(bytemuck::cast_slice(
+                &fs_buf,
+            ))),
+            flags: wgpu::ShaderFlags::VALIDATION,
+            label: None,
+        });
 
         let vertex_size = std::mem::size_of::<Vertex>();
 
@@ -41,8 +49,9 @@ impl WGPUShader {
                 wgpu::BindGroupLayoutEntry {
                     binding: 0,
                     visibility: wgpu::ShaderStage::VERTEX,
-                    ty: wgpu::BindingType::UniformBuffer {
-                        dynamic: false,
+                    ty: wgpu::BindingType::Buffer {
+                        has_dynamic_offset: false,
+                        ty: wgpu::BufferBindingType::Uniform,
                         min_binding_size: wgpu::BufferSize::new(64),
                     },
                     count: None,
@@ -50,17 +59,20 @@ impl WGPUShader {
                 wgpu::BindGroupLayoutEntry {
                     binding: 1,
                     visibility: wgpu::ShaderStage::FRAGMENT,
-                    ty: wgpu::BindingType::SampledTexture {
+                    ty: wgpu::BindingType::Texture {
                         multisampled: false,
-                        component_type: wgpu::TextureComponentType::Float,
-                        dimension: wgpu::TextureViewDimension::D2,
+                        sample_type: wgpu::TextureSampleType::Float { filterable: true },
+                        view_dimension: wgpu::TextureViewDimension::D2,
                     },
                     count: None,
                 },
                 wgpu::BindGroupLayoutEntry {
                     binding: 2,
                     visibility: wgpu::ShaderStage::FRAGMENT,
-                    ty: wgpu::BindingType::Sampler { comparison: false },
+                    ty: wgpu::BindingType::Sampler {
+                        filtering: true,
+                        comparison: false,
+                    },
                     count: None,
                 },
             ],
@@ -75,52 +87,24 @@ impl WGPUShader {
         let render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
             label: None,
             layout: Some(&pipeline_layout),
-            vertex_stage: wgpu::ProgrammableStageDescriptor {
+            vertex: wgpu::VertexState {
                 module: &vs_module,
                 entry_point: "main",
-            },
-            fragment_stage: Some(wgpu::ProgrammableStageDescriptor {
-                module: &fs_module,
-                entry_point: "main",
-            }),
-            rasterization_state: Some(wgpu::RasterizationStateDescriptor {
-                front_face: wgpu::FrontFace::Ccw,
-                cull_mode: wgpu::CullMode::None,
-                ..Default::default()
-            }),
-            primitive_topology: primitive_type,
-            color_states: &[wgpu::ColorStateDescriptor {
-                format: wgpu::TextureFormat::Bgra8UnormSrgb,
-                color_blend: wgpu::BlendDescriptor {
-                    src_factor: wgpu::BlendFactor::SrcAlpha,
-                    dst_factor: wgpu::BlendFactor::OneMinusSrcAlpha,
-                    operation: wgpu::BlendOperation::Add,
-                },
-                alpha_blend: wgpu::BlendDescriptor {
-                    src_factor: wgpu::BlendFactor::One,
-                    dst_factor: wgpu::BlendFactor::One,
-                    operation: wgpu::BlendOperation::Add,
-                },
-                write_mask: wgpu::ColorWrite::ALL,
-            }],
-            depth_stencil_state: None,
-            vertex_state: wgpu::VertexStateDescriptor {
-                index_format: wgpu::IndexFormat::Uint16,
-                vertex_buffers: &[wgpu::VertexBufferDescriptor {
-                    stride: vertex_size as wgpu::BufferAddress,
+                buffers: &[wgpu::VertexBufferLayout {
+                    array_stride: vertex_size as wgpu::BufferAddress,
                     step_mode: wgpu::InputStepMode::Vertex,
                     attributes: &[
-                        wgpu::VertexAttributeDescriptor {
+                        wgpu::VertexAttribute {
                             format: wgpu::VertexFormat::Float2,
                             offset: 0,
                             shader_location: 0,
                         },
-                        wgpu::VertexAttributeDescriptor {
+                        wgpu::VertexAttribute {
                             format: wgpu::VertexFormat::Float2,
                             offset: (std::mem::size_of::<f32>() * 2) as u64,
                             shader_location: 1,
                         },
-                        wgpu::VertexAttributeDescriptor {
+                        wgpu::VertexAttribute {
                             format: wgpu::VertexFormat::Float4,
                             offset: (std::mem::size_of::<f32>() * 4) as u64,
                             shader_location: 2,
@@ -128,9 +112,37 @@ impl WGPUShader {
                     ],
                 }],
             },
-            sample_count: 1,
-            sample_mask: !0,
-            alpha_to_coverage_enabled: false,
+            fragment: Some(wgpu::FragmentState {
+                module: &fs_module,
+                entry_point: "main",
+                targets: &[wgpu::ColorTargetState {
+                    format: wgpu::TextureFormat::Bgra8UnormSrgb,
+                    color_blend: wgpu::BlendState {
+                        src_factor: wgpu::BlendFactor::SrcAlpha,
+                        dst_factor: wgpu::BlendFactor::OneMinusSrcAlpha,
+                        operation: wgpu::BlendOperation::Add,
+                    },
+                    alpha_blend: wgpu::BlendState {
+                        src_factor: wgpu::BlendFactor::One,
+                        dst_factor: wgpu::BlendFactor::One,
+                        operation: wgpu::BlendOperation::Add,
+                    },
+                    write_mask: wgpu::ColorWrite::ALL,
+                }],
+            }),
+            primitive: wgpu::PrimitiveState {
+                topology: primitive_type,
+                strip_index_format: None,
+                front_face: wgpu::FrontFace::Ccw,
+                cull_mode: wgpu::CullMode::None,
+                polygon_mode: wgpu::PolygonMode::Fill,
+            },
+            depth_stencil: None,
+            multisample: wgpu::MultisampleState {
+                count: 1,
+                mask: !0,
+                alpha_to_coverage_enabled: false,
+            },
         });
 
         Ok(WGPUShaderHandle::new(|weak_self| Self {
@@ -164,7 +176,11 @@ impl WGPUShader {
             entries: &[
                 wgpu::BindGroupEntry {
                     binding: 0,
-                    resource: wgpu::BindingResource::Buffer(camera_uniform.slice(..)),
+                    resource: wgpu::BindingResource::Buffer {
+                        buffer: &camera_uniform,
+                        offset: 0,
+                        size: None,
+                    },
                 },
                 wgpu::BindGroupEntry {
                     binding: 1,
@@ -199,6 +215,7 @@ impl WGPUShader {
                 },
             }],
             depth_stencil_attachment: None,
+            label: None,
         });
         rpass.set_pipeline(&self.pipeline);
         rpass

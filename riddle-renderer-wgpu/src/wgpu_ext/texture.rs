@@ -65,7 +65,7 @@ impl WGPUTexture {
             TextureType::RenderTarget => {
                 wgpu::TextureUsage::SAMPLED
                     | wgpu::TextureUsage::COPY_DST
-                    | wgpu::TextureUsage::OUTPUT_ATTACHMENT
+                    | wgpu::TextureUsage::RENDER_ATTACHMENT
             }
         };
 
