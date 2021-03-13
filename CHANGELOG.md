@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+* renderer: Update wgpu to 0.7
+
 ## 0.2.0
 
 * **breaking** image, font, audio: Standardize naming convention for asset loading, renaming methods

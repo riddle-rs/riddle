@@ -83,6 +83,7 @@ where
                     },
                 }],
                 depth_stencil_attachment: None,
+                label: None,
             });
             Ok(())
         })
@@ -148,7 +149,7 @@ where
                 rpass.set_bind_group(0, &bind_group, &[]);
 
                 rpass.set_vertex_buffer(0, vertex_buf.slice(..));
-                rpass.set_index_buffer(index_buf.slice(..));
+                rpass.set_index_buffer(index_buf.slice(..), wgpu::IndexFormat::Uint16);
                 rpass.draw_indexed(0..indices_len, 0, 0..1);
                 Ok(())
             })?;
