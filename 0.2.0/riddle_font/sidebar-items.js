@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["FontError",""]],"mod":[["rusttype_ext","Traits which expose underlying rusttype crates types"]],"struct":[["TTFont","Represents a parsed TTF file, and facilitates simple rendering"]]});
