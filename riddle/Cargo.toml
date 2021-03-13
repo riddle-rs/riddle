@@ -1,6 +1,6 @@
 [package]
 name = "riddle"
-version = "0.2.0-dev"
+version = "0.2.0"
 authors = ["vickles <vicklesort@gmail.com>"]
 edition = "2018"
 license = "MIT OR Apache-2.0"
@@ -12,15 +12,15 @@ riddle-renderer = ["riddle-renderer-wgpu"]
 riddle-mp3 = ["riddle-audio/riddle-mp3"]
 
 [dependencies]
-riddle-audio = {version = "0.2.0-dev", path = "../riddle-audio", optional = true}
-riddle-common = {version = "0.2.0-dev", path = "../riddle-common"}
-riddle-font = {version = "0.2.0-dev", path = "../riddle-font", optional = true}
-riddle-image = {version = "0.2.0-dev", path = "../riddle-image"}
-riddle-input = {version = "0.2.0-dev", path = "../riddle-input"}
-riddle-math = {version = "0.2.0-dev", path = "../riddle-math"}
-riddle-renderer-wgpu = {version = "0.2.0-dev", path = "../riddle-renderer-wgpu", optional = true}
-riddle-time = {version = "0.2.0-dev", path = "../riddle-time"}
-riddle-platform-winit = {version = "0.2.0-dev", path = "../riddle-platform-winit"}
+riddle-audio = {version = "0.2.0", path = "../riddle-audio", optional = true}
+riddle-common = {version = "0.2.0", path = "../riddle-common"}
+riddle-font = {version = "0.2.0", path = "../riddle-font", optional = true}
+riddle-image = {version = "0.2.0", path = "../riddle-image"}
+riddle-input = {version = "0.2.0", path = "../riddle-input"}
+riddle-math = {version = "0.2.0", path = "../riddle-math"}
+riddle-renderer-wgpu = {version = "0.2.0", path = "../riddle-renderer-wgpu", optional = true}
+riddle-time = {version = "0.2.0", path = "../riddle-time"}
+riddle-platform-winit = {version = "0.2.0", path = "../riddle-platform-winit"}
 
 thiserror = "1.0"
 
