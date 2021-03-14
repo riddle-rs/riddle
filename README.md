@@ -80,7 +80,7 @@ If you want to use the bleeding edge insert the following in to your cargo.toml:
 
 ```toml
 [dependencies.riddle]
-version = "0.2.0"
+version = "0.3.0-dev"
 git = "https://github.com/vickles/riddle/"
 branch = "master"
 ```
