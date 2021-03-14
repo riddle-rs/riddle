@@ -22,11 +22,13 @@
 mod error;
 mod image;
 mod imageview;
+pub mod packer;
 
 pub mod image_ext;
 
 pub use self::image::*;
 pub use error::*;
+pub use packer::ImagePacker;
 pub use riddle_common::Color;
 
 use self::imageview::*;

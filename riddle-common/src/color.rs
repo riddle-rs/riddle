@@ -159,7 +159,7 @@ impl<E: ColorElement> Color<E> {
         a: E::ZERO,
     };
 
-    //// Build a color using all 4 channels.
+    /// Build a color using all 4 channels.
     ///
     /// # Example
     ///
@@ -172,7 +172,7 @@ impl<E: ColorElement> Color<E> {
         Self { r, g, b, a }
     }
 
-    //// Build an opaque color using rgb channels.
+    /// Build an opaque color using rgb channels.
     ///
     /// # Example
     ///
@@ -189,6 +189,25 @@ impl<E: ColorElement> Color<E> {
             b,
             a: E::SATURATED,
         }
+    }
+}
+
+impl Color<u8> {
+    /// Convert the color in to an RGBA32.
+    ///
+    /// Note that casting this value to a &[u8] will result in platform dependent component
+    /// ordering.
+    ///
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use riddle_common::*;
+    /// let c = Color::rgb(0, 255, 0);
+    /// assert_eq!(0x00FF00FF, c.to_rgba8());
+    /// ```
+    pub fn to_rgba8(self) -> u32 {
+        (self.r as u32) << 24 | (self.g as u32) << 16 | (self.b as u32) << 8 | (self.a as u32)
     }
 }
 

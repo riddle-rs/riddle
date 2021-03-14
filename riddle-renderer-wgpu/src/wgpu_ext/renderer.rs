@@ -125,11 +125,11 @@ impl<Device: WGPUDevice> WGPURenderer<Device> {
             )?;
 
             let mut white_img = image::Image::new(1, 1);
-            white_img.set_pixel(0, 0, Color::from([0xFF; 4]));
+            white_img.set_pixel([0, 0], Color::from([0xFF; 4]));
             let white_tex = WGPUTexture::from_image(
                 info.device,
                 info.queue,
-                white_img,
+                &white_img,
                 FilterMode::Nearest,
                 FilterMode::Nearest,
                 TextureType::Plain,

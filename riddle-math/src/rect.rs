@@ -1,7 +1,7 @@
 use crate::*;
 
 /// An axis aligned 2d rectangle with both a location and size.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 #[repr(C)]
 pub struct Rect<T> {
     /// The coordinates of the min point of the rectangle.

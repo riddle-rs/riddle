@@ -15,7 +15,7 @@ impl WGPUTexture {
     pub fn from_image(
         device: &wgpu::Device,
         queue: &wgpu::Queue,
-        image: image::Image,
+        image: &image::Image,
         mag_filter: FilterMode,
         min_filter: FilterMode,
         tex_type: TextureType,
