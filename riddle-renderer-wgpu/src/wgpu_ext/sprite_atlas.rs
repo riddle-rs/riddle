@@ -31,9 +31,6 @@ pub struct WGPUSpriteAtlasBuilder<'a, Device: WGPUDevice> {
 
     mag_filter: FilterMode,
     min_filter: FilterMode,
-
-    max_height: u32,
-    total_width: u32,
 }
 
 impl<'a, Device> WGPUSpriteAtlasBuilder<'a, Device>
@@ -44,8 +41,6 @@ where
     pub fn new() -> Self {
         Self {
             images: vec![],
-            max_height: 0,
-            total_width: 0,
             mag_filter: Default::default(),
             min_filter: Default::default(),
         }
@@ -58,8 +53,6 @@ where
         img: image::Image,
         sprite: &'a mut Option<WGPUSprite<Device>>,
     ) -> Self {
-        self.total_width += img.width();
-        self.max_height = self.max_height.max(img.height());
         self.images.push((img, sprite));
         self
     }
@@ -75,45 +68,32 @@ where
     /// `Option<Sprite>` references.
     pub fn build(self, renderer: &WGPURenderer<Device>) -> Result<()> {
         let WGPUSpriteAtlasBuilder {
-            images,
+            mut images,
             mag_filter,
             min_filter,
-            total_width,
-            max_height,
         } = self;
 
-        let mut atlas = image::Image::new(total_width, max_height);
-        let mut sprite_bounds = vec![];
-        let mut x = 0;
-
-        for (img, sprite) in images {
-            sprite_bounds.push((
-                Rect {
-                    location: Vector2 { x, y: 0 },
-                    dimensions: img.dimensions(),
-                },
-                sprite,
-            ));
-            atlas.blit(&img, Vector2 { x, y: 0 }.convert());
-            x += img.width();
-        }
+        let packing_images: Vec<&image::Image> = images.iter().map(|(img, _)| img).collect();
+        let packed = image::ImagePacker::new()
+            .pack(&packing_images[..])
+            .map_err(|_| RendererError::Unknown)?;
 
         let texture = renderer.wgpu_device().with_device_info(|info| {
             WGPUTexture::from_image(
                 info.device,
                 info.queue,
-                atlas,
+                packed.image(),
                 mag_filter,
                 min_filter,
                 TextureType::Plain,
             )
         })?;
 
-        for (bounds, sprite) in sprite_bounds {
-            *sprite = Some(WGPUSprite::from_texture_with_bounds(
+        for ((_, output), rect) in images.iter_mut().zip(packed.rects().iter()) {
+            **output = Some(WGPUSprite::from_texture_with_bounds(
                 renderer,
                 &texture,
-                bounds.convert(),
+                rect.clone().convert(),
             )?);
         }
 

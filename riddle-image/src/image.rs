@@ -8,7 +8,7 @@ use std::io::{BufReader, Cursor, Read};
 
 /// A representation of an image stored in main memory. The image is stored
 /// as RGBA32.
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Image {
     img: ::image::RgbaImage,
 }
@@ -104,10 +104,11 @@ impl Image {
     /// ```
     /// # use riddle_image::*;
     /// let img = Image::new(1,1);
-    /// assert_eq!(Color::rgba(0,0,0,0), img.get_pixel(0, 0));
+    /// assert_eq!(Color::rgba(0,0,0,0), img.get_pixel([0, 0]));
     /// ```
-    pub fn get_pixel(&self, x: u32, y: u32) -> Color<u8> {
-        let c: ::image::Rgba<u8> = *self.img.get_pixel(x, y);
+    pub fn get_pixel<L: Into<Vector2<u32>>>(&self, location: L) -> Color<u8> {
+        let location = location.into();
+        let c: ::image::Rgba<u8> = *self.img.get_pixel(location.x, location.y);
         Color::rgba(c[0], c[1], c[2], c[3])
     }
 
@@ -118,13 +119,18 @@ impl Image {
     /// ```
     /// # use riddle_image::*;
     /// let mut img = Image::new(1,1);
-    /// img.set_pixel(0, 0, Color::rgba(1.0, 0.0, 0.0, 1.0));
-    /// assert_eq!(Color::rgba(255,0,0,255), img.get_pixel(0, 0));
+    /// img.set_pixel([0, 0], Color::rgba(1.0, 0.0, 0.0, 1.0));
+    /// assert_eq!(Color::rgba(255,0,0,255), img.get_pixel([0, 0]));
     /// ```
-    pub fn set_pixel<C: ColorElementConversion<Color<u8>>>(&mut self, x: u32, y: u32, color: C) {
+    pub fn set_pixel<L: Into<Vector2<u32>>, C: ColorElementConversion<Color<u8>>>(
+        &mut self,
+        location: L,
+        color: C,
+    ) {
         let color: Color<u8> = color.convert();
         let color: [u8; 4] = color.into();
-        self.img.put_pixel(x, y, color.into());
+        let location = location.into();
+        self.img.put_pixel(location.x, location.y, color.into());
     }
 
     /// Borrow the bytes representing the entire image, encoded as RGBA8
@@ -149,7 +155,7 @@ impl Image {
     /// let mut img = Image::new(1,1);
     /// let bytes = img.as_rgba8_mut();
     /// bytes[0] = 0xFF;
-    /// assert_eq!(Color::rgba(255, 0, 0, 0), img.get_pixel(0,0));
+    /// assert_eq!(Color::rgba(255, 0, 0, 0), img.get_pixel([0, 0]));
     /// ```
     pub fn as_rgba8_mut(&mut self) -> &mut [u8] {
         self.img.as_mut()
@@ -233,13 +239,13 @@ impl Image {
     /// ```
     /// # use riddle_image::*; use riddle_math::*;
     /// let mut source = Image::new(1,1);
-    /// source.set_pixel(0, 0, Color::<u8>::RED);
+    /// source.set_pixel([0, 0], Color::<u8>::RED);
     ///
     /// let mut dest = Image::new(2,1);
     /// dest.blit(&source, Vector2::new(1, 0));
     ///
-    /// assert_eq!(Color::ZERO, dest.get_pixel(0,0));
-    /// assert_eq!(Color::RED, dest.get_pixel(1, 0));
+    /// assert_eq!(Color::ZERO, dest.get_pixel([0, 0]));
+    /// assert_eq!(Color::RED, dest.get_pixel([1, 0]));
     /// ```
     pub fn blit(&mut self, source: &Image, location: Vector2<i32>) {
         if let Some((dest_rect, src_rect)) =
@@ -255,6 +261,53 @@ impl Image {
                 dest.clone_from_slice(src);
             }
         }
+    }
+
+    /// Fill a rect portion of the image with a given color.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use riddle_image::*; use riddle_math::*;
+    /// let mut img = Image::new(2,2);
+    /// img.fill_rect(Rect::new([0, 0], [2, 1]), Color::<u8>::RED);
+    /// img.fill_rect(Rect::new([1, 0], [1, 2]), Color::<u8>::GREEN);
+    ///
+    /// assert_eq!(Color::RED, img.get_pixel([0, 0]));
+    /// assert_eq!(Color::ZERO, img.get_pixel([0, 1]));
+    /// assert_eq!(Color::GREEN, img.get_pixel([1, 0]));
+    /// assert_eq!(Color::GREEN, img.get_pixel([1, 1]));
+    /// ```
+    pub fn fill_rect<C: ColorElementConversion<Color<u8>>>(&mut self, rect: Rect<u32>, color: C) {
+        if let Some(dest_rect) = self.rect().intersect(&rect) {
+            let color_bytes: [u8; 4] = color.convert().into();
+            let mut row_vec = Vec::with_capacity(dest_rect.dimensions.x as usize * 4);
+            for _ in 0..dest_rect.dimensions.x {
+                row_vec.extend_from_slice(&color_bytes[..]);
+            }
+
+            let mut dest_view = self.create_view_mut(dest_rect.clone().convert());
+            for row_idx in 0..(dest_rect.dimensions.y as u32) {
+                let dest = dest_view.get_row_rgba8_mut(row_idx);
+                dest.clone_from_slice(bytemuck::cast_slice(&row_vec[..]));
+            }
+        }
+    }
+
+    /// Fill the entire image with a certain color.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use riddle_image::*; use riddle_math::*;
+    /// let mut img = Image::new(2,2);
+    /// img.fill(Color::<u8>::RED);
+    ///
+    /// assert_eq!(Color::RED, img.get_pixel([0, 0]));
+    /// assert_eq!(Color::RED, img.get_pixel([1, 1]));
+    /// ```
+    pub fn fill<C: ColorElementConversion<Color<u8>>>(&mut self, color: C) {
+        self.fill_rect(self.rect(), color)
     }
 
     pub(crate) fn create_view(&self, rect: Rect<u32>) -> ImageView {

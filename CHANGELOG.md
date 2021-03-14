@@ -4,6 +4,9 @@
 
 * renderer: Update wgpu to 0.7.
 * renderer: Convert shaders to wgsl.
+* **breaking** image: Use a Vector2 arg instead of x,y arg pairs for several functions.
+* image: Add `ImagePacker` to provide decent sprite packing.
+* renderer: Convert `SpriteAtlasBuilder` to use `image::ImagePacker`.
 
 ## 0.2.0
 

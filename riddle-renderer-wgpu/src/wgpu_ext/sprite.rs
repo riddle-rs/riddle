@@ -56,7 +56,7 @@ impl<Device: WGPUDevice> WGPUSprite<Device> {
             WGPUTexture::from_image(
                 info.device,
                 info.queue,
-                img,
+                &img,
                 mag_filter,
                 min_filter,
                 TextureType::Plain,

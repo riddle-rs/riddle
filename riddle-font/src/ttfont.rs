@@ -96,8 +96,10 @@ impl TTFont {
                 glyph.draw(|x, y, v| {
                     let b = (255.0 * v) as u8;
                     img.set_pixel(
-                        (bb.min.x + x as i32) as u32,
-                        (base_line + bb.min.y + (y as i32)) as u32,
+                        [
+                            (bb.min.x + x as i32) as u32,
+                            (base_line + bb.min.y + (y as i32)) as u32,
+                        ],
                         Color::rgba(255, 255, 255, b),
                     );
                 })
