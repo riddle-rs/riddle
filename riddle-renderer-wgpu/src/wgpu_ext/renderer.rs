@@ -117,12 +117,10 @@ impl<Device: WGPUDevice> WGPURenderer<Device> {
     /// renderer to be used on top of custom renderers.
     pub fn new_from_device(wgpu_device: Device) -> Result<WGPURendererHandle<Device>> {
         let (default_shader, white_tex) = wgpu_device.with_device_info(|info| {
-            let vs = include_bytes!("../shaders/default.vert.spv");
-            let fs = include_bytes!("../shaders/default.frag.spv");
+            let wgsl = include_bytes!("../shaders/default.wgsl");
             let sprite_shader = WGPUShader::from_readers(
                 info.device,
-                std::io::Cursor::new(&vs[..]),
-                std::io::Cursor::new(&fs[..]),
+                std::io::Cursor::new(&wgsl[..]),
                 wgpu::PrimitiveTopology::TriangleList,
             )?;
 

@@ -1,3 +1,5 @@
+use std::num::NonZeroU64;
+
 use crate::wgpu_ext::*;
 
 use wgpu::util::DeviceExt;
@@ -12,32 +14,21 @@ pub(crate) struct WGPUShader {
 define_handles!(<WGPUShader>::weak_self, pub(crate) WGPUShaderHandle, pub(crate) WGPUShaderWeak);
 
 impl WGPUShader {
-    pub(crate) fn from_readers<VR, FR>(
+    pub(crate) fn from_readers<SR>(
         device: &wgpu::Device,
-        mut vs: VR,
-        mut fs: FR,
+        mut shader_reader: SR,
         primitive_type: wgpu::PrimitiveTopology,
     ) -> Result<WGPUShaderHandle>
     where
-        VR: std::io::Read + std::io::Seek,
-        FR: std::io::Read + std::io::Seek,
+        SR: std::io::Read + std::io::Seek,
     {
-        let mut vs_buf = vec![];
-        vs.read_to_end(&mut vs_buf).map_err(CommonError::IOError)?;
-        let vs_module = device.create_shader_module(&wgpu::ShaderModuleDescriptor {
-            source: wgpu::ShaderSource::SpirV(std::borrow::Cow::from(bytemuck::cast_slice(
-                &vs_buf,
-            ))),
-            flags: wgpu::ShaderFlags::VALIDATION,
-            label: None,
-        });
-
-        let mut fs_buf = vec![];
-        fs.read_to_end(&mut fs_buf).map_err(CommonError::IOError)?;
-        let fs_module = device.create_shader_module(&wgpu::ShaderModuleDescriptor {
-            source: wgpu::ShaderSource::SpirV(std::borrow::Cow::from(bytemuck::cast_slice(
-                &fs_buf,
-            ))),
+        let mut wgsl_buf = vec![];
+        shader_reader
+            .read_to_end(&mut wgsl_buf)
+            .map_err(CommonError::IOError)?;
+        let wgsl_str = std::str::from_utf8(&wgsl_buf[..]).map_err(|_| RendererError::Unknown)?;
+        let wgsl_module = device.create_shader_module(&wgpu::ShaderModuleDescriptor {
+            source: wgpu::ShaderSource::Wgsl(std::borrow::Cow::from(wgsl_str)),
             flags: wgpu::ShaderFlags::VALIDATION,
             label: None,
         });
@@ -88,8 +79,8 @@ impl WGPUShader {
             label: None,
             layout: Some(&pipeline_layout),
             vertex: wgpu::VertexState {
-                module: &vs_module,
-                entry_point: "main",
+                module: &wgsl_module,
+                entry_point: "vs_main",
                 buffers: &[wgpu::VertexBufferLayout {
                     array_stride: vertex_size as wgpu::BufferAddress,
                     step_mode: wgpu::InputStepMode::Vertex,
@@ -113,8 +104,8 @@ impl WGPUShader {
                 }],
             },
             fragment: Some(wgpu::FragmentState {
-                module: &fs_module,
-                entry_point: "main",
+                module: &wgsl_module,
+                entry_point: "fs_main",
                 targets: &[wgpu::ColorTargetState {
                     format: wgpu::TextureFormat::Bgra8UnormSrgb,
                     color_blend: wgpu::BlendState {
@@ -179,7 +170,7 @@ impl WGPUShader {
                     resource: wgpu::BindingResource::Buffer {
                         buffer: &camera_uniform,
                         offset: 0,
-                        size: None,
+                        size: NonZeroU64::new(std::mem::size_of::<f32>() as u64 * 16),
                     },
                 },
                 wgpu::BindGroupEntry {
