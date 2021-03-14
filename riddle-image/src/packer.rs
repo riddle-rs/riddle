@@ -27,7 +27,7 @@ pub struct ImagePacker {
 impl ImagePacker {
     /// Create the ImagePacker, with default settings.
     ///
-    /// * Size Policy: `ImagePackerSizePolicy::Pow2Square`
+    /// * Size Policy: [`ImagePackerSizePolicy::Pow2Square`]
     /// * Padding: 0
     pub fn new() -> Self {
         ImagePacker::default()
@@ -102,7 +102,7 @@ impl ImagePacker {
         }
 
         let mut sorted_images: Vec<(usize, &Image)> = images
-            .into_iter()
+            .iter()
             .enumerate()
             .map(|(i, img)| (i, *img))
             .collect();
@@ -229,8 +229,8 @@ pub enum ImagePackerSizePolicy {
 impl ImagePackerSizePolicy {
     fn initial_size(&self) -> Vector2<u32> {
         match self {
-            Self::Fixed(size) => size.clone(),
-            Self::LinearSteps(step) => step.clone(),
+            Self::Fixed(size) => *size,
+            Self::LinearSteps(step) => *step,
             Self::Pow2Square => Vector2::new(1, 1),
         }
     }

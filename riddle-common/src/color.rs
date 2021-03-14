@@ -204,9 +204,9 @@ impl Color<u8> {
     /// ```
     /// # use riddle_common::*;
     /// let c = Color::rgb(0, 255, 0);
-    /// assert_eq!(0x00FF00FF, c.to_rgba8());
+    /// assert_eq!(0x00FF00FF, c.into_rgba8());
     /// ```
-    pub fn to_rgba8(self) -> u32 {
+    pub fn into_rgba8(self) -> u32 {
         (self.r as u32) << 24 | (self.g as u32) << 16 | (self.b as u32) << 8 | (self.a as u32)
     }
 }
