@@ -2,7 +2,8 @@
 
 ## Unreleased
 
-* renderer: Update wgpu to 0.7
+* renderer: Update wgpu to 0.7.
+* renderer: Convert shaders to wgsl.
 
 ## 0.2.0
 

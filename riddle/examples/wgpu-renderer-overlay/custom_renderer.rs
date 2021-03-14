@@ -50,27 +50,17 @@ impl CustomRenderer {
 
         let swap_chain = device.create_swap_chain(&surface, &sc_desc);
 
-        let vs_bytes = include_bytes!("shaders/default.vert.spv");
-        let mut vs_vec = vec![0u8; vs_bytes.len()];
-        vs_vec.copy_from_slice(&vs_bytes[..]);
-        let vs_module = device.create_shader_module(&wgpu::ShaderModuleDescriptor {
-            source: wgpu::ShaderSource::SpirV(std::borrow::Cow::from(bytemuck::cast_slice(
-                &vs_vec,
-            ))),
+        let wgsl_str = include_str!("shaders/default.wgsl");
+        let wgsl_module = device.create_shader_module(&wgpu::ShaderModuleDescriptor {
+            source: wgpu::ShaderSource::Wgsl(std::borrow::Cow::from(wgsl_str)),
             label: None,
-            flags: wgpu::ShaderFlags::VALIDATION,
+            flags: wgpu::ShaderFlags::VALIDATION | wgpu::ShaderFlags::EXPERIMENTAL_TRANSLATION,
         });
 
-        let fs_bytes = include_bytes!("shaders/default.frag.spv");
-        let mut fs_vec = vec![0u8; fs_bytes.len()];
-        fs_vec.copy_from_slice(&fs_bytes[..]);
-        let fs_module = device.create_shader_module(&wgpu::ShaderModuleDescriptor {
-            source: wgpu::ShaderSource::SpirV(std::borrow::Cow::from(bytemuck::cast_slice(
-                &fs_vec,
-            ))),
-            label: None,
-            flags: wgpu::ShaderFlags::VALIDATION,
-        });
+        let vs_module = &wgsl_module;
+        let vs_entry = "vs_main";
+        let fs_module = &wgsl_module;
+        let fs_entry = "fs_main";
 
         let vertex_size = std::mem::size_of::<Vertex>();
 
@@ -97,8 +87,8 @@ impl CustomRenderer {
             label: None,
             layout: Some(&pipeline_layout),
             vertex: wgpu::VertexState {
-                module: &vs_module,
-                entry_point: "main",
+                module: vs_module,
+                entry_point: vs_entry,
                 buffers: &[wgpu::VertexBufferLayout {
                     array_stride: vertex_size as wgpu::BufferAddress,
                     step_mode: wgpu::InputStepMode::Vertex,
@@ -110,8 +100,8 @@ impl CustomRenderer {
                 }],
             },
             fragment: Some(wgpu::FragmentState {
-                module: &fs_module,
-                entry_point: "main",
+                module: fs_module,
+                entry_point: fs_entry,
                 targets: &[wgpu::ColorTargetState {
                     format: wgpu::TextureFormat::Bgra8UnormSrgb,
                     color_blend: wgpu::BlendState {
