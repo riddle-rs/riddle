@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `riddle-audio\src\clip_player.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>clip_player.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../riddle_audio/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../riddle_audio/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -327,8 +327,8 @@
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="kw-2">*</span>;
 
-<span class="kw">use</span> <span class="ident">rodio</span>::{<span class="ident">decoder</span>::<span class="ident">Decoder</span>, <span class="ident">source</span>::<span class="ident">Source</span>, <span class="ident">Sink</span>};
-<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">io</span>::<span class="ident">Cursor</span>, <span class="ident">sync</span>::<span class="ident">Arc</span>, <span class="ident">time</span>::<span class="ident">Duration</span>};
+<span class="kw">use</span> <span class="ident">rodio</span>::{<span class="ident">decoder::Decoder</span>, <span class="ident">source::Source</span>, <span class="ident">Sink</span>};
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">io::Cursor</span>, <span class="ident">sync::Arc</span>, <span class="ident">time::Duration</span>};
 
 <span class="kw">const</span> <span class="ident">QUICK_FADE_DURATION_SECONDS</span>: <span class="ident">f32</span> <span class="op">=</span> <span class="number">0.2</span>;
 
@@ -349,237 +349,237 @@
 <span class="doccomment">/// # Ok(player) });</span>
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ClipPlayer</span> {
-    <span class="ident">audio</span>: <span class="ident">AudioSystemHandle</span>,
-    <span class="ident">clip</span>: <span class="ident">Clip</span>,
-    <span class="ident">sink</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">Sink</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+	<span class="ident">audio</span>: <span class="ident">AudioSystemHandle</span>,
+	<span class="ident">clip</span>: <span class="ident">Clip</span>,
+	<span class="ident">sink</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">Sink</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 
-    <span class="ident">volume</span>: <span class="ident">f32</span>,
+	<span class="ident">volume</span>: <span class="ident">f32</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">ClipPlayer</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">audio</span>: <span class="kw-2">&amp;</span><span class="ident">AudioSystem</span>, <span class="ident">clip</span>: <span class="kw-2">&amp;</span><span class="ident">Clip</span>, <span class="ident">volume</span>: <span class="ident">f32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">audio</span>: <span class="ident">audio</span>.<span class="ident">clone_handle</span>(),
-            <span class="ident">clip</span>: <span class="ident">clip</span>.<span class="ident">clone</span>(),
-            <span class="ident">sink</span>: <span class="prelude-val">None</span>,
-            <span class="ident">volume</span>,
-        }
-    }
+	<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">audio</span>: <span class="kw-2">&amp;</span><span class="ident">AudioSystem</span>, <span class="ident">clip</span>: <span class="kw-2">&amp;</span><span class="ident">Clip</span>, <span class="ident">volume</span>: <span class="ident">f32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+		<span class="self">Self</span> {
+			<span class="ident">audio</span>: <span class="ident">audio</span>.<span class="ident">clone_handle</span>(),
+			<span class="ident">clip</span>: <span class="ident">clip</span>.<span class="ident">clone</span>(),
+			<span class="ident">sink</span>: <span class="prelude-val">None</span>,
+			<span class="ident">volume</span>,
+		}
+	}
 
-    <span class="kw">fn</span> <span class="ident">play</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">mode</span>: <span class="ident">PlayMode</span>, <span class="ident">paused</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">sink</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">Sink</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Sink</span>::<span class="ident">try_new</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">audio</span>.<span class="ident">stream_handle</span>)
-            .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">AudioError</span>::<span class="ident">PlayError</span> {
-                <span class="ident">cause</span>: <span class="string">&quot;Error making rodio Sink&quot;</span>,
-            })<span class="question-mark">?</span>
-            .<span class="ident">into</span>();
+	<span class="kw">fn</span> <span class="ident">play</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">mode</span>: <span class="ident">PlayMode</span>, <span class="ident">paused</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+		<span class="kw">let</span> <span class="ident">sink</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">Sink</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Sink::try_new</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">audio</span>.<span class="ident">stream_handle</span>)
+			.<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">AudioError::PlayError</span> {
+				<span class="ident">cause</span>: <span class="string">&quot;Error making rodio Sink&quot;</span>,
+			})<span class="question-mark">?</span>
+			.<span class="ident">into</span>();
 
-        <span class="kw">if</span> <span class="ident">paused</span> {
-            <span class="ident">sink</span>.<span class="ident">pause</span>();
-            <span class="ident">sink</span>.<span class="ident">set_volume</span>(<span class="number">0.0</span>);
-        } <span class="kw">else</span> {
-            <span class="ident">sink</span>.<span class="ident">set_volume</span>(<span class="self">self</span>.<span class="ident">volume</span>);
-        }
+		<span class="kw">if</span> <span class="ident">paused</span> {
+			<span class="ident">sink</span>.<span class="ident">pause</span>();
+			<span class="ident">sink</span>.<span class="ident">set_volume</span>(<span class="number">0.0</span>);
+		} <span class="kw">else</span> {
+			<span class="ident">sink</span>.<span class="ident">set_volume</span>(<span class="self">self</span>.<span class="ident">volume</span>);
+		}
 
-        <span class="kw">let</span> <span class="ident">source</span> <span class="op">=</span> <span class="ident">Decoder</span>::<span class="ident">new</span>(<span class="ident">Cursor</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">clip</span>.<span class="ident">data</span>.<span class="ident">clone</span>()))
-            .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">AudioError</span>::<span class="ident">ClipDecodeError</span>)<span class="question-mark">?</span>;
+		<span class="kw">let</span> <span class="ident">source</span> <span class="op">=</span> <span class="ident">Decoder::new</span>(<span class="ident">Cursor::new</span>(<span class="self">self</span>.<span class="ident">clip</span>.<span class="ident">data</span>.<span class="ident">clone</span>()))
+			.<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">AudioError::ClipDecodeError</span>)<span class="question-mark">?</span>;
 
-        <span class="kw">match</span> <span class="ident">mode</span> {
-            <span class="ident">PlayMode</span>::<span class="ident">OneShot</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">sink</span>.<span class="ident">append</span>(<span class="ident">source</span>),
-            <span class="ident">PlayMode</span>::<span class="ident">Loop</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">sink</span>.<span class="ident">append</span>(<span class="ident">source</span>.<span class="ident">repeat_infinite</span>()),
-        }
+		<span class="kw">match</span> <span class="ident">mode</span> {
+			<span class="ident">PlayMode::OneShot</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">sink</span>.<span class="ident">append</span>(<span class="ident">source</span>),
+			<span class="ident">PlayMode::Loop</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">sink</span>.<span class="ident">append</span>(<span class="ident">source</span>.<span class="ident">repeat_infinite</span>()),
+		}
 
-        <span class="self">self</span>.<span class="ident">sink</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">sink</span>);
+		<span class="self">self</span>.<span class="ident">sink</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">sink</span>);
 
-        <span class="prelude-val">Ok</span>(())
-    }
+		<span class="prelude-val">Ok</span>(())
+	}
 
-    <span class="doccomment">/// Fade the volume from the current volume to the targat volume over time.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Once the volume has been changed the nominal volume will be immediately set to the new</span>
-    <span class="doccomment">/// goal volume, as that is the volume that the player will be set to if it gets paused</span>
-    <span class="doccomment">/// and resumed.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The observed volume will change over time as the `AudioSubsystem` progresses the fade.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If another volume fade is started while one is in progress the existing one is replaced</span>
-    <span class="doccomment">/// by the new one, starting from whatever the current volume is.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Since [`ClipPlayer::set_volume`], [`ClipPlayer::stop`], [`ClipPlayer::pause`]</span>
-    <span class="doccomment">/// and [`ClipPlayer::resume`] calls also trigger a fade to avoid popping,</span>
-    <span class="doccomment">/// calling any of those methods will also replace any current fade.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```no_run</span>
-    <span class="doccomment">/// # use riddle_audio::*; doctest::simple(|audio_system| {</span>
-    <span class="doccomment">/// # let bytes = include_bytes!(&quot;../../example_assets/boop.wav&quot;);</span>
-    <span class="doccomment">/// # let clip = Clip::load(&amp;bytes[..], ClipFormat::Wav)?;</span>
-    <span class="doccomment">/// // The player starts with all volumes at 1.0</span>
-    <span class="doccomment">/// let mut player = ClipPlayerBuilder::new(&amp;audio_system).play(&amp;clip)?;</span>
-    <span class="doccomment">/// assert_eq!(1.0, player.get_nominal_volume());</span>
-    <span class="doccomment">/// assert_eq!(1.0, player.get_observed_volume());</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// // The nominal volume changes immediately, the observed volume hasn&#39;t changed</span>
-    <span class="doccomment">/// player.fade_volume(0.0, std::time::Duration::from_secs(1));</span>
-    <span class="doccomment">/// assert_eq!(0.0, player.get_nominal_volume());</span>
-    <span class="doccomment">/// assert_eq!(1.0, player.get_observed_volume());</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// // A few seconds later</span>
-    <span class="doccomment">/// # doctest::pump_for_secs(audio_system, 2);</span>
-    <span class="doccomment">/// // The fade has completed and the nominal and observed volumes agree again</span>
-    <span class="doccomment">/// assert_eq!(0.0, player.get_nominal_volume());</span>
-    <span class="doccomment">/// assert_eq!(0.0, player.get_observed_volume());</span>
-    <span class="doccomment">/// # Ok(player) });</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fade_volume</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">volume</span>: <span class="ident">f32</span>, <span class="ident">duration</span>: <span class="ident">Duration</span>) {
-        <span class="self">self</span>.<span class="ident">volume</span> <span class="op">=</span> <span class="ident">volume</span>;
-        <span class="self">self</span>.<span class="ident">fade_volume_with_type</span>(<span class="self">self</span>.<span class="ident">volume</span>, <span class="ident">duration</span>, <span class="ident">FadeType</span>::<span class="ident">AlterVolume</span>);
-    }
+	<span class="doccomment">/// Fade the volume from the current volume to the targat volume over time.</span>
+	<span class="doccomment">///</span>
+	<span class="doccomment">/// Once the volume has been changed the nominal volume will be immediately set to the new</span>
+	<span class="doccomment">/// goal volume, as that is the volume that the player will be set to if it gets paused</span>
+	<span class="doccomment">/// and resumed.</span>
+	<span class="doccomment">///</span>
+	<span class="doccomment">/// The observed volume will change over time as the `AudioSubsystem` progresses the fade.</span>
+	<span class="doccomment">///</span>
+	<span class="doccomment">/// If another volume fade is started while one is in progress the existing one is replaced</span>
+	<span class="doccomment">/// by the new one, starting from whatever the current volume is.</span>
+	<span class="doccomment">///</span>
+	<span class="doccomment">/// Since [`ClipPlayer::set_volume`], [`ClipPlayer::stop`], [`ClipPlayer::pause`]</span>
+	<span class="doccomment">/// and [`ClipPlayer::resume`] calls also trigger a fade to avoid popping,</span>
+	<span class="doccomment">/// calling any of those methods will also replace any current fade.</span>
+	<span class="doccomment">///</span>
+	<span class="doccomment">/// # Example</span>
+	<span class="doccomment">///</span>
+	<span class="doccomment">/// ```no_run</span>
+	<span class="doccomment">/// # use riddle_audio::*; doctest::simple(|audio_system| {</span>
+	<span class="doccomment">/// # let bytes = include_bytes!(&quot;../../example_assets/boop.wav&quot;);</span>
+	<span class="doccomment">/// # let clip = Clip::load(&amp;bytes[..], ClipFormat::Wav)?;</span>
+	<span class="doccomment">/// // The player starts with all volumes at 1.0</span>
+	<span class="doccomment">/// let mut player = ClipPlayerBuilder::new(&amp;audio_system).play(&amp;clip)?;</span>
+	<span class="doccomment">/// assert_eq!(1.0, player.get_nominal_volume());</span>
+	<span class="doccomment">/// assert_eq!(1.0, player.get_observed_volume());</span>
+	<span class="doccomment">///</span>
+	<span class="doccomment">/// // The nominal volume changes immediately, the observed volume hasn&#39;t changed</span>
+	<span class="doccomment">/// player.fade_volume(0.0, std::time::Duration::from_secs(1));</span>
+	<span class="doccomment">/// assert_eq!(0.0, player.get_nominal_volume());</span>
+	<span class="doccomment">/// assert_eq!(1.0, player.get_observed_volume());</span>
+	<span class="doccomment">///</span>
+	<span class="doccomment">/// // A few seconds later</span>
+	<span class="doccomment">/// # doctest::pump_for_secs(audio_system, 2);</span>
+	<span class="doccomment">/// // The fade has completed and the nominal and observed volumes agree again</span>
+	<span class="doccomment">/// assert_eq!(0.0, player.get_nominal_volume());</span>
+	<span class="doccomment">/// assert_eq!(0.0, player.get_observed_volume());</span>
+	<span class="doccomment">/// # Ok(player) });</span>
+	<span class="doccomment">/// ```</span>
+	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fade_volume</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">volume</span>: <span class="ident">f32</span>, <span class="ident">duration</span>: <span class="ident">Duration</span>) {
+		<span class="self">self</span>.<span class="ident">volume</span> <span class="op">=</span> <span class="ident">volume</span>;
+		<span class="self">self</span>.<span class="ident">fade_volume_with_type</span>(<span class="self">self</span>.<span class="ident">volume</span>, <span class="ident">duration</span>, <span class="ident">FadeType::AlterVolume</span>);
+	}
 
-    <span class="doccomment">/// Set the volume of playback immediately.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This performs a very quick fade to the destination volume, to avoid popping</span>
-    <span class="doccomment">/// audio artefacts.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See the example in [`ClipPlayer::fade_volume`] for more details of how volume</span>
-    <span class="doccomment">/// changes over time.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_volume</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">volume</span>: <span class="ident">f32</span>) {
-        <span class="self">self</span>.<span class="ident">fade_volume</span>(<span class="ident">volume</span>, <span class="ident">Duration</span>::<span class="ident">from_secs_f32</span>(<span class="ident">QUICK_FADE_DURATION_SECONDS</span>))
-    }
+	<span class="doccomment">/// Set the volume of playback immediately.</span>
+	<span class="doccomment">///</span>
+	<span class="doccomment">/// This performs a very quick fade to the destination volume, to avoid popping</span>
+	<span class="doccomment">/// audio artefacts.</span>
+	<span class="doccomment">///</span>
+	<span class="doccomment">/// See the example in [`ClipPlayer::fade_volume`] for more details of how volume</span>
+	<span class="doccomment">/// changes over time.</span>
+	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_volume</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">volume</span>: <span class="ident">f32</span>) {
+		<span class="self">self</span>.<span class="ident">fade_volume</span>(<span class="ident">volume</span>, <span class="ident">Duration::from_secs_f32</span>(<span class="ident">QUICK_FADE_DURATION_SECONDS</span>))
+	}
 
-    <span class="doccomment">/// Get the nominal volume of the player, which may not match the volume the player is currently</span>
-    <span class="doccomment">/// playing at this second.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This is the volume last set via [`ClipPlayer::set_volume`] or [`ClipPlayer::fade_volume`].</span>
-    <span class="doccomment">/// This is the volume the player will be at if it is paused and resumed.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See the example in [`ClipPlayer::fade_volume`] for more details of how volume</span>
-    <span class="doccomment">/// changes over time.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_nominal_volume</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f32</span> {
-        <span class="self">self</span>.<span class="ident">volume</span>
-    }
+	<span class="doccomment">/// Get the nominal volume of the player, which may not match the volume the player is currently</span>
+	<span class="doccomment">/// playing at this second.</span>
+	<span class="doccomment">///</span>
+	<span class="doccomment">/// This is the volume last set via [`ClipPlayer::set_volume`] or [`ClipPlayer::fade_volume`].</span>
+	<span class="doccomment">/// This is the volume the player will be at if it is paused and resumed.</span>
+	<span class="doccomment">///</span>
+	<span class="doccomment">/// See the example in [`ClipPlayer::fade_volume`] for more details of how volume</span>
+	<span class="doccomment">/// changes over time.</span>
+	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_nominal_volume</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f32</span> {
+		<span class="self">self</span>.<span class="ident">volume</span>
+	}
 
-    <span class="doccomment">/// Get the observed volume of the player, which is always equal to exactly the volume of playback.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This is the volume of playback at this moment in time, which could be either equal to the</span>
-    <span class="doccomment">/// nominal volume, or another volume if there is a fade running or if the player has been</span>
-    <span class="doccomment">/// paused (which causes an observed fade to 0 volume).</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See the example in [`ClipPlayer::fade_volume`] for more details of how volume</span>
-    <span class="doccomment">/// changes over time.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_observed_volume</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f32</span> {
-        <span class="self">self</span>.<span class="ident">sink</span>
-            .<span class="ident">as_ref</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">sink</span><span class="op">|</span> <span class="ident">sink</span>.<span class="ident">volume</span>())
-            .<span class="ident">unwrap_or</span>(<span class="self">self</span>.<span class="ident">volume</span>)
-    }
+	<span class="doccomment">/// Get the observed volume of the player, which is always equal to exactly the volume of playback.</span>
+	<span class="doccomment">///</span>
+	<span class="doccomment">/// This is the volume of playback at this moment in time, which could be either equal to the</span>
+	<span class="doccomment">/// nominal volume, or another volume if there is a fade running or if the player has been</span>
+	<span class="doccomment">/// paused (which causes an observed fade to 0 volume).</span>
+	<span class="doccomment">///</span>
+	<span class="doccomment">/// See the example in [`ClipPlayer::fade_volume`] for more details of how volume</span>
+	<span class="doccomment">/// changes over time.</span>
+	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_observed_volume</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f32</span> {
+		<span class="self">self</span>.<span class="ident">sink</span>
+			.<span class="ident">as_ref</span>()
+			.<span class="ident">map</span>(<span class="op">|</span><span class="ident">sink</span><span class="op">|</span> <span class="ident">sink</span>.<span class="ident">volume</span>())
+			.<span class="ident">unwrap_or</span>(<span class="self">self</span>.<span class="ident">volume</span>)
+	}
 
-    <span class="doccomment">/// Pauses playback of the clip.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This performs a very quick fade to zero volume, to avoid popping</span>
-    <span class="doccomment">/// audio artefacts, and then pauses playback.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The nominal volume of the player won&#39;t change, but the observed volume will drop to zero.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```no_run</span>
-    <span class="doccomment">/// # use riddle_audio::*; doctest::simple(|audio_system| {</span>
-    <span class="doccomment">/// # let bytes = include_bytes!(&quot;../../example_assets/boop.wav&quot;);</span>
-    <span class="doccomment">/// # let clip = Clip::load(&amp;bytes[..], ClipFormat::Wav)?;</span>
-    <span class="doccomment">/// // The player starts with all volumes at 1.0</span>
-    <span class="doccomment">/// let mut player = ClipPlayerBuilder::new(&amp;audio_system).play(&amp;clip)?;</span>
-    <span class="doccomment">/// assert_eq!(1.0, player.get_nominal_volume());</span>
-    <span class="doccomment">/// assert_eq!(1.0, player.get_observed_volume());</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// // Pausing doesn&#39;t change the nominal volume</span>
-    <span class="doccomment">/// player.pause();</span>
-    <span class="doccomment">/// assert_eq!(1.0, player.get_nominal_volume());</span>
-    <span class="doccomment">/// assert_eq!(1.0, player.get_observed_volume());</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// // A short moment later</span>
-    <span class="doccomment">/// # doctest::pump_for_secs(audio_system, 1);</span>
-    <span class="doccomment">/// // The pause has completed and the observed volume is now 0.0</span>
-    <span class="doccomment">/// assert_eq!(1.0, player.get_nominal_volume());</span>
-    <span class="doccomment">/// assert_eq!(0.0, player.get_observed_volume());</span>
-    <span class="doccomment">/// # Ok(player) });</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pause</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">fade_volume_with_type</span>(
-            <span class="number">0.0</span>,
-            <span class="ident">Duration</span>::<span class="ident">from_secs_f32</span>(<span class="ident">QUICK_FADE_DURATION_SECONDS</span>),
-            <span class="ident">FadeType</span>::<span class="ident">Pause</span>,
-        );
-    }
+	<span class="doccomment">/// Pauses playback of the clip.</span>
+	<span class="doccomment">///</span>
+	<span class="doccomment">/// This performs a very quick fade to zero volume, to avoid popping</span>
+	<span class="doccomment">/// audio artefacts, and then pauses playback.</span>
+	<span class="doccomment">///</span>
+	<span class="doccomment">/// The nominal volume of the player won&#39;t change, but the observed volume will drop to zero.</span>
+	<span class="doccomment">///</span>
+	<span class="doccomment">/// # Example</span>
+	<span class="doccomment">///</span>
+	<span class="doccomment">/// ```no_run</span>
+	<span class="doccomment">/// # use riddle_audio::*; doctest::simple(|audio_system| {</span>
+	<span class="doccomment">/// # let bytes = include_bytes!(&quot;../../example_assets/boop.wav&quot;);</span>
+	<span class="doccomment">/// # let clip = Clip::load(&amp;bytes[..], ClipFormat::Wav)?;</span>
+	<span class="doccomment">/// // The player starts with all volumes at 1.0</span>
+	<span class="doccomment">/// let mut player = ClipPlayerBuilder::new(&amp;audio_system).play(&amp;clip)?;</span>
+	<span class="doccomment">/// assert_eq!(1.0, player.get_nominal_volume());</span>
+	<span class="doccomment">/// assert_eq!(1.0, player.get_observed_volume());</span>
+	<span class="doccomment">///</span>
+	<span class="doccomment">/// // Pausing doesn&#39;t change the nominal volume</span>
+	<span class="doccomment">/// player.pause();</span>
+	<span class="doccomment">/// assert_eq!(1.0, player.get_nominal_volume());</span>
+	<span class="doccomment">/// assert_eq!(1.0, player.get_observed_volume());</span>
+	<span class="doccomment">///</span>
+	<span class="doccomment">/// // A short moment later</span>
+	<span class="doccomment">/// # doctest::pump_for_secs(audio_system, 1);</span>
+	<span class="doccomment">/// // The pause has completed and the observed volume is now 0.0</span>
+	<span class="doccomment">/// assert_eq!(1.0, player.get_nominal_volume());</span>
+	<span class="doccomment">/// assert_eq!(0.0, player.get_observed_volume());</span>
+	<span class="doccomment">/// # Ok(player) });</span>
+	<span class="doccomment">/// ```</span>
+	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pause</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+		<span class="self">self</span>.<span class="ident">fade_volume_with_type</span>(
+			<span class="number">0.0</span>,
+			<span class="ident">Duration::from_secs_f32</span>(<span class="ident">QUICK_FADE_DURATION_SECONDS</span>),
+			<span class="ident">FadeType::Pause</span>,
+		);
+	}
 
-    <span class="comment">// Resumes playback if paused.</span>
-    <span class="comment">//</span>
-    <span class="comment">// Immediately starts playback and performs a quick fade back up to the players</span>
-    <span class="comment">// nominal volume.</span>
-    <span class="comment">//</span>
-    <span class="comment">// The nominal volume of the player won&#39;t change, but the observed volume with fade</span>
-    <span class="comment">// from 0 to the nominal value over time.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```no_run</span>
-    <span class="doccomment">/// # use riddle_audio::*; doctest::simple(|audio_system| {</span>
-    <span class="doccomment">/// # let bytes = include_bytes!(&quot;../../example_assets/boop.wav&quot;);</span>
-    <span class="doccomment">/// # let clip = Clip::load(&amp;bytes[..], ClipFormat::Wav)?;</span>
-    <span class="doccomment">/// // The paused player starts with an observed volume of 0.0</span>
-    <span class="doccomment">/// let mut player = ClipPlayerBuilder::new(&amp;audio_system).paused(&amp;clip)?;</span>
-    <span class="doccomment">/// assert_eq!(1.0, player.get_nominal_volume());</span>
-    <span class="doccomment">/// assert_eq!(0.0, player.get_observed_volume());</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// // Resuming doesn&#39;t change the nominal volume</span>
-    <span class="doccomment">/// player.resume();</span>
-    <span class="doccomment">/// assert_eq!(1.0, player.get_nominal_volume());</span>
-    <span class="doccomment">/// assert_eq!(0.0, player.get_observed_volume());</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// // A short moment later</span>
-    <span class="doccomment">/// # doctest::pump_for_secs(audio_system, 1);</span>
-    <span class="doccomment">/// // The resume has completed and the observed volume is now 1.0</span>
-    <span class="doccomment">/// assert_eq!(1.0, player.get_nominal_volume());</span>
-    <span class="doccomment">/// assert_eq!(1.0, player.get_observed_volume());</span>
-    <span class="doccomment">/// # Ok(player) });</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">resume</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">sink</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">sink</span> {
-            <span class="kw">if</span> <span class="ident">sink</span>.<span class="ident">is_paused</span>() {
-                <span class="ident">sink</span>.<span class="ident">play</span>();
-                <span class="self">self</span>.<span class="ident">fade_volume_with_type</span>(
-                    <span class="self">self</span>.<span class="ident">volume</span>,
-                    <span class="ident">Duration</span>::<span class="ident">from_secs_f32</span>(<span class="ident">QUICK_FADE_DURATION_SECONDS</span>),
-                    <span class="ident">FadeType</span>::<span class="ident">Resume</span>,
-                );
-            }
-        }
-    }
+	<span class="comment">// Resumes playback if paused.</span>
+	<span class="comment">//</span>
+	<span class="comment">// Immediately starts playback and performs a quick fade back up to the players</span>
+	<span class="comment">// nominal volume.</span>
+	<span class="comment">//</span>
+	<span class="comment">// The nominal volume of the player won&#39;t change, but the observed volume with fade</span>
+	<span class="comment">// from 0 to the nominal value over time.</span>
+	<span class="doccomment">///</span>
+	<span class="doccomment">/// # Example</span>
+	<span class="doccomment">///</span>
+	<span class="doccomment">/// ```no_run</span>
+	<span class="doccomment">/// # use riddle_audio::*; doctest::simple(|audio_system| {</span>
+	<span class="doccomment">/// # let bytes = include_bytes!(&quot;../../example_assets/boop.wav&quot;);</span>
+	<span class="doccomment">/// # let clip = Clip::load(&amp;bytes[..], ClipFormat::Wav)?;</span>
+	<span class="doccomment">/// // The paused player starts with an observed volume of 0.0</span>
+	<span class="doccomment">/// let mut player = ClipPlayerBuilder::new(&amp;audio_system).paused(&amp;clip)?;</span>
+	<span class="doccomment">/// assert_eq!(1.0, player.get_nominal_volume());</span>
+	<span class="doccomment">/// assert_eq!(0.0, player.get_observed_volume());</span>
+	<span class="doccomment">///</span>
+	<span class="doccomment">/// // Resuming doesn&#39;t change the nominal volume</span>
+	<span class="doccomment">/// player.resume();</span>
+	<span class="doccomment">/// assert_eq!(1.0, player.get_nominal_volume());</span>
+	<span class="doccomment">/// assert_eq!(0.0, player.get_observed_volume());</span>
+	<span class="doccomment">///</span>
+	<span class="doccomment">/// // A short moment later</span>
+	<span class="doccomment">/// # doctest::pump_for_secs(audio_system, 1);</span>
+	<span class="doccomment">/// // The resume has completed and the observed volume is now 1.0</span>
+	<span class="doccomment">/// assert_eq!(1.0, player.get_nominal_volume());</span>
+	<span class="doccomment">/// assert_eq!(1.0, player.get_observed_volume());</span>
+	<span class="doccomment">/// # Ok(player) });</span>
+	<span class="doccomment">/// ```</span>
+	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">resume</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+		<span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">sink</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">sink</span> {
+			<span class="kw">if</span> <span class="ident">sink</span>.<span class="ident">is_paused</span>() {
+				<span class="ident">sink</span>.<span class="ident">play</span>();
+				<span class="self">self</span>.<span class="ident">fade_volume_with_type</span>(
+					<span class="self">self</span>.<span class="ident">volume</span>,
+					<span class="ident">Duration::from_secs_f32</span>(<span class="ident">QUICK_FADE_DURATION_SECONDS</span>),
+					<span class="ident">FadeType::Resume</span>,
+				);
+			}
+		}
+	}
 
-    <span class="doccomment">/// Stops playback.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This is equivalent to calling [`ClipPlayer::pause`] and then dropping the player</span>
-    <span class="doccomment">/// after the fade is complete</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">stop</span>(<span class="kw-2">mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">pause</span>();
-    }
+	<span class="doccomment">/// Stops playback.</span>
+	<span class="doccomment">///</span>
+	<span class="doccomment">/// This is equivalent to calling [`ClipPlayer::pause`] and then dropping the player</span>
+	<span class="doccomment">/// after the fade is complete</span>
+	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">stop</span>(<span class="kw-2">mut</span> <span class="self">self</span>) {
+		<span class="self">self</span>.<span class="ident">pause</span>();
+	}
 
-    <span class="kw">fn</span> <span class="ident">fade_volume_with_type</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">volume</span>: <span class="ident">f32</span>, <span class="ident">duration</span>: <span class="ident">Duration</span>, <span class="ident">fade_type</span>: <span class="ident">FadeType</span>) {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">sink</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">sink</span> {
-            <span class="kw">let</span> <span class="ident">fade</span> <span class="op">=</span> <span class="ident">Fade</span>::<span class="ident">new</span>(<span class="ident">sink</span>.<span class="ident">clone</span>(), <span class="ident">volume</span>, <span class="ident">duration</span>, <span class="ident">fade_type</span>);
-            <span class="self">self</span>.<span class="ident">audio</span>.<span class="ident">register_fade</span>(<span class="ident">fade</span>);
-        }
-    }
+	<span class="kw">fn</span> <span class="ident">fade_volume_with_type</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">volume</span>: <span class="ident">f32</span>, <span class="ident">duration</span>: <span class="ident">Duration</span>, <span class="ident">fade_type</span>: <span class="ident">FadeType</span>) {
+		<span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">sink</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">sink</span> {
+			<span class="kw">let</span> <span class="ident">fade</span> <span class="op">=</span> <span class="ident">Fade::new</span>(<span class="ident">sink</span>.<span class="ident">clone</span>(), <span class="ident">volume</span>, <span class="ident">duration</span>, <span class="ident">fade_type</span>);
+			<span class="self">self</span>.<span class="ident">audio</span>.<span class="ident">register_fade</span>(<span class="ident">fade</span>);
+		}
+	}
 }
 
 <span class="doccomment">/// Enum describing what the player should do at the end of the clip</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">PlayMode</span> {
-    <span class="doccomment">/// Stop playing at the end of the clip</span>
-    <span class="ident">OneShot</span>,
+	<span class="doccomment">/// Stop playing at the end of the clip</span>
+	<span class="ident">OneShot</span>,
 
-    <span class="doccomment">/// Return to the beginning of the clip and play it again</span>
-    <span class="ident">Loop</span>,
+	<span class="doccomment">/// Return to the beginning of the clip and play it again</span>
+	<span class="ident">Loop</span>,
 }
 
 <span class="doccomment">/// Builder for [`ClipPlayer`]</span>
@@ -601,53 +601,53 @@
 <span class="doccomment">/// # Ok(player) });</span>
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ClipPlayerBuilder</span> {
-    <span class="ident">mode</span>: <span class="ident">PlayMode</span>,
-    <span class="ident">audio</span>: <span class="ident">AudioSystemHandle</span>,
-    <span class="ident">volume</span>: <span class="ident">f32</span>,
+	<span class="ident">mode</span>: <span class="ident">PlayMode</span>,
+	<span class="ident">audio</span>: <span class="ident">AudioSystemHandle</span>,
+	<span class="ident">volume</span>: <span class="ident">f32</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">ClipPlayerBuilder</span> {
-    <span class="doccomment">/// Make a new builder.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Defaults:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// * mode: [`PlayMode::OneShot`]</span>
-    <span class="doccomment">/// * volume: 1.0.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">audio</span>: <span class="kw-2">&amp;</span><span class="ident">AudioSystem</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">mode</span>: <span class="ident">PlayMode</span>::<span class="ident">OneShot</span>,
-            <span class="ident">audio</span>: <span class="ident">audio</span>.<span class="ident">clone_handle</span>(),
-            <span class="ident">volume</span>: <span class="number">1.0</span>,
-        }
-    }
+	<span class="doccomment">/// Make a new builder.</span>
+	<span class="doccomment">///</span>
+	<span class="doccomment">/// Defaults:</span>
+	<span class="doccomment">///</span>
+	<span class="doccomment">/// * mode: [`PlayMode::OneShot`]</span>
+	<span class="doccomment">/// * volume: 1.0.</span>
+	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">audio</span>: <span class="kw-2">&amp;</span><span class="ident">AudioSystem</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+		<span class="self">Self</span> {
+			<span class="ident">mode</span>: <span class="ident">PlayMode::OneShot</span>,
+			<span class="ident">audio</span>: <span class="ident">audio</span>.<span class="ident">clone_handle</span>(),
+			<span class="ident">volume</span>: <span class="number">1.0</span>,
+		}
+	}
 
-    <span class="doccomment">/// Set the playback mode of the player. Defaults to [`PlayMode::OneShot`].</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_mode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">mode</span>: <span class="ident">PlayMode</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">mode</span>;
-        <span class="self">self</span>
-    }
+	<span class="doccomment">/// Set the playback mode of the player. Defaults to [`PlayMode::OneShot`].</span>
+	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_mode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">mode</span>: <span class="ident">PlayMode</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span> {
+		<span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">mode</span>;
+		<span class="self">self</span>
+	}
 
-    <span class="doccomment">/// Set the playback volume of the player. Defaults to 1.0.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_volume</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">volume</span>: <span class="ident">f32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">volume</span> <span class="op">=</span> <span class="ident">volume</span>;
-        <span class="self">self</span>
-    }
+	<span class="doccomment">/// Set the playback volume of the player. Defaults to 1.0.</span>
+	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_volume</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">volume</span>: <span class="ident">f32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span> {
+		<span class="self">self</span>.<span class="ident">volume</span> <span class="op">=</span> <span class="ident">volume</span>;
+		<span class="self">self</span>
+	}
 
-    <span class="doccomment">/// Build the ClipPlayer, and start playing the clip immediately.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">play</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">clip</span>: <span class="kw-2">&amp;</span><span class="ident">Clip</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ClipPlayer</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">player</span> <span class="op">=</span> <span class="ident">ClipPlayer</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">audio</span>, <span class="ident">clip</span>, <span class="self">self</span>.<span class="ident">volume</span>);
-        <span class="ident">player</span>.<span class="ident">play</span>(<span class="self">self</span>.<span class="ident">mode</span>, <span class="bool-val">false</span>)<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="ident">player</span>)
-    }
+	<span class="doccomment">/// Build the ClipPlayer, and start playing the clip immediately.</span>
+	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">play</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">clip</span>: <span class="kw-2">&amp;</span><span class="ident">Clip</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ClipPlayer</span><span class="op">&gt;</span> {
+		<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">player</span> <span class="op">=</span> <span class="ident">ClipPlayer::new</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">audio</span>, <span class="ident">clip</span>, <span class="self">self</span>.<span class="ident">volume</span>);
+		<span class="ident">player</span>.<span class="ident">play</span>(<span class="self">self</span>.<span class="ident">mode</span>, <span class="bool-val">false</span>)<span class="question-mark">?</span>;
+		<span class="prelude-val">Ok</span>(<span class="ident">player</span>)
+	}
 
-    <span class="doccomment">/// Build the ClipPlayer in the paused state. [`ClipPlayer::resume`] will need</span>
-    <span class="doccomment">/// to be called on the player to start playback.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">paused</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">clip</span>: <span class="kw-2">&amp;</span><span class="ident">Clip</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ClipPlayer</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">player</span> <span class="op">=</span> <span class="ident">ClipPlayer</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">audio</span>, <span class="ident">clip</span>, <span class="self">self</span>.<span class="ident">volume</span>);
-        <span class="ident">player</span>.<span class="ident">play</span>(<span class="self">self</span>.<span class="ident">mode</span>, <span class="bool-val">true</span>)<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="ident">player</span>)
-    }
+	<span class="doccomment">/// Build the ClipPlayer in the paused state. [`ClipPlayer::resume`] will need</span>
+	<span class="doccomment">/// to be called on the player to start playback.</span>
+	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">paused</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">clip</span>: <span class="kw-2">&amp;</span><span class="ident">Clip</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ClipPlayer</span><span class="op">&gt;</span> {
+		<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">player</span> <span class="op">=</span> <span class="ident">ClipPlayer::new</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">audio</span>, <span class="ident">clip</span>, <span class="self">self</span>.<span class="ident">volume</span>);
+		<span class="ident">player</span>.<span class="ident">play</span>(<span class="self">self</span>.<span class="ident">mode</span>, <span class="bool-val">true</span>)<span class="question-mark">?</span>;
+		<span class="prelude-val">Ok</span>(<span class="ident">player</span>)
+	}
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="riddle_audio" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="riddle_audio" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

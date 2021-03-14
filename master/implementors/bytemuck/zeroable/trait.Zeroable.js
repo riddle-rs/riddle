@@ -1,0 +1,3 @@
+(function() {var implementors = {};
+implementors["riddle_renderer_common"] = [{"text":"impl Zeroable for <a class=\"struct\" href=\"riddle_renderer_common/vertex/struct.Vertex.html\" title=\"struct riddle_renderer_common::vertex::Vertex\">Vertex</a>","synthetic":false,"types":["riddle_renderer_common::vertex::Vertex"]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

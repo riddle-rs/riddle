@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `riddle\src\state.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>state.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../riddle/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../riddle/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -128,14 +128,27 @@
 <span id="125">125</span>
 <span id="126">126</span>
 <span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;riddle-audio&quot;</span>)]</span>
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">audio</span>::{<span class="ident">ext</span>::<span class="kw-2">*</span>, <span class="ident">AudioMainThreadState</span>, <span class="ident">AudioSystem</span>, <span class="ident">AudioSystemHandle</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::audio</span>::{<span class="ident">ext</span>::<span class="kw-2">*</span>, <span class="ident">AudioMainThreadState</span>, <span class="ident">AudioSystem</span>, <span class="ident">AudioSystemHandle</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">input</span>::{<span class="ident">ext</span>::<span class="kw-2">*</span>, <span class="ident">InputMainThreadState</span>, <span class="ident">InputSystem</span>, <span class="ident">InputSystemHandle</span>},
-    <span class="ident">platform</span>::{<span class="ident">ext</span>::<span class="kw-2">*</span>, <span class="ident">PlatformMainThreadState</span>, <span class="ident">PlatformSystem</span>, <span class="ident">PlatformSystemHandle</span>},
-    <span class="ident">time</span>::{<span class="ident">ext</span>::<span class="kw-2">*</span>, <span class="ident">TimeSystem</span>, <span class="ident">TimeSystemHandle</span>},
-    <span class="kw-2">*</span>,
+	<span class="ident">input</span>::{<span class="ident">ext</span>::<span class="kw-2">*</span>, <span class="ident">InputMainThreadState</span>, <span class="ident">InputSystem</span>, <span class="ident">InputSystemHandle</span>},
+	<span class="ident">platform</span>::{<span class="ident">ext</span>::<span class="kw-2">*</span>, <span class="ident">PlatformMainThreadState</span>, <span class="ident">PlatformSystem</span>, <span class="ident">PlatformSystemHandle</span>},
+	<span class="ident">time</span>::{<span class="ident">ext</span>::<span class="kw-2">*</span>, <span class="ident">TimeSystem</span>, <span class="ident">TimeSystemHandle</span>},
+	<span class="kw-2">*</span>,
 };
 
 <span class="doccomment">/// Riddle subsystem state handles</span>
@@ -143,119 +156,132 @@
 <span class="doccomment">/// Provides access to all the thread-safe state associated with riddle systems.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RiddleState</span> {
-    <span class="ident">platform</span>: <span class="ident">PlatformSystemHandle</span>,
-    <span class="ident">input</span>: <span class="ident">InputSystemHandle</span>,
-    <span class="ident">time</span>: <span class="ident">TimeSystemHandle</span>,
+	<span class="ident">platform</span>: <span class="ident">PlatformSystemHandle</span>,
+	<span class="ident">input</span>: <span class="ident">InputSystemHandle</span>,
+	<span class="ident">time</span>: <span class="ident">TimeSystemHandle</span>,
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;riddle-audio&quot;</span>)]</span>
-    <span class="ident">audio</span>: <span class="ident">AudioSystemHandle</span>,
+	<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;riddle-audio&quot;</span>)]</span>
+	<span class="ident">audio</span>: <span class="ident">AudioSystemHandle</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">RiddleState</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="self">Self</span>, <span class="ident">MainThreadState</span>)<span class="op">&gt;</span> {
-        <span class="kw">let</span> (<span class="ident">platform_system</span>, <span class="ident">platform_main_thread</span>) <span class="op">=</span> <span class="ident">PlatformSystem</span>::<span class="ident">new_shared</span>();
-        <span class="kw">let</span> (<span class="ident">input_system</span>, <span class="ident">input_main_thread</span>) <span class="op">=</span>
-            <span class="ident">InputSystem</span>::<span class="ident">new_shared</span>(<span class="ident">platform_system</span>.<span class="ident">event_pub</span>())<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">time</span> <span class="op">=</span> <span class="ident">TimeSystem</span>::<span class="ident">new_shared</span>();
+	<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="self">Self</span>, <span class="ident">MainThreadState</span>)<span class="op">&gt;</span> {
+		<span class="macro">log::debug!</span>(<span class="string">&quot;Initializing platform...&quot;</span>);
+		<span class="kw">let</span> (<span class="ident">platform_system</span>, <span class="ident">platform_main_thread</span>) <span class="op">=</span> <span class="ident">PlatformSystem::new_shared</span>();
+		<span class="macro">log::debug!</span>(<span class="string">&quot;Platform initialized&quot;</span>);
 
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;riddle-audio&quot;</span>)]</span>
-        <span class="kw">let</span> (<span class="ident">audio</span>, <span class="ident">audio_main_thread</span>) <span class="op">=</span> <span class="ident">AudioSystem</span>::<span class="ident">new_shared</span>()<span class="question-mark">?</span>;
+		<span class="macro">log::debug!</span>(<span class="string">&quot;Initializing input...&quot;</span>);
+		<span class="kw">let</span> (<span class="ident">input_system</span>, <span class="ident">input_main_thread</span>) <span class="op">=</span>
+			<span class="ident">InputSystem::new_shared</span>(<span class="ident">platform_system</span>.<span class="ident">event_pub</span>())<span class="question-mark">?</span>;
+		<span class="macro">log::debug!</span>(<span class="string">&quot;Input initialized&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">riddle_state</span> <span class="op">=</span> <span class="ident">RiddleState</span> {
-            <span class="ident">platform</span>: <span class="ident">platform_system</span>,
-            <span class="ident">input</span>: <span class="ident">input_system</span>,
-            <span class="ident">time</span>,
+		<span class="macro">log::debug!</span>(<span class="string">&quot;Initializing time...&quot;</span>);
+		<span class="kw">let</span> <span class="ident">time</span> <span class="op">=</span> <span class="ident">TimeSystem::new_shared</span>();
+		<span class="macro">log::debug!</span>(<span class="string">&quot;Time initialized&quot;</span>);
 
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;riddle-audio&quot;</span>)]</span>
-            <span class="ident">audio</span>,
-        };
+		<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;riddle-audio&quot;</span>)]</span>
+		<span class="kw">let</span> (<span class="ident">audio</span>, <span class="ident">audio_main_thread</span>) <span class="op">=</span> {
+			<span class="macro">log::debug!</span>(<span class="string">&quot;Initializing audio...&quot;</span>);
+			<span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">AudioSystem::new_shared</span>()<span class="question-mark">?</span>;
+			<span class="macro">log::debug!</span>(<span class="string">&quot;Audio initialized&quot;</span>);
+			<span class="ident">result</span>
+		};
 
-        <span class="kw">let</span> <span class="ident">main_thread_state</span> <span class="op">=</span> <span class="ident">MainThreadState</span> {
-            <span class="ident">platform</span>: <span class="ident">platform_main_thread</span>,
-            <span class="ident">input</span>: <span class="ident">input_main_thread</span>,
+		<span class="kw">let</span> <span class="ident">riddle_state</span> <span class="op">=</span> <span class="ident">RiddleState</span> {
+			<span class="ident">platform</span>: <span class="ident">platform_system</span>,
+			<span class="ident">input</span>: <span class="ident">input_system</span>,
+			<span class="ident">time</span>,
 
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;riddle-audio&quot;</span>)]</span>
-            <span class="ident">audio</span>: <span class="ident">audio_main_thread</span>,
-        };
+			<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;riddle-audio&quot;</span>)]</span>
+			<span class="ident">audio</span>,
+		};
 
-        <span class="prelude-val">Ok</span>((<span class="ident">riddle_state</span>, <span class="ident">main_thread_state</span>))
-    }
+		<span class="kw">let</span> <span class="ident">main_thread_state</span> <span class="op">=</span> <span class="ident">MainThreadState</span> {
+			<span class="ident">platform</span>: <span class="ident">platform_main_thread</span>,
+			<span class="ident">input</span>: <span class="ident">input_main_thread</span>,
 
-    <span class="doccomment">/// Platform system state</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">platform</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">PlatformSystem</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">platform</span>
-    }
+			<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;riddle-audio&quot;</span>)]</span>
+			<span class="ident">audio</span>: <span class="ident">audio_main_thread</span>,
+		};
 
-    <span class="doccomment">/// Input system state</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">input</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">InputSystem</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">input</span>
-    }
+		<span class="prelude-val">Ok</span>((<span class="ident">riddle_state</span>, <span class="ident">main_thread_state</span>))
+	}
 
-    <span class="doccomment">/// Time system state</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">time</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">TimeSystem</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">time</span>
-    }
+	<span class="doccomment">/// Platform system state</span>
+	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">platform</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">PlatformSystem</span> {
+		<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">platform</span>
+	}
 
-    <span class="doccomment">/// Audio system state</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;riddle-audio&quot;</span>)]</span>
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;riddle-audio&quot;</span>))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">audio</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">AudioSystem</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">audio</span>
-    }
+	<span class="doccomment">/// Input system state</span>
+	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">input</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">InputSystem</span> {
+		<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">input</span>
+	}
+
+	<span class="doccomment">/// Time system state</span>
+	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">time</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">TimeSystem</span> {
+		<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">time</span>
+	}
+
+	<span class="doccomment">/// Audio system state</span>
+	<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;riddle-audio&quot;</span>)]</span>
+	<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;riddle-audio&quot;</span>))]</span>
+	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">audio</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">AudioSystem</span> {
+		<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">audio</span>
+	}
 }
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">MainThreadState</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">platform</span>: <span class="ident">PlatformMainThreadState</span>,
-    <span class="ident">input</span>: <span class="ident">InputMainThreadState</span>,
+	<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">platform</span>: <span class="ident">PlatformMainThreadState</span>,
+	<span class="ident">input</span>: <span class="ident">InputMainThreadState</span>,
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;riddle-audio&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="ident">audio</span>: <span class="ident">AudioMainThreadState</span>,
+	<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;riddle-audio&quot;</span>)]</span>
+	<span class="kw">pub</span> <span class="ident">audio</span>: <span class="ident">AudioMainThreadState</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">MainThreadState</span> {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run</span><span class="op">&lt;</span><span class="prelude-val">Err</span>: <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Debug</span>, <span class="ident">F</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">state</span>: <span class="ident">RiddleState</span>, <span class="kw-2">mut</span> <span class="ident">update</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="op">!</span>
-    <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="ident">RiddleContext</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">std</span>::<span class="ident">result</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="prelude-val">Err</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-    {
-        <span class="kw">let</span> <span class="ident">MainThreadState</span> {
-            <span class="ident">platform</span>,
-            <span class="kw-2">mut</span> <span class="ident">input</span>,
-            <span class="ident">audio</span>: <span class="ident">_audio</span>,
-        } <span class="op">=</span> <span class="self">self</span>;
-        <span class="ident">platform</span>.<span class="ident">run</span>::<span class="op">&lt;</span><span class="prelude-val">Err</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">platform_ctx</span><span class="op">|</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">platform</span>::<span class="ident">PlatformEvent</span>::<span class="ident">EventQueueEmpty</span> <span class="op">=</span> <span class="ident">platform_ctx</span>.<span class="ident">event</span>() {
-                <span class="ident">state</span>.<span class="ident">time</span>.<span class="ident">process_frame</span>();
+	<span class="attribute">#[<span class="ident">inline</span>]</span>
+	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run</span><span class="op">&lt;</span><span class="prelude-val">Err</span>: <span class="ident">std::fmt::Debug</span>, <span class="ident">F</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">state</span>: <span class="ident">RiddleState</span>, <span class="kw-2">mut</span> <span class="ident">update</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="op">!</span>
+	<span class="kw">where</span>
+		<span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="ident">RiddleContext</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">std::result::Result</span><span class="op">&lt;</span>(), <span class="prelude-val">Err</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+	{
+		<span class="kw">let</span> <span class="ident">MainThreadState</span> {
+			<span class="ident">platform</span>,
+			<span class="kw-2">mut</span> <span class="ident">input</span>,
+			<span class="ident">audio</span>: <span class="ident">_audio</span>,
+		} <span class="op">=</span> <span class="self">self</span>;
+		<span class="ident">platform</span>.<span class="ident">run</span>::<span class="op">&lt;</span><span class="prelude-val">Err</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">platform_ctx</span><span class="op">|</span> {
+			<span class="kw">if</span> <span class="kw">let</span> <span class="ident">platform::PlatformEvent::EventQueueEmpty</span> <span class="op">=</span> <span class="ident">platform_ctx</span>.<span class="ident">event</span>() {
+				<span class="ident">state</span>.<span class="ident">time</span>.<span class="ident">process_frame</span>();
 
-                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;riddle-audio&quot;</span>)]</span>
-                <span class="ident">state</span>.<span class="ident">audio</span>.<span class="ident">process_frame</span>();
-            };
+				<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;riddle-audio&quot;</span>)]</span>
+				<span class="ident">state</span>.<span class="ident">audio</span>.<span class="ident">process_frame</span>();
+			};
 
-            <span class="ident">input</span>.<span class="ident">process_input</span>();
+			<span class="ident">input</span>.<span class="ident">process_input</span>();
 
-            <span class="kw">let</span> <span class="ident">event</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">platform_ctx</span>.<span class="ident">event</span>() {
-                <span class="ident">platform</span>::<span class="ident">PlatformEvent</span>::<span class="ident">EventQueueEmpty</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Event</span>::<span class="ident">ProcessFrame</span>,
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Event</span>::<span class="ident">Platform</span>(<span class="ident">platform_ctx</span>.<span class="ident">event</span>().<span class="ident">clone</span>()),
-            };
+			<span class="kw">let</span> <span class="ident">event</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">platform_ctx</span>.<span class="ident">event</span>() {
+				<span class="ident">platform::PlatformEvent::EventQueueEmpty</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Event::ProcessFrame</span>,
+				<span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Event::Platform</span>(<span class="ident">platform_ctx</span>.<span class="ident">event</span>().<span class="ident">clone</span>()),
+			};
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ctx</span> <span class="op">=</span> <span class="ident">RiddleContext</span> {
-                <span class="ident">window_ctx</span>: <span class="ident">platform_ctx</span>,
-                <span class="ident">state</span>: <span class="kw-2">&amp;</span><span class="ident">state</span>,
-                <span class="ident">event</span>,
-            };
+			<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ctx</span> <span class="op">=</span> <span class="ident">RiddleContext</span> {
+				<span class="ident">window_ctx</span>: <span class="ident">platform_ctx</span>,
+				<span class="ident">state</span>: <span class="kw-2">&amp;</span><span class="ident">state</span>,
+				<span class="ident">event</span>,
+			};
 
-            <span class="ident">update</span>(<span class="kw-2">&amp;</span><span class="ident">ctx</span>)<span class="question-mark">?</span>;
+			<span class="ident">update</span>(<span class="kw-2">&amp;</span><span class="ident">ctx</span>)<span class="question-mark">?</span>;
 
-            <span class="kw">let</span> <span class="ident">input_events</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">input</span>.<span class="ident">take_input_events</span>();
-            <span class="kw">for</span> <span class="ident">input_event</span> <span class="kw">in</span> <span class="ident">input_events</span> {
-                <span class="ident">ctx</span>.<span class="ident">event</span> <span class="op">=</span> <span class="ident">Event</span>::<span class="ident">Input</span>(<span class="ident">input_event</span>);
-                <span class="ident">update</span>(<span class="kw-2">&amp;</span><span class="ident">ctx</span>)<span class="question-mark">?</span>;
-            }
+			<span class="kw">let</span> <span class="ident">input_events</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">input</span>.<span class="ident">take_input_events</span>();
+			<span class="kw">for</span> <span class="ident">input_event</span> <span class="kw">in</span> <span class="ident">input_events</span> {
+				<span class="ident">ctx</span>.<span class="ident">event</span> <span class="op">=</span> <span class="ident">Event::Input</span>(<span class="ident">input_event</span>);
+				<span class="ident">update</span>(<span class="kw-2">&amp;</span><span class="ident">ctx</span>)<span class="question-mark">?</span>;
+			}
 
-            <span class="prelude-val">Ok</span>(())
-        })
-    }
+			<span class="prelude-val">Ok</span>(())
+		})
+	}
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="riddle" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="riddle" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

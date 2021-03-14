@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `riddle-input\src\gamepad.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>gamepad.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../riddle_input/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../riddle_input/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -131,19 +131,19 @@
 <span class="doccomment">/// An identifier mapping to a particular gamepad, used for querying state from [`crate::InputSystem`]</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Eq</span>, <span class="ident">PartialEq</span>, <span class="ident">Hash</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">GamePadId</span> {
-    <span class="ident">id</span>: <span class="ident">gilrs</span>::<span class="ident">GamepadId</span>,
+	<span class="ident">id</span>: <span class="ident">gilrs::GamepadId</span>,
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">gilrs</span>::<span class="ident">GamepadId</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">GamePadId</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">id</span>: <span class="ident">gilrs</span>::<span class="ident">GamepadId</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">Self</span> { <span class="ident">id</span> }
-    }
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">gilrs::GamepadId</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">GamePadId</span> {
+	<span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">id</span>: <span class="ident">gilrs::GamepadId</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+		<span class="self">Self</span> { <span class="ident">id</span> }
+	}
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">GamePadId</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">gilrs</span>::<span class="ident">GamepadId</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">gpid</span>: <span class="ident">GamePadId</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="ident">gpid</span>.<span class="ident">id</span>
-    }
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">GamePadId</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">gilrs::GamepadId</span> {
+	<span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">gpid</span>: <span class="ident">GamePadId</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+		<span class="ident">gpid</span>.<span class="ident">id</span>
+	}
 }
 
 <span class="doccomment">/// GamePad Button identifiers.</span>
@@ -152,82 +152,82 @@
 <span class="doccomment">/// the A, B, X, and Y buttons have been renamed South, East, West, North respectively.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Eq</span>, <span class="ident">PartialEq</span>, <span class="ident">Hash</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">GamePadButton</span> {
-    <span class="ident">South</span>,
-    <span class="ident">North</span>,
-    <span class="ident">East</span>,
-    <span class="ident">West</span>,
+	<span class="ident">South</span>,
+	<span class="ident">North</span>,
+	<span class="ident">East</span>,
+	<span class="ident">West</span>,
 
-    <span class="ident">DPadUp</span>,
-    <span class="ident">DPadDown</span>,
-    <span class="ident">DPadLeft</span>,
-    <span class="ident">DPadRight</span>,
+	<span class="ident">DPadUp</span>,
+	<span class="ident">DPadDown</span>,
+	<span class="ident">DPadLeft</span>,
+	<span class="ident">DPadRight</span>,
 
-    <span class="ident">LeftStick</span>,
-    <span class="ident">RightStick</span>,
+	<span class="ident">LeftStick</span>,
+	<span class="ident">RightStick</span>,
 
-    <span class="ident">LeftShoulder</span>,
-    <span class="ident">RightShoulder</span>,
+	<span class="ident">LeftShoulder</span>,
+	<span class="ident">RightShoulder</span>,
 
-    <span class="ident">LeftTrigger</span>,
-    <span class="ident">RightTrigger</span>,
+	<span class="ident">LeftTrigger</span>,
+	<span class="ident">RightTrigger</span>,
 
-    <span class="ident">Start</span>,
-    <span class="ident">Back</span>,
+	<span class="ident">Start</span>,
+	<span class="ident">Back</span>,
 }
 
-<span class="kw">impl</span> <span class="ident">std</span>::<span class="ident">convert</span>::<span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">gilrs</span>::<span class="ident">Button</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">GamePadButton</span> {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">gilrs</span>::<span class="ident">Button</span>;
+<span class="kw">impl</span> <span class="ident">std::convert::TryFrom</span><span class="op">&lt;</span><span class="ident">gilrs::Button</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">GamePadButton</span> {
+	<span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">gilrs::Button</span>;
 
-    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">button</span>: <span class="ident">gilrs</span>::<span class="ident">Button</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">gilrs</span>::<span class="ident">Button</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Ok</span>(<span class="kw">match</span> <span class="ident">button</span> {
-            <span class="ident">gilrs</span>::<span class="ident">Button</span>::<span class="ident">South</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">GamePadButton</span>::<span class="ident">South</span>,
-            <span class="ident">gilrs</span>::<span class="ident">Button</span>::<span class="ident">North</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">GamePadButton</span>::<span class="ident">North</span>,
-            <span class="ident">gilrs</span>::<span class="ident">Button</span>::<span class="ident">East</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">GamePadButton</span>::<span class="ident">East</span>,
-            <span class="ident">gilrs</span>::<span class="ident">Button</span>::<span class="ident">West</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">GamePadButton</span>::<span class="ident">West</span>,
+	<span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">button</span>: <span class="ident">gilrs::Button</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">gilrs::Button</span><span class="op">&gt;</span> {
+		<span class="prelude-val">Ok</span>(<span class="kw">match</span> <span class="ident">button</span> {
+			<span class="ident">gilrs::Button::South</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">GamePadButton::South</span>,
+			<span class="ident">gilrs::Button::North</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">GamePadButton::North</span>,
+			<span class="ident">gilrs::Button::East</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">GamePadButton::East</span>,
+			<span class="ident">gilrs::Button::West</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">GamePadButton::West</span>,
 
-            <span class="ident">gilrs</span>::<span class="ident">Button</span>::<span class="ident">DPadUp</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">GamePadButton</span>::<span class="ident">DPadUp</span>,
-            <span class="ident">gilrs</span>::<span class="ident">Button</span>::<span class="ident">DPadDown</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">GamePadButton</span>::<span class="ident">DPadDown</span>,
-            <span class="ident">gilrs</span>::<span class="ident">Button</span>::<span class="ident">DPadLeft</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">GamePadButton</span>::<span class="ident">DPadLeft</span>,
-            <span class="ident">gilrs</span>::<span class="ident">Button</span>::<span class="ident">DPadRight</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">GamePadButton</span>::<span class="ident">DPadRight</span>,
+			<span class="ident">gilrs::Button::DPadUp</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">GamePadButton::DPadUp</span>,
+			<span class="ident">gilrs::Button::DPadDown</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">GamePadButton::DPadDown</span>,
+			<span class="ident">gilrs::Button::DPadLeft</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">GamePadButton::DPadLeft</span>,
+			<span class="ident">gilrs::Button::DPadRight</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">GamePadButton::DPadRight</span>,
 
-            <span class="ident">gilrs</span>::<span class="ident">Button</span>::<span class="ident">LeftThumb</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">GamePadButton</span>::<span class="ident">LeftStick</span>,
-            <span class="ident">gilrs</span>::<span class="ident">Button</span>::<span class="ident">RightThumb</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">GamePadButton</span>::<span class="ident">RightStick</span>,
+			<span class="ident">gilrs::Button::LeftThumb</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">GamePadButton::LeftStick</span>,
+			<span class="ident">gilrs::Button::RightThumb</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">GamePadButton::RightStick</span>,
 
-            <span class="ident">gilrs</span>::<span class="ident">Button</span>::<span class="ident">LeftTrigger</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">GamePadButton</span>::<span class="ident">LeftShoulder</span>,
-            <span class="ident">gilrs</span>::<span class="ident">Button</span>::<span class="ident">RightTrigger</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">GamePadButton</span>::<span class="ident">RightShoulder</span>,
+			<span class="ident">gilrs::Button::LeftTrigger</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">GamePadButton::LeftShoulder</span>,
+			<span class="ident">gilrs::Button::RightTrigger</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">GamePadButton::RightShoulder</span>,
 
-            <span class="ident">gilrs</span>::<span class="ident">Button</span>::<span class="ident">LeftTrigger2</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">GamePadButton</span>::<span class="ident">LeftTrigger</span>,
-            <span class="ident">gilrs</span>::<span class="ident">Button</span>::<span class="ident">RightTrigger2</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">GamePadButton</span>::<span class="ident">RightTrigger</span>,
+			<span class="ident">gilrs::Button::LeftTrigger2</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">GamePadButton::LeftTrigger</span>,
+			<span class="ident">gilrs::Button::RightTrigger2</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">GamePadButton::RightTrigger</span>,
 
-            <span class="ident">gilrs</span>::<span class="ident">Button</span>::<span class="ident">Start</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">GamePadButton</span>::<span class="ident">Start</span>,
-            <span class="ident">gilrs</span>::<span class="ident">Button</span>::<span class="ident">Select</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">GamePadButton</span>::<span class="ident">Back</span>,
+			<span class="ident">gilrs::Button::Start</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">GamePadButton::Start</span>,
+			<span class="ident">gilrs::Button::Select</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">GamePadButton::Back</span>,
 
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">button</span>),
-        })
-    }
+			<span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">button</span>),
+		})
+	}
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">GamePadButton</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">gilrs</span>::<span class="ident">Button</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">button</span>: <span class="ident">GamePadButton</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="kw">match</span> <span class="ident">button</span> {
-            <span class="ident">GamePadButton</span>::<span class="ident">South</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">gilrs</span>::<span class="ident">Button</span>::<span class="ident">South</span>,
-            <span class="ident">GamePadButton</span>::<span class="ident">North</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">gilrs</span>::<span class="ident">Button</span>::<span class="ident">North</span>,
-            <span class="ident">GamePadButton</span>::<span class="ident">East</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">gilrs</span>::<span class="ident">Button</span>::<span class="ident">East</span>,
-            <span class="ident">GamePadButton</span>::<span class="ident">West</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">gilrs</span>::<span class="ident">Button</span>::<span class="ident">West</span>,
-            <span class="ident">GamePadButton</span>::<span class="ident">DPadUp</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">gilrs</span>::<span class="ident">Button</span>::<span class="ident">DPadUp</span>,
-            <span class="ident">GamePadButton</span>::<span class="ident">DPadDown</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">gilrs</span>::<span class="ident">Button</span>::<span class="ident">DPadDown</span>,
-            <span class="ident">GamePadButton</span>::<span class="ident">DPadLeft</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">gilrs</span>::<span class="ident">Button</span>::<span class="ident">DPadLeft</span>,
-            <span class="ident">GamePadButton</span>::<span class="ident">DPadRight</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">gilrs</span>::<span class="ident">Button</span>::<span class="ident">DPadRight</span>,
-            <span class="ident">GamePadButton</span>::<span class="ident">LeftStick</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">gilrs</span>::<span class="ident">Button</span>::<span class="ident">LeftThumb</span>,
-            <span class="ident">GamePadButton</span>::<span class="ident">RightStick</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">gilrs</span>::<span class="ident">Button</span>::<span class="ident">RightThumb</span>,
-            <span class="ident">GamePadButton</span>::<span class="ident">LeftShoulder</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">gilrs</span>::<span class="ident">Button</span>::<span class="ident">LeftTrigger</span>,
-            <span class="ident">GamePadButton</span>::<span class="ident">RightShoulder</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">gilrs</span>::<span class="ident">Button</span>::<span class="ident">RightTrigger</span>,
-            <span class="ident">GamePadButton</span>::<span class="ident">LeftTrigger</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">gilrs</span>::<span class="ident">Button</span>::<span class="ident">LeftTrigger2</span>,
-            <span class="ident">GamePadButton</span>::<span class="ident">RightTrigger</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">gilrs</span>::<span class="ident">Button</span>::<span class="ident">RightTrigger2</span>,
-            <span class="ident">GamePadButton</span>::<span class="ident">Start</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">gilrs</span>::<span class="ident">Button</span>::<span class="ident">Start</span>,
-            <span class="ident">GamePadButton</span>::<span class="ident">Back</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">gilrs</span>::<span class="ident">Button</span>::<span class="ident">Select</span>,
-        }
-    }
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">GamePadButton</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">gilrs::Button</span> {
+	<span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">button</span>: <span class="ident">GamePadButton</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+		<span class="kw">match</span> <span class="ident">button</span> {
+			<span class="ident">GamePadButton::South</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">gilrs::Button::South</span>,
+			<span class="ident">GamePadButton::North</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">gilrs::Button::North</span>,
+			<span class="ident">GamePadButton::East</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">gilrs::Button::East</span>,
+			<span class="ident">GamePadButton::West</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">gilrs::Button::West</span>,
+			<span class="ident">GamePadButton::DPadUp</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">gilrs::Button::DPadUp</span>,
+			<span class="ident">GamePadButton::DPadDown</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">gilrs::Button::DPadDown</span>,
+			<span class="ident">GamePadButton::DPadLeft</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">gilrs::Button::DPadLeft</span>,
+			<span class="ident">GamePadButton::DPadRight</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">gilrs::Button::DPadRight</span>,
+			<span class="ident">GamePadButton::LeftStick</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">gilrs::Button::LeftThumb</span>,
+			<span class="ident">GamePadButton::RightStick</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">gilrs::Button::RightThumb</span>,
+			<span class="ident">GamePadButton::LeftShoulder</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">gilrs::Button::LeftTrigger</span>,
+			<span class="ident">GamePadButton::RightShoulder</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">gilrs::Button::RightTrigger</span>,
+			<span class="ident">GamePadButton::LeftTrigger</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">gilrs::Button::LeftTrigger2</span>,
+			<span class="ident">GamePadButton::RightTrigger</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">gilrs::Button::RightTrigger2</span>,
+			<span class="ident">GamePadButton::Start</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">gilrs::Button::Start</span>,
+			<span class="ident">GamePadButton::Back</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">gilrs::Button::Select</span>,
+		}
+	}
 }
 
 <span class="doccomment">/// GamePad axis identifiers.</span>
@@ -235,25 +235,25 @@
 <span class="doccomment">/// Does not include an axis mapping for the DPad, that is exposed via button presses.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Eq</span>, <span class="ident">PartialEq</span>, <span class="ident">Hash</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">GamePadAxis</span> {
-    <span class="ident">LeftStickX</span>,
-    <span class="ident">LeftStickY</span>,
-    <span class="ident">RightStickX</span>,
-    <span class="ident">RightStickY</span>,
+	<span class="ident">LeftStickX</span>,
+	<span class="ident">LeftStickY</span>,
+	<span class="ident">RightStickX</span>,
+	<span class="ident">RightStickY</span>,
 }
 
-<span class="kw">impl</span> <span class="ident">std</span>::<span class="ident">convert</span>::<span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">gilrs</span>::<span class="ident">Axis</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">GamePadAxis</span> {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">gilrs</span>::<span class="ident">Axis</span>;
+<span class="kw">impl</span> <span class="ident">std::convert::TryFrom</span><span class="op">&lt;</span><span class="ident">gilrs::Axis</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">GamePadAxis</span> {
+	<span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">gilrs::Axis</span>;
 
-    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">axis</span>: <span class="ident">gilrs</span>::<span class="ident">Axis</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">gilrs</span>::<span class="ident">Axis</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Ok</span>(<span class="kw">match</span> <span class="ident">axis</span> {
-            <span class="ident">gilrs</span>::<span class="ident">Axis</span>::<span class="ident">LeftStickX</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">GamePadAxis</span>::<span class="ident">LeftStickX</span>,
-            <span class="ident">gilrs</span>::<span class="ident">Axis</span>::<span class="ident">LeftStickY</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">GamePadAxis</span>::<span class="ident">LeftStickY</span>,
-            <span class="ident">gilrs</span>::<span class="ident">Axis</span>::<span class="ident">RightStickX</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">GamePadAxis</span>::<span class="ident">RightStickX</span>,
-            <span class="ident">gilrs</span>::<span class="ident">Axis</span>::<span class="ident">RightStickY</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">GamePadAxis</span>::<span class="ident">RightStickY</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">axis</span>),
-        })
-    }
+	<span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">axis</span>: <span class="ident">gilrs::Axis</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">gilrs::Axis</span><span class="op">&gt;</span> {
+		<span class="prelude-val">Ok</span>(<span class="kw">match</span> <span class="ident">axis</span> {
+			<span class="ident">gilrs::Axis::LeftStickX</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">GamePadAxis::LeftStickX</span>,
+			<span class="ident">gilrs::Axis::LeftStickY</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">GamePadAxis::LeftStickY</span>,
+			<span class="ident">gilrs::Axis::RightStickX</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">GamePadAxis::RightStickX</span>,
+			<span class="ident">gilrs::Axis::RightStickY</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">GamePadAxis::RightStickY</span>,
+			<span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">axis</span>),
+		})
+	}
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="riddle_input" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="riddle_input" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>
