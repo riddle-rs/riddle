@@ -50,6 +50,22 @@ impl<T> Vector2<T> {
     }
 }
 
+impl<T: SpacialNumeric> Vector2<T> {
+    /// Calculate the square of the magnitude of the vector
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use riddle_math::*;
+    /// let v = Vector2::new(2, 2);
+    /// assert_eq!(8, v.magnitude_squared());
+    /// ```
+    #[inline]
+    pub fn magnitude_squared(&self) -> T {
+        (self.x * self.x) + (self.y * self.y)
+    }
+}
+
 impl<T: PartialEq> PartialEq for Vector2<T> {
     fn eq(&self, other: &Self) -> bool {
         self.x == other.x && self.y == other.y

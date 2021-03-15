@@ -20,6 +20,7 @@
 //! ```
 
 mod error;
+pub mod filters;
 mod image;
 mod imageview;
 pub mod packer;
