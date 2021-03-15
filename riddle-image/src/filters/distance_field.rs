@@ -66,7 +66,7 @@ pub fn distance_field(source: Image, scale: f64) -> Image {
 }
 
 fn get_grid_point(
-    grid: &Vec<Vector2<i64>>,
+    grid: &[Vector2<i64>],
     bounds: &Rect<i64>,
     location: Vector2<i64>,
 ) -> Vector2<i64> {
