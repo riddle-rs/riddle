@@ -62,6 +62,9 @@ macro_rules! define_spacial_numeric {
     };
 }
 
-define_spacial_numeric!(Unsigned, u32, (As(i32), As(f32)));
-define_spacial_numeric!(Signed, i32, (As(u32), As(f32)));
-define_spacial_numeric!(Signed, f32, (As(u32), As(i32)));
+define_spacial_numeric!(Unsigned, u32, (As(i32), As(u64), As(i64), As(f32), As(f64)));
+define_spacial_numeric!(Signed, i32, (As(u32), As(u64), As(i64), As(f32), As(f64)));
+define_spacial_numeric!(Unsigned, u64, (As(u32), As(i32), As(i64), As(f32), As(f64)));
+define_spacial_numeric!(Signed, i64, (As(u32), As(i32), As(u64), As(f32), As(f64)));
+define_spacial_numeric!(Signed, f32, (As(u32), As(i32), As(u64), As(i64), As(f64)));
+define_spacial_numeric!(Signed, f64, (As(u32), As(i32), As(u64), As(i64), As(f32)));

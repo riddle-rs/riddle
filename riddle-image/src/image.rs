@@ -4,7 +4,7 @@ use riddle_common::{Color, ColorElementConversion};
 use riddle_math::*;
 
 use futures::{AsyncRead, AsyncReadExt};
-use std::io::{BufReader, Cursor, Read};
+use std::io::{BufReader, Cursor, Read, Write};
 
 /// A representation of an image stored in main memory. The image is stored
 /// as RGBA32.
@@ -50,6 +50,47 @@ impl Image {
         let mut buf = vec![];
         data.read_to_end(&mut buf).await?;
         Self::from_bytes(&buf, format)
+    }
+
+    /// Save an image to a `Write` instance, emitting image file data in the specified format.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use riddle_image::*; fn main() -> Result<(), ImageError> {
+    /// let img = Image::new(4,4);
+    /// let buf: Vec<u8> = vec![];
+    /// img.save(buf, ImageFormat::Png)?;
+    /// # Ok(()) }
+    /// ```
+    pub fn save<W: Write>(&self, mut w: W, format: ImageFormat) -> Result<()> {
+        match format {
+            ImageFormat::Png => {
+                ::image::png::PngEncoder::new(w).encode(
+                    self.as_rgba8(),
+                    self.width(),
+                    self.height(),
+                    ::image::ColorType::Rgba8,
+                )?;
+            }
+            ImageFormat::Bmp => {
+                ::image::bmp::BmpEncoder::new(&mut w).encode(
+                    self.as_rgba8(),
+                    self.width(),
+                    self.height(),
+                    ::image::ColorType::Rgba8,
+                )?;
+            }
+            ImageFormat::Jpeg => {
+                ::image::jpeg::JpegEncoder::new(&mut w).encode(
+                    self.as_rgba8(),
+                    self.width(),
+                    self.height(),
+                    ::image::ColorType::Rgba8,
+                )?;
+            }
+        }
+        Ok(())
     }
 
     /// Load an image from a byte slice in the specified format.
@@ -322,6 +363,12 @@ impl Image {
 impl image_ext::ImageImageExt for Image {
     fn image_rgbaimage(&self) -> &::image::RgbaImage {
         &self.img
+    }
+
+    fn image_from_dynimage(img: ::image::DynamicImage) -> Self {
+        Self {
+            img: img.into_rgba(),
+        }
     }
 }
 

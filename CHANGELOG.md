@@ -7,6 +7,8 @@
 * **breaking** image: Use a Vector2 arg instead of x,y arg pairs for several functions.
 * image: Add `ImagePacker` to provide decent sprite packing.
 * renderer: Convert `SpriteAtlasBuilder` to use `image::ImagePacker`.
+* image: Add support for generating signed distance field images:  `image::filters::distance_field`.
+* image: Add `Image::save`.
 
 ## 0.2.0
 
