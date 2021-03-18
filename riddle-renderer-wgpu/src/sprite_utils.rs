@@ -1,7 +1,7 @@
 use crate::{math::*, wgpu_ext::*, *};
 
 /////////////////////////////////////////////////////////////////////////////
-// struct SpriteRenderCommand
+// struct SpriteRenderArgs
 /////////////////////////////////////////////////////////////////////////////
 
 /// Builder for a [`Sprite`] render call
@@ -31,7 +31,7 @@ use crate::{math::*, wgpu_ext::*, *};
 /// render_ctx.clear(Color::WHITE)?;
 ///
 /// // Render the sprite
-/// SpriteRenderCommand::new(vec2(0.0, 0.0))
+/// SpriteRenderArgs::new(vec2(0.0, 0.0))
 ///     .with_scale(vec2(1.0, 2.0))
 ///     .with_color(Color::RED)
 ///     .render(&mut render_ctx, &sprite)?;
@@ -40,15 +40,15 @@ use crate::{math::*, wgpu_ext::*, *};
 /// # Ok(()) }
 /// ```
 #[derive(Clone, Debug)]
-pub struct SpriteRenderCommand {
-    pub(crate) location: Vector2<f32>,
-    pub(crate) pivot: Vector2<f32>,
-    pub(crate) scale: Vector2<f32>,
-    pub(crate) angle: f32,
-    pub(crate) diffuse_color: Color<f32>,
+pub struct SpriteRenderArgs {
+    pub location: Vector2<f32>,
+    pub pivot: Vector2<f32>,
+    pub scale: Vector2<f32>,
+    pub angle: f32,
+    pub diffuse_color: Color<f32>,
 }
 
-impl SpriteRenderCommand {
+impl SpriteRenderArgs {
     /// New render command with default args, at the specified location
     pub fn new<T: Into<Vector2<f32>>>(location: T) -> Self {
         let mut args = Self::default();
@@ -103,9 +103,9 @@ impl SpriteRenderCommand {
     }
 }
 
-impl Default for SpriteRenderCommand {
+impl Default for SpriteRenderArgs {
     fn default() -> Self {
-        SpriteRenderCommand {
+        SpriteRenderArgs {
             location: [0.0, 0.0].into(),
             pivot: [0.0, 0.0].into(),
             angle: 0.0,
@@ -164,6 +164,6 @@ impl SpriteBuilder {
         self,
         renderer: &WGPURenderer<Device>,
     ) -> Result<WGPUSprite<Device>> {
-        WGPUSprite::new_from_image(renderer, self.img, self.mag_filter, self.min_filter)
+        WGPUSprite::new_from_image(renderer, &self.img, self.mag_filter, self.min_filter)
     }
 }

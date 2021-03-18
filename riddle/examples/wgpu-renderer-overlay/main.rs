@@ -104,7 +104,7 @@ impl WGPURendererDemo {
         // Use the riddle renderer to draw a label on top
         let mut render_ctx = self.rdl_renderer.begin_render()?;
 
-        SpriteRenderCommand::new(vec2(10.0, 10.0))
+        SpriteRenderArgs::new(vec2(10.0, 10.0))
             .with_color(Color::RED)
             .render(&mut render_ctx, &self.label_sprite)?;
 

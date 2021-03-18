@@ -289,13 +289,45 @@ impl Image {
     /// assert_eq!(Color::RED, dest.get_pixel([1, 0]));
     /// ```
     pub fn blit(&mut self, source: &Image, location: Vector2<i32>) {
-        if let Some((dest_rect, src_rect)) =
-            Rect::intersect_relative_to_both(self.dimensions(), source.dimensions(), location)
-        {
-            let mut dest_view = self.create_view_mut(dest_rect.clone().convert());
-            let src_view = source.create_view(src_rect.convert());
+        self.blit_rect(source, &source.rect(), location)
+    }
 
-            for row in 0..(dest_rect.dimensions.y as u32) {
+    /// Blit a part of another image on to self. The location is the relative offset of the (0,0)
+    /// pixel of the source image relative to self's (0,0) pixel.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use riddle_image::*; use riddle_math::*;
+    /// let mut source = Image::new(2,2);
+    /// source.fill(Color::<u8>::RED);
+    ///
+    /// let mut dest = Image::new(3,3);
+    /// dest.fill(Color::<u8>::GREEN);
+    /// dest.blit_rect(&source, &Rect::new(Vector2::new(0,0), Vector2::new(2,1)), Vector2::new(0, 0));
+    ///
+    /// assert_eq!(Color::RED, dest.get_pixel([0, 0]));
+    /// assert_eq!(Color::GREEN, dest.get_pixel([0, 1]));
+    /// ```
+    pub fn blit_rect(&mut self, source: &Image, source_rect: &Rect<u32>, location: Vector2<i32>) {
+        // Clamp the source rect to the source image dimentions.
+        let source_rect = if let Some(rect) = source.rect().intersect(source_rect) {
+            rect
+        } else {
+            return;
+        };
+
+        if let Some((rel_dest_rect, rel_src_rect)) =
+            Rect::intersect_relative_to_both(self.dimensions(), source_rect.dimensions, location)
+        {
+            let abs_src_rec = Rect::new(
+                rel_src_rect.location + source_rect.location.convert(),
+                rel_src_rect.dimensions,
+            );
+            let mut dest_view = self.create_view_mut(rel_dest_rect.clone().convert());
+            let src_view = source.create_view(abs_src_rec.convert());
+
+            for row in 0..(rel_dest_rect.dimensions.y as u32) {
                 let dest = dest_view.get_row_rgba8_mut(row);
                 let src = src_view.get_row_rgba8(row);
 

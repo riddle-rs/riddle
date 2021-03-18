@@ -189,6 +189,13 @@ impl<T: SpacialNumeric> From<Vector2<T>> for mint::Vector2<T> {
     }
 }
 
+impl<T: SpacialNumeric> From<Vector2<T>> for [T; 2] {
+    #[inline]
+    fn from(vec: Vector2<T>) -> Self {
+        [vec.x, vec.y]
+    }
+}
+
 /// Vectors are convertible between numeric types
 ///
 /// # Example

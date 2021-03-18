@@ -9,6 +9,7 @@ edition = "2018"
 [dependencies]
 riddle-common = {path = "../riddle-common"}
 riddle-image = {path = "../riddle-image"}
+riddle-math = {path = "../riddle-math"}
 
 futures = "0.3"
 rusttype = "0.9"

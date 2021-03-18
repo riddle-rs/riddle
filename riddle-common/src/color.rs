@@ -3,7 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 /// A type that represents a single channel in a color value.
-pub trait ColorElement: Copy {
+pub trait ColorElement: Copy + Default {
     const ZERO: Self;
     const SATURATED: Self;
 }
@@ -87,8 +87,8 @@ impl ColorElementConversion<f32> for f32 {
 /// let c = Color{ r: 1.0, g: 0.0, b: 0.0, a: 1.0 };
 /// ```
 #[repr(C)]
-#[derive(Clone, Debug)]
-pub struct Color<E> {
+#[derive(Clone, Debug, Default)]
+pub struct Color<E: ColorElement> {
     /// Red
     pub r: E,
 
@@ -222,7 +222,9 @@ impl Color<u8> {
 /// let a_converted: Color<u8> = a.convert();
 /// assert_eq!(b, a_converted);
 /// ```
-impl<T: ColorElement, F: ColorElementConversion<T>> ColorElementConversion<Color<T>> for Color<F> {
+impl<T: ColorElement, F: ColorElementConversion<T> + ColorElement> ColorElementConversion<Color<T>>
+    for Color<F>
+{
     #[inline]
     fn convert(&self) -> Color<T> {
         Color::rgba(
@@ -234,13 +236,13 @@ impl<T: ColorElement, F: ColorElementConversion<T>> ColorElementConversion<Color
     }
 }
 
-impl<E: PartialEq> PartialEq for Color<E> {
+impl<E: PartialEq + ColorElement> PartialEq for Color<E> {
     fn eq(&self, other: &Self) -> bool {
         self.r == other.r && self.g == other.g && self.b == other.b && self.a == other.a
     }
 }
 
-impl<E: PartialEq> Eq for Color<E> {}
+impl<E: PartialEq + ColorElement> Eq for Color<E> {}
 
 impl<E: ColorElement> From<[E; 4]> for Color<E> {
     #[inline]
@@ -256,14 +258,14 @@ impl<E: ColorElement> From<[E; 3]> for Color<E> {
     }
 }
 
-impl<E: Copy> From<Color<E>> for [E; 4] {
+impl<E: Copy + ColorElement> From<Color<E>> for [E; 4] {
     #[inline]
     fn from(c: Color<E>) -> Self {
         [c.r, c.g, c.b, c.a]
     }
 }
 
-impl<E: Copy> From<Color<E>> for [E; 3] {
+impl<E: Copy + ColorElement> From<Color<E>> for [E; 3] {
     #[inline]
     fn from(c: Color<E>) -> Self {
         [c.r, c.g, c.b]

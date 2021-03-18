@@ -121,29 +121,36 @@ impl ImagePacker {
             let mut current_x = 0;
 
             for (image_idx, image) in sorted_images.iter() {
-                let padded_size = Vector2::new(
-                    image.width() + (self.padding * 2),
-                    image.height() + (self.padding * 2),
-                );
+                let padded_size = if image.dimensions() == Vector2::new(0, 0) {
+                    Vector2::new(0, 0)
+                } else {
+                    let padded_size = Vector2::new(
+                        image.width() + (self.padding * 2),
+                        image.height() + (self.padding * 2),
+                    );
 
-                'FIND_GAP: while current_y < output_image.height() {
-                    let mut gap_length = 0;
-                    while current_x < output_image.width() {
-                        if occupancy_image.get_pixel([current_x, current_y]) == Color::<u8>::ZERO {
-                            gap_length += 1;
-                        } else {
-                            gap_length = 0;
-                        }
+                    'FIND_GAP: while current_y < output_image.height() {
+                        let mut gap_length = 0;
+                        while current_x < output_image.width() {
+                            if occupancy_image.get_pixel([current_x, current_y])
+                                == Color::<u8>::ZERO
+                            {
+                                gap_length += 1;
+                            } else {
+                                gap_length = 0;
+                            }
 
-                        current_x += 1;
-                        if gap_length == padded_size.x {
-                            current_x -= padded_size.x;
-                            break 'FIND_GAP;
+                            current_x += 1;
+                            if gap_length == padded_size.x {
+                                current_x -= padded_size.x;
+                                break 'FIND_GAP;
+                            }
                         }
+                        current_x = 0;
+                        current_y += 1;
                     }
-                    current_x = 0;
-                    current_y += 1;
-                }
+                    padded_size
+                };
 
                 if current_y + padded_size.y > output_image.height() {
                     current_size = self
@@ -211,6 +218,7 @@ pub enum ImagePackerError {
 
 /// Controls the initial size of the output packed image size, and how that image grows over time
 /// if more space is required to pack all the supplied images.
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub enum ImagePackerSizePolicy {
     /// The output image will initially be the supplied size, and if the images can't be packed in
     /// to that size packing will fail.
@@ -265,6 +273,39 @@ mod test {
         for rect in results.rects() {
             assert_eq!(Some(rect.clone()), results.image().rect().intersect(rect));
         }
+    }
+
+    #[test]
+    fn pow2square_pack_0x0_image() {
+        let img = Image::new(0, 0);
+
+        let packed = ImagePacker::new()
+            .size_policy(ImagePackerSizePolicy::Pow2Square)
+            .pack(&[&img])
+            .unwrap();
+
+        assert_valid_result(&packed);
+        assert_eq!(Vector2::new(0, 0), packed.rects()[0].dimensions);
+    }
+
+    #[test]
+    fn pow2square_pack_0x0_with_large_image() {
+        let img1 = Image::new(0, 0);
+        let mut img2 = Image::new(3, 3);
+        img2.fill(Color::<u8>::RED);
+
+        let packed = ImagePacker::new()
+            .size_policy(ImagePackerSizePolicy::Pow2Square)
+            .pack(&[&img1, &img2])
+            .unwrap();
+
+        assert_valid_result(&packed);
+        assert_eq!(Vector2::new(0, 0), packed.rects()[0].dimensions);
+        assert_eq!(Vector2::new(4, 4), packed.image().dimensions());
+        assert_eq!(
+            Color::<u8>::RED,
+            packed.image().get_pixel(packed.rects()[1].location)
+        );
     }
 
     #[test]
