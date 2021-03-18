@@ -39,35 +39,35 @@ use riddle_font::ImgFont;
 /// # Ok(()) }
 /// ```
 pub struct WGPUSpriteFont<Device: WGPUDevice> {
-    sprite: WGPUSprite<Device>,
-    font: ImgFont,
+	sprite: WGPUSprite<Device>,
+	font: ImgFont,
 }
 
 impl<Device: WGPUDevice> WGPUSpriteFont<Device> {
-    /// Build a SpriteFont from the ImgFont given. The ImgFont's image will get loaded in to a
-    /// texture, and its glyph information will be used for layout.
-    pub fn new(renderer: &WGPURenderer<Device>, font: ImgFont) -> Result<Self> {
-        let sprite = WGPUSprite::new_from_image(
-            renderer,
-            font.image(),
-            FilterMode::Linear,
-            FilterMode::Linear,
-        )?;
+	/// Build a SpriteFont from the ImgFont given. The ImgFont's image will get loaded in to a
+	/// texture, and its glyph information will be used for layout.
+	pub fn new(renderer: &WGPURenderer<Device>, font: ImgFont) -> Result<Self> {
+		let sprite = WGPUSprite::new_from_image(
+			renderer,
+			font.image(),
+			FilterMode::Linear,
+			FilterMode::Linear,
+		)?;
 
-        Ok(Self { sprite, font })
-    }
+		Ok(Self { sprite, font })
+	}
 
-    pub fn render(
-        &self,
-        render_ctx: &mut impl RenderContext,
-        render_args: &SpriteRenderArgs,
-        text: &str,
-    ) -> Result<()> {
-        let mut parts: Vec<(Rect<f32>, Vector2<f32>)> = Vec::with_capacity(text.len());
-        self.font.layout(text, |_, rect, location| {
-            parts.push((rect.clone().convert(), location.convert()));
-        });
-        self.sprite
-            .render_regions(render_ctx, render_args, &parts[..])
-    }
+	pub fn render(
+		&self,
+		render_ctx: &mut impl RenderContext,
+		render_args: &SpriteRenderArgs,
+		text: &str,
+	) -> Result<()> {
+		let mut parts: Vec<(Rect<f32>, Vector2<f32>)> = Vec::with_capacity(text.len());
+		self.font.layout(text, |_, rect, location| {
+			parts.push((rect.clone().convert(), location.convert()));
+		});
+		self.sprite
+			.render_regions(render_ctx, render_args, &parts[..])
+	}
 }

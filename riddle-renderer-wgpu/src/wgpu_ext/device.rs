@@ -61,31 +61,31 @@ use crate::{math::*, *};
 /// }
 /// ```
 pub trait WGPUDevice {
-    /// Called when the [`WGPURenderer`] begins rendering to the swap chain frame.
-    ///
-    /// Invoked through [`WGPURenderer::begin_render`]
-    fn begin_frame(&self) -> Result<()>;
+	/// Called when the [`WGPURenderer`] begins rendering to the swap chain frame.
+	///
+	/// Invoked through [`WGPURenderer::begin_render`]
+	fn begin_frame(&self) -> Result<()>;
 
-    /// When the renderer is done renderering to the swap chain frame.
-    ///
-    /// Invoked by a [`RenderContext::present`] call on the context returned from
-    /// [`WGPURenderer::begin_render`].
-    fn end_frame(&self);
+	/// When the renderer is done renderering to the swap chain frame.
+	///
+	/// Invoked by a [`RenderContext::present`] call on the context returned from
+	/// [`WGPURenderer::begin_render`].
+	fn end_frame(&self);
 
-    /// The viewport dimensions of the swapchain frame.
-    ///
-    /// This controls the projection matrix used by the sprite renderer.
-    fn viewport_dimensions(&self) -> Vector2<f32>;
+	/// The viewport dimensions of the swapchain frame.
+	///
+	/// This controls the projection matrix used by the sprite renderer.
+	fn viewport_dimensions(&self) -> Vector2<f32>;
 
-    /// Provides a reference to the set of wgpu device state for use by the renderer.
-    fn with_device_info<R, F: FnOnce(&WGPUDeviceInfo) -> Result<R>>(&self, f: F) -> Result<R>;
+	/// Provides a reference to the set of wgpu device state for use by the renderer.
+	fn with_device_info<R, F: FnOnce(&WGPUDeviceInfo) -> Result<R>>(&self, f: F) -> Result<R>;
 
-    /// Provide a reference to the current swap chain frame for use by the
-    /// renderer.
-    fn with_frame<R, F: FnOnce(&wgpu::SwapChainFrame) -> Result<R>>(&self, f: F) -> Result<R>;
+	/// Provide a reference to the current swap chain frame for use by the
+	/// renderer.
+	fn with_frame<R, F: FnOnce(&wgpu::SwapChainFrame) -> Result<R>>(&self, f: F) -> Result<R>;
 }
 
 pub struct WGPUDeviceInfo<'a> {
-    pub device: &'a wgpu::Device,
-    pub queue: &'a wgpu::Queue,
+	pub device: &'a wgpu::Device,
+	pub queue: &'a wgpu::Queue,
 }

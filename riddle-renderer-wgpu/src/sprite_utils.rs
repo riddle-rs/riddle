@@ -41,78 +41,78 @@ use crate::{math::*, wgpu_ext::*, *};
 /// ```
 #[derive(Clone, Debug)]
 pub struct SpriteRenderArgs {
-    pub location: Vector2<f32>,
-    pub pivot: Vector2<f32>,
-    pub scale: Vector2<f32>,
-    pub angle: f32,
-    pub diffuse_color: Color<f32>,
+	pub location: Vector2<f32>,
+	pub pivot: Vector2<f32>,
+	pub scale: Vector2<f32>,
+	pub angle: f32,
+	pub diffuse_color: Color<f32>,
 }
 
 impl SpriteRenderArgs {
-    /// New render command with default args, at the specified location
-    pub fn new<T: Into<Vector2<f32>>>(location: T) -> Self {
-        let mut args = Self::default();
-        args.at(location);
-        args
-    }
+	/// New render command with default args, at the specified location
+	pub fn new<T: Into<Vector2<f32>>>(location: T) -> Self {
+		let mut args = Self::default();
+		args.at(location);
+		args
+	}
 
-    /// Set the location of the sprite, specifying where the pivot should
-    /// be placed.
-    #[inline]
-    pub fn at<T: Into<Vector2<f32>>>(&mut self, location: T) -> &mut Self {
-        self.location = location.into();
-        self
-    }
+	/// Set the location of the sprite, specifying where the pivot should
+	/// be placed.
+	#[inline]
+	pub fn at<T: Into<Vector2<f32>>>(&mut self, location: T) -> &mut Self {
+		self.location = location.into();
+		self
+	}
 
-    /// Set the pivot of the sprite, relative to the top left of the sprite
-    #[inline]
-    pub fn with_pivot<T: Into<Vector2<f32>>>(&mut self, pivot: T) -> &mut Self {
-        self.pivot = pivot.into();
-        self
-    }
+	/// Set the pivot of the sprite, relative to the top left of the sprite
+	#[inline]
+	pub fn with_pivot<T: Into<Vector2<f32>>>(&mut self, pivot: T) -> &mut Self {
+		self.pivot = pivot.into();
+		self
+	}
 
-    /// Set the scale at which the sprite will be rendered
-    pub fn with_scale<T: Into<Vector2<f32>>>(&mut self, scale: T) -> &mut Self {
-        self.scale = scale.into();
-        self
-    }
+	/// Set the scale at which the sprite will be rendered
+	pub fn with_scale<T: Into<Vector2<f32>>>(&mut self, scale: T) -> &mut Self {
+		self.scale = scale.into();
+		self
+	}
 
-    /// Set the angle at which the sprite will be rendered, in radians.
-    pub fn with_angle(&mut self, angle: f32) -> &mut Self {
-        self.angle = angle;
-        self
-    }
+	/// Set the angle at which the sprite will be rendered, in radians.
+	pub fn with_angle(&mut self, angle: f32) -> &mut Self {
+		self.angle = angle;
+		self
+	}
 
-    /// Set the diffuse color of the sprite, which will be multiplied by the sprite
-    /// colors.
-    pub fn with_color(&mut self, color: Color<f32>) -> &mut Self {
-        self.diffuse_color = color;
-        self
-    }
+	/// Set the diffuse color of the sprite, which will be multiplied by the sprite
+	/// colors.
+	pub fn with_color(&mut self, color: Color<f32>) -> &mut Self {
+		self.diffuse_color = color;
+		self
+	}
 
-    /// Invoke the render command, for the given sprite, in the specified context
-    pub fn render<Device>(
-        &self,
-        render_ctx: &mut impl RenderContext,
-        sprite: &WGPUSprite<Device>,
-    ) -> Result<()>
-    where
-        Device: WGPUDevice,
-    {
-        sprite.render(render_ctx, self)
-    }
+	/// Invoke the render command, for the given sprite, in the specified context
+	pub fn render<Device>(
+		&self,
+		render_ctx: &mut impl RenderContext,
+		sprite: &WGPUSprite<Device>,
+	) -> Result<()>
+	where
+		Device: WGPUDevice,
+	{
+		sprite.render(render_ctx, self)
+	}
 }
 
 impl Default for SpriteRenderArgs {
-    fn default() -> Self {
-        SpriteRenderArgs {
-            location: [0.0, 0.0].into(),
-            pivot: [0.0, 0.0].into(),
-            angle: 0.0,
-            scale: [1.0, 1.0].into(),
-            diffuse_color: Color::WHITE,
-        }
-    }
+	fn default() -> Self {
+		SpriteRenderArgs {
+			location: [0.0, 0.0].into(),
+			pivot: [0.0, 0.0].into(),
+			angle: 0.0,
+			scale: [1.0, 1.0].into(),
+			diffuse_color: Color::WHITE,
+		}
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -137,33 +137,33 @@ impl Default for SpriteRenderArgs {
 /// # Ok(()) }
 /// ```
 pub struct SpriteBuilder {
-    pub(crate) img: image::Image,
-    pub(crate) mag_filter: FilterMode,
-    pub(crate) min_filter: FilterMode,
+	pub(crate) img: image::Image,
+	pub(crate) mag_filter: FilterMode,
+	pub(crate) min_filter: FilterMode,
 }
 
 impl SpriteBuilder {
-    /// Create a new builder for the given image
-    pub fn new(img: image::Image) -> Self {
-        Self {
-            img,
-            mag_filter: Default::default(),
-            min_filter: Default::default(),
-        }
-    }
+	/// Create a new builder for the given image
+	pub fn new(img: image::Image) -> Self {
+		Self {
+			img,
+			mag_filter: Default::default(),
+			min_filter: Default::default(),
+		}
+	}
 
-    /// Specify the min and mag filters used when rendering the sprite
-    pub fn with_filter_modes(mut self, mag_filter: FilterMode, min_filter: FilterMode) -> Self {
-        self.mag_filter = mag_filter;
-        self.min_filter = min_filter;
-        self
-    }
+	/// Specify the min and mag filters used when rendering the sprite
+	pub fn with_filter_modes(mut self, mag_filter: FilterMode, min_filter: FilterMode) -> Self {
+		self.mag_filter = mag_filter;
+		self.min_filter = min_filter;
+		self
+	}
 
-    /// Build the sprite for the given renderer
-    pub fn build<Device: WGPUDevice>(
-        self,
-        renderer: &WGPURenderer<Device>,
-    ) -> Result<WGPUSprite<Device>> {
-        WGPUSprite::new_from_image(renderer, &self.img, self.mag_filter, self.min_filter)
-    }
+	/// Build the sprite for the given renderer
+	pub fn build<Device: WGPUDevice>(
+		self,
+		renderer: &WGPURenderer<Device>,
+	) -> Result<WGPUSprite<Device>> {
+		WGPUSprite::new_from_image(renderer, &self.img, self.mag_filter, self.min_filter)
+	}
 }

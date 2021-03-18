@@ -4,15 +4,15 @@
 /// that can work for all signed, unsigned numbers, integer, and floating point
 /// numbers.
 pub trait SpacialNumeric:
-    std::cmp::PartialOrd
-    + Copy
-    + Clone
-    + std::fmt::Debug
-    + std::ops::Add<Self, Output = Self>
-    + std::ops::Sub<Self, Output = Self>
-    + std::ops::Mul<Self, Output = Self>
-    + std::ops::Div<Self, Output = Self>
-    + std::default::Default
+	std::cmp::PartialOrd
+	+ Copy
+	+ Clone
+	+ std::fmt::Debug
+	+ std::ops::Add<Self, Output = Self>
+	+ std::ops::Sub<Self, Output = Self>
+	+ std::ops::Mul<Self, Output = Self>
+	+ std::ops::Div<Self, Output = Self>
+	+ std::default::Default
 {
 }
 
@@ -29,15 +29,15 @@ pub trait SignedSpacialNumeric: SpacialNumeric + std::ops::Neg<Output = Self> {}
 /// let b: f32 = a.convert();
 /// ```
 pub trait SpacialNumericConversion<T> {
-    /// Convert one SpacialNumeric value to another. This conversion can not fail.
-    fn convert(self) -> T;
+	/// Convert one SpacialNumeric value to another. This conversion can not fail.
+	fn convert(self) -> T;
 }
 
 impl<T: SpacialNumeric> SpacialNumericConversion<T> for T {
-    #[inline]
-    fn convert(self) -> T {
-        self
-    }
+	#[inline]
+	fn convert(self) -> T {
+		self
+	}
 }
 
 macro_rules! define_spacial_numeric {

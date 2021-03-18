@@ -10,17 +10,17 @@ use crate::{ext::*, *};
 use std::time::{Duration, Instant};
 
 pub fn simple<R, F: FnOnce(&AudioSystem) -> Result<R>>(f: F) {
-    let (audio_system, _main_thread_state) = AudioSystem::new_shared().unwrap();
-    let _r = f(&audio_system).unwrap();
-    let start_time = Instant::now();
-    while Instant::now() - start_time < Duration::from_secs(2) {
-        audio_system.process_frame();
-    }
+	let (audio_system, _main_thread_state) = AudioSystem::new_shared().unwrap();
+	let _r = f(&audio_system).unwrap();
+	let start_time = Instant::now();
+	while Instant::now() - start_time < Duration::from_secs(2) {
+		audio_system.process_frame();
+	}
 }
 
 pub fn pump_for_secs(audio_system: &AudioSystem, secs: u64) {
-    let start_time = Instant::now();
-    while Instant::now() - start_time < Duration::from_secs(secs) {
-        audio_system.process_frame();
-    }
+	let start_time = Instant::now();
+	while Instant::now() - start_time < Duration::from_secs(secs) {
+		audio_system.process_frame();
+	}
 }

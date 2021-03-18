@@ -27,85 +27,85 @@ use crate::wgpu_ext::*;
 /// # Ok(()) }
 /// ```
 pub struct WGPUSpriteAtlasBuilder<'a, Device: WGPUDevice> {
-    images: Vec<(image::Image, &'a mut Option<WGPUSprite<Device>>)>,
+	images: Vec<(image::Image, &'a mut Option<WGPUSprite<Device>>)>,
 
-    mag_filter: FilterMode,
-    min_filter: FilterMode,
+	mag_filter: FilterMode,
+	min_filter: FilterMode,
 }
 
 impl<'a, Device> WGPUSpriteAtlasBuilder<'a, Device>
 where
-    Device: WGPUDevice,
+	Device: WGPUDevice,
 {
-    /// A new empty atlas builder
-    pub fn new() -> Self {
-        Self {
-            images: vec![],
-            mag_filter: Default::default(),
-            min_filter: Default::default(),
-        }
-    }
+	/// A new empty atlas builder
+	pub fn new() -> Self {
+		Self {
+			images: vec![],
+			mag_filter: Default::default(),
+			min_filter: Default::default(),
+		}
+	}
 
-    /// Add an image to be packed in to the atlas, along with a reference
-    /// to the `Option<Sprite>` which will store the sprite when the atlas is built.
-    pub fn with_image(
-        mut self,
-        img: image::Image,
-        sprite: &'a mut Option<WGPUSprite<Device>>,
-    ) -> Self {
-        self.images.push((img, sprite));
-        self
-    }
+	/// Add an image to be packed in to the atlas, along with a reference
+	/// to the `Option<Sprite>` which will store the sprite when the atlas is built.
+	pub fn with_image(
+		mut self,
+		img: image::Image,
+		sprite: &'a mut Option<WGPUSprite<Device>>,
+	) -> Self {
+		self.images.push((img, sprite));
+		self
+	}
 
-    /// Specify the min and mag filters used when rendering the created sprites.
-    pub fn with_filter_modes(mut self, mag_filter: FilterMode, min_filter: FilterMode) -> Self {
-        self.mag_filter = mag_filter;
-        self.min_filter = min_filter;
-        self
-    }
+	/// Specify the min and mag filters used when rendering the created sprites.
+	pub fn with_filter_modes(mut self, mag_filter: FilterMode, min_filter: FilterMode) -> Self {
+		self.mag_filter = mag_filter;
+		self.min_filter = min_filter;
+		self
+	}
 
-    /// Construct the atlas texture from the given set of images, and update the
-    /// `Option<Sprite>` references.
-    pub fn build(self, renderer: &WGPURenderer<Device>) -> Result<()> {
-        let WGPUSpriteAtlasBuilder {
-            mut images,
-            mag_filter,
-            min_filter,
-        } = self;
+	/// Construct the atlas texture from the given set of images, and update the
+	/// `Option<Sprite>` references.
+	pub fn build(self, renderer: &WGPURenderer<Device>) -> Result<()> {
+		let WGPUSpriteAtlasBuilder {
+			mut images,
+			mag_filter,
+			min_filter,
+		} = self;
 
-        let packing_images: Vec<&image::Image> = images.iter().map(|(img, _)| img).collect();
-        let packed = image::ImagePacker::new()
-            .pack(&packing_images[..])
-            .map_err(|_| RendererError::Unknown)?;
+		let packing_images: Vec<&image::Image> = images.iter().map(|(img, _)| img).collect();
+		let packed = image::ImagePacker::new()
+			.pack(&packing_images[..])
+			.map_err(|_| RendererError::Unknown)?;
 
-        let texture = renderer.wgpu_device().with_device_info(|info| {
-            WGPUTexture::from_image(
-                info.device,
-                info.queue,
-                packed.image(),
-                mag_filter,
-                min_filter,
-                TextureType::Plain,
-            )
-        })?;
+		let texture = renderer.wgpu_device().with_device_info(|info| {
+			WGPUTexture::from_image(
+				info.device,
+				info.queue,
+				packed.image(),
+				mag_filter,
+				min_filter,
+				TextureType::Plain,
+			)
+		})?;
 
-        for ((_, output), rect) in images.iter_mut().zip(packed.rects().iter()) {
-            **output = Some(WGPUSprite::from_texture_with_bounds(
-                renderer,
-                &texture,
-                rect.clone().convert(),
-            )?);
-        }
+		for ((_, output), rect) in images.iter_mut().zip(packed.rects().iter()) {
+			**output = Some(WGPUSprite::from_texture_with_bounds(
+				renderer,
+				&texture,
+				rect.clone().convert(),
+			)?);
+		}
 
-        Ok(())
-    }
+		Ok(())
+	}
 }
 
 impl<'a, Device> Default for WGPUSpriteAtlasBuilder<'a, Device>
 where
-    Device: WGPUDevice,
+	Device: WGPUDevice,
 {
-    fn default() -> Self {
-        Self::new()
-    }
+	fn default() -> Self {
+		Self::new()
+	}
 }

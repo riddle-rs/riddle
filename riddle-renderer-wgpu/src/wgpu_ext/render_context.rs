@@ -23,20 +23,20 @@ use crate::wgpu_ext::*;
 /// # Ok(()) }
 /// ```
 pub trait RenderContext {
-    /// Replace the current world transform.
-    fn set_transform(&mut self, transform: mint::ColumnMatrix4<f32>) -> Result<()>;
+	/// Replace the current world transform.
+	fn set_transform(&mut self, transform: mint::ColumnMatrix4<f32>) -> Result<()>;
 
-    /// Fill the target with a flat color.
-    fn clear(&mut self, color: Color<f32>) -> Result<()>;
+	/// Fill the target with a flat color.
+	fn clear(&mut self, color: Color<f32>) -> Result<()>;
 
-    /// Render a `Renderable` to the target with the current world transform.
-    ///
-    /// This is only called by internal crate code.
-    fn render_internal<R: WGPURenderable>(&mut self, renderable: &R) -> Result<()>;
+	/// Render a `Renderable` to the target with the current world transform.
+	///
+	/// This is only called by internal crate code.
+	fn render_internal<R: WGPURenderable>(&mut self, renderable: &R) -> Result<()>;
 
-    /// Draw a solid rect with the given color.
-    fn fill_rect(&mut self, rect: &Rect<f32>, color: Color<f32>) -> Result<()>;
+	/// Draw a solid rect with the given color.
+	fn fill_rect(&mut self, rect: &Rect<f32>, color: Color<f32>) -> Result<()>;
 
-    /// Consume the context and present any outstanding draw calls.
-    fn present(self) -> Result<()>;
+	/// Consume the context and present any outstanding draw calls.
+	fn present(self) -> Result<()>;
 }
