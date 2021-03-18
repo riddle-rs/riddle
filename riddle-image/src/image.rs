@@ -117,7 +117,7 @@ impl Image {
 			}
 		};
 		Ok(Image {
-			img: img.into_rgba(),
+			img: img.into_rgba8(),
 		})
 	}
 
@@ -399,7 +399,7 @@ impl image_ext::ImageImageExt for Image {
 
 	fn image_from_dynimage(img: ::image::DynamicImage) -> Self {
 		Self {
-			img: img.into_rgba(),
+			img: img.into_rgba8(),
 		}
 	}
 }
