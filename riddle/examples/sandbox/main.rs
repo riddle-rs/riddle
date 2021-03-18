@@ -73,13 +73,18 @@ impl DemoState {
 
         let mouse_location = Arc::new(Mutex::new(input::LogicalPosition::default()));
 
-        let renderer_state = RendererState {
+        let img_font = font::ImgFontGenerator::new("FPS:.0123456789", 32).generate(&font)?;
+        let sprite_font = SpriteFont::new(&renderer, img_font)?;
+
+        let mut renderer_state = RendererState {
             renderer: renderer.clone(),
             sprite,
             subsprite,
             label_sprite,
+            sprite_font,
             target,
             mouse_location: mouse_location.clone(),
+            prev_frame_time: std::time::Instant::now(),
         };
 
         {
@@ -129,14 +134,16 @@ struct RendererState {
     sprite: renderer::Sprite,
     subsprite: renderer::Sprite,
     label_sprite: renderer::Sprite,
+    sprite_font: renderer::SpriteFont,
 
     target: renderer::SpriteRenderTarget,
 
     mouse_location: Arc<Mutex<input::LogicalPosition>>,
+    prev_frame_time: std::time::Instant,
 }
 
 impl RendererState {
-    fn run(&self) {
+    fn run(&mut self) {
         loop {
             self.render_frame().unwrap();
         }
@@ -152,7 +159,12 @@ impl RendererState {
         Ok(())
     }
 
-    pub fn render_frame(&self) -> Result<(), RiddleError> {
+    pub fn render_frame(&mut self) -> Result<(), RiddleError> {
+        let frame_start_time = std::time::Instant::now();
+        let delta = frame_start_time - self.prev_frame_time;
+        let fps = 1.0 / delta.as_secs_f32();
+        self.prev_frame_time = frame_start_time;
+
         self.render_to_target()?;
 
         let mut frame = self.renderer.begin_render()?;
@@ -176,7 +188,7 @@ impl RendererState {
         )?;
 
         self.subsprite.render_at(&mut frame, [60.0, 60.0])?;
-        SpriteRenderCommand::new(vec2(10.0, 100.0))
+        SpriteRenderArgs::new(vec2(10.0, 100.0))
             .with_color(Color::BLACK)
             .render(&mut frame, &self.label_sprite)?;
 
@@ -187,6 +199,14 @@ impl RendererState {
         let pos: input::LogicalPosition = self.mouse_location.lock().unwrap().clone();
 
         self.sprite.render_at(&mut frame, pos)?;
+
+        let fps_str = format!("FPS: {}", fps);
+
+        self.sprite_font.render(
+            &mut frame,
+            &SpriteRenderArgs::new([0.0, 0.0]).with_color(Color::BLACK),
+            &fps_str,
+        )?;
 
         frame.present()?;
         Ok(())

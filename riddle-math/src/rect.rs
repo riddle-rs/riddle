@@ -70,6 +70,15 @@ where
     /// assert_eq!(None, rect_b.intersect(&rect_c));
     /// ```
     pub fn intersect(&self, other: &Self) -> Option<Self> {
+        // Check for intersection with rect of zero size
+        if other.dimensions == Vector2::new(T::default(), T::default()) {
+            return if self.contains_point(other.location) {
+                Some(other.clone())
+            } else {
+                None
+            };
+        }
+
         let Vector2 {
             x: self_min_x,
             y: self_min_y,

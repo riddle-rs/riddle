@@ -9,7 +9,7 @@ use crate::wgpu_ext::*;
 /// Multiple sprites can share a single texture. Sprites can either be built using
 /// [`crate::SpriteBuilder`], or [`SpriteAtlasBuilder`].
 ///
-/// Use [`crate::SpriteRenderCommand`] for access to all supported paramters when rendering
+/// Use [`crate::SpriteRenderArgs`] for access to all supported paramters when rendering
 /// sprites, or use [`WGPUSprite::render_at`] to specify only a location and use default
 /// arguments for everything else.
 ///
@@ -48,7 +48,7 @@ impl<Device: WGPUDevice> WGPUSprite<Device> {
     /// in RGBA8 format. The entire image will be used
     pub(crate) fn new_from_image(
         renderer: &WGPURenderer<Device>,
-        img: image::Image,
+        img: &image::Image,
         mag_filter: FilterMode,
         min_filter: FilterMode,
     ) -> Result<Self> {
@@ -137,74 +137,115 @@ impl<Device: WGPUDevice> WGPUSprite<Device> {
         }
     }
 
-    pub(crate) fn render(
+    /// Render multiple sub regions of the sprite at once.
+    ///
+    /// The regions are defined by pairs of the region of the sprite to draw in texels, and where
+    /// to position the region relative to the [`SpriteRenderArgs::location`].
+    ///
+    /// The pivot and rotation are relative to the location arg. A change in rotation will
+    /// transform all rendered regions as one, not individually.
+    pub(crate) fn render_regions(
         &self,
         render_ctx: &mut impl RenderContext,
-        args: &SpriteRenderCommand,
+        args: &SpriteRenderArgs,
+        parts: &[(Rect<f32>, Vector2<f32>)],
     ) -> Result<()> {
         let rot: glam::Mat2 = glam::Mat2::from_angle(args.angle);
-        let Vector2 {
-            x: tex_width,
-            y: tex_height,
-        } = self.texture.dimensions;
-
-        let location: glam::Vec2 = args.location.into();
+        let scale: glam::Mat2 = glam::Mat2::from_scale(args.scale.into());
+        let origin: glam::Vec2 = args.location.into();
         let pivot: glam::Vec2 = args.pivot.into();
 
-        let scale = glam::Mat2::from_scale(args.scale.into());
+        let Vector2::<f32> {
+            x: tex_width,
+            y: tex_height,
+        } = self.texture.dimensions.convert();
 
-        let pos_topleft = glam::vec2(0.0, 0.0) - pivot;
-        let pos_topright = pos_topleft + glam::vec2(self.source_rect.dimensions.x, 0.0);
-        let pos_bottomleft = pos_topleft + glam::vec2(0.0, self.source_rect.dimensions.y);
-        let pos_bottomright = pos_bottomleft + glam::vec2(self.source_rect.dimensions.x, 0.0);
+        let vertex_data: Vec<Vertex> = parts
+            .iter()
+            .flat_map(|(src_rect, location)| {
+                let location = glam::Vec2::from(*location);
+                let src_rect = Rect::new(
+                    self.source_rect.location + src_rect.location,
+                    src_rect.dimensions,
+                );
 
-        let uv_top = self.source_rect.location.y / (tex_height as f32);
-        let uv_left = self.source_rect.location.x / (tex_width as f32);
-        let uv_bottom = uv_top + (self.source_rect.dimensions.y / (tex_height as f32));
-        let uv_right = uv_left + (self.source_rect.dimensions.x / (tex_width as f32));
+                let pos_topleft: glam::Vec2 = location - pivot;
+                let pos_topright: glam::Vec2 = pos_topleft + glam::vec2(src_rect.dimensions.x, 0.0);
+                let pos_bottomleft: glam::Vec2 =
+                    pos_topleft + glam::vec2(0.0, src_rect.dimensions.y);
+                let pos_bottomright: glam::Vec2 =
+                    pos_bottomleft + glam::vec2(src_rect.dimensions.x, 0.0);
 
-        let color_arr: [f32; 4] = args.diffuse_color.clone().into();
+                let uv_top = src_rect.location.y / (tex_height as f32);
+                let uv_left = src_rect.location.x / (tex_width as f32);
+                let uv_bottom = uv_top + (src_rect.dimensions.y / (tex_height as f32));
+                let uv_right = uv_left + (src_rect.dimensions.x / (tex_width as f32));
 
-        let vertex_data = [
-            Vertex::ptc(
-                location + (rot * (scale * pos_topleft)),
-                [uv_left, uv_top],
-                &color_arr,
-            ),
-            Vertex::ptc(
-                location + (rot * (scale * pos_bottomleft)),
-                [uv_left, uv_bottom],
-                &color_arr,
-            ),
-            Vertex::ptc(
-                location + (rot * (scale * pos_bottomright)),
-                [uv_right, uv_bottom],
-                &color_arr,
-            ),
-            Vertex::ptc(
-                location + (rot * (scale * pos_topright)),
-                [uv_right, uv_top],
-                &color_arr,
-            ),
-        ];
+                let color_arr: [f32; 4] = args.diffuse_color.clone().into();
 
-        let index_data: &[u16] = &[1, 2, 0, 2, 0, 3];
+                vec![
+                    Vertex::ptc(
+                        origin + (rot * (scale * pos_topleft)),
+                        [uv_left, uv_top],
+                        &color_arr,
+                    ),
+                    Vertex::ptc(
+                        origin + (rot * (scale * pos_bottomleft)),
+                        [uv_left, uv_bottom],
+                        &color_arr,
+                    ),
+                    Vertex::ptc(
+                        origin + (rot * (scale * pos_bottomright)),
+                        [uv_right, uv_bottom],
+                        &color_arr,
+                    ),
+                    Vertex::ptc(
+                        origin + (rot * (scale * pos_topright)),
+                        [uv_right, uv_top],
+                        &color_arr,
+                    ),
+                ]
+            })
+            .collect();
+
+        let index_data: Vec<u16> = parts
+            .iter()
+            .enumerate()
+            .flat_map(|(i, _)| {
+                let base = (i as u16) * 4;
+                vec![1 + base, 2 + base, base, 2 + base, base, 3 + base]
+            })
+            .collect();
 
         let renderable = WGPURenderableDesc {
             texture: self.texture.clone(),
             shader: self.renderer.standard_res().default_shader.clone(),
             verts: &vertex_data[..],
-            indices: index_data,
+            indices: &index_data[..],
         };
 
         render_ctx.render_internal(&renderable)
     }
 
+    /// Render the entire sprite.
+    pub fn render(
+        &self,
+        render_ctx: &mut impl RenderContext,
+        args: &SpriteRenderArgs,
+    ) -> Result<()> {
+        self.render_regions(
+            render_ctx,
+            args,
+            &[(
+                Rect::new([0.0, 0.0], self.source_rect.dimensions.into()),
+                Vector2::new(0.0, 0.0),
+            )],
+        )
+    }
+
     /// Utility function to simply render the sprite at a given location
     ///
-    /// This is equivalent to `SpriteRenderCommand::new(location).render(&mut ctx, &sprite)?;`.
-    /// See [`SpriteRenderCommand`] for how to render the sprite with more
-    /// control.
+    /// See [`SpriteRenderArgs`] for how to render the sprite with more control.
     pub fn render_at<P: Into<Vector2<f32>>>(
         &self,
         render_ctx: &mut impl RenderContext,
@@ -212,7 +253,7 @@ impl<Device: WGPUDevice> WGPUSprite<Device> {
     ) -> Result<()> {
         self.render(
             render_ctx,
-            &SpriteRenderCommand {
+            &SpriteRenderArgs {
                 location: location.into(),
                 ..Default::default()
             },

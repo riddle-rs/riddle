@@ -69,6 +69,9 @@ pub type RendererWeak = WGPURendererWeak<WindowWGPUDevice>;
 /// A sprite for the default Window renderer.
 pub type Sprite = WGPUSprite<WindowWGPUDevice>;
 
+/// A sprite based renderer for [`riddle_font::ImgFont`]s.
+pub type SpriteFont = WGPUSpriteFont<WindowWGPUDevice>;
+
 /// Construct a set of [`Sprite`]s from a set of `riddle_image::Image`s which share a texture atlas.
 pub type SpriteAtlasBuilder<'a> = WGPUSpriteAtlasBuilder<'a, WindowWGPUDevice>;
 

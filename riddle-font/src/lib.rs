@@ -20,11 +20,13 @@
 //! ```
 
 mod error;
+mod imgfont;
 mod ttfont;
 
 pub mod rusttype_ext;
 
 pub use error::*;
+pub use imgfont::*;
 pub use ttfont::TTFont;
 
 use riddle_common::CommonError;

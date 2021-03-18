@@ -9,6 +9,12 @@
 * renderer: Convert `SpriteAtlasBuilder` to use `image::ImagePacker`.
 * image: Add support for generating signed distance field images:  `image::filters::distance_field`.
 * image: Add `Image::save`.
+* font: Add support for generating `ImgFont` bitmap fonts (with basic layout support) from
+    `TTFont`s.
+* image: Add support for blitting part of a source image on to a destination image.
+* renderer: Add `SpriteFont` to efficiently render `ImgFont` strings.
+* **breaking** renderer: Make `Sprite::render` public, and `Sprite::new_from_image` takes the image
+    by reference instead of by value.
 
 ## 0.2.0
 
