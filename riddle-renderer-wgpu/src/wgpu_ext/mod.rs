@@ -4,10 +4,10 @@
 //! module.
 
 use crate::{
-    eventpub::EventSub,
-    math::*,
-    platform::{PlatformEvent, Window, WindowHandle},
-    *,
+	eventpub::EventSub,
+	math::*,
+	platform::{PlatformEvent, Window, WindowHandle},
+	*,
 };
 
 use std::sync::Mutex;

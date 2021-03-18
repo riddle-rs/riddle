@@ -10,19 +10,19 @@ use crate::{ext::*, *};
 use std::time::{Duration, Instant};
 
 pub fn simple<R, F: FnOnce(&TimeSystem) -> R>(f: F) {
-    let time_system = TimeSystem::new_shared();
-    let _r = f(&time_system);
-    let start_time = Instant::now();
-    while Instant::now() - start_time < Duration::from_secs(2) {
-        std::thread::sleep(std::time::Duration::from_millis(100));
-        time_system.process_frame();
-    }
+	let time_system = TimeSystem::new_shared();
+	let _r = f(&time_system);
+	let start_time = Instant::now();
+	while Instant::now() - start_time < Duration::from_secs(2) {
+		std::thread::sleep(std::time::Duration::from_millis(100));
+		time_system.process_frame();
+	}
 }
 
 pub fn pump_for_secs(time_system: &TimeSystem, secs: u64) {
-    let start_time = Instant::now();
-    while Instant::now() - start_time < Duration::from_secs(secs) {
-        std::thread::sleep(std::time::Duration::from_millis(100));
-        time_system.process_frame();
-    }
+	let start_time = Instant::now();
+	while Instant::now() - start_time < Duration::from_secs(secs) {
+		std::thread::sleep(std::time::Duration::from_millis(100));
+		time_system.process_frame();
+	}
 }

@@ -2,24 +2,24 @@
 /// to allow functions which get references to those objects to
 /// clone handles to those objects.
 pub trait CloneHandle {
-    /// The type which represents a strong reference, and which
-    /// may be dereferenced as Self.
-    type Handle: std::ops::Deref<Target = Self>;
+	/// The type which represents a strong reference, and which
+	/// may be dereferenced as Self.
+	type Handle: std::ops::Deref<Target = Self>;
 
-    /// The type which represents a weak reference.
-    type WeakHandle;
+	/// The type which represents a weak reference.
+	type WeakHandle;
 
-    /// Clone a strong handle to the object.
-    ///
-    /// # Panic
-    ///
-    /// Panics if the weak reference is invalid. Should only happen
-    /// if a handle is being cloned during the Drop::drop method
-    /// for self.
-    fn clone_handle(&self) -> Self::Handle;
+	/// Clone a strong handle to the object.
+	///
+	/// # Panic
+	///
+	/// Panics if the weak reference is invalid. Should only happen
+	/// if a handle is being cloned during the Drop::drop method
+	/// for self.
+	fn clone_handle(&self) -> Self::Handle;
 
-    /// Clone a weak handle to the object.
-    fn clone_weak_handle(&self) -> Self::WeakHandle;
+	/// Clone a weak handle to the object.
+	fn clone_weak_handle(&self) -> Self::WeakHandle;
 }
 
 /// Implement CloneHandle trait and define handle types for a given object.

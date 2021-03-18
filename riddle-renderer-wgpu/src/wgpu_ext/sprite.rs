@@ -38,247 +38,247 @@ use crate::wgpu_ext::*;
 /// # Ok(()) }
 /// ```
 pub struct WGPUSprite<Device: WGPUDevice> {
-    renderer: WGPURendererHandle<Device>,
-    texture: WGPUTextureHandle,
-    source_rect: Rect<f32>,
+	renderer: WGPURendererHandle<Device>,
+	texture: WGPUTextureHandle,
+	source_rect: Rect<f32>,
 }
 
 impl<Device: WGPUDevice> WGPUSprite<Device> {
-    /// Construct a new sprite from an image. The image contents are copied to a texture
-    /// in RGBA8 format. The entire image will be used
-    pub(crate) fn new_from_image(
-        renderer: &WGPURenderer<Device>,
-        img: &image::Image,
-        mag_filter: FilterMode,
-        min_filter: FilterMode,
-    ) -> Result<Self> {
-        let texture = renderer.wgpu_device().with_device_info(|info| {
-            WGPUTexture::from_image(
-                info.device,
-                info.queue,
-                &img,
-                mag_filter,
-                min_filter,
-                TextureType::Plain,
-            )
-        })?;
-        Self::from_texture(renderer, &texture)
-    }
+	/// Construct a new sprite from an image. The image contents are copied to a texture
+	/// in RGBA8 format. The entire image will be used
+	pub(crate) fn new_from_image(
+		renderer: &WGPURenderer<Device>,
+		img: &image::Image,
+		mag_filter: FilterMode,
+		min_filter: FilterMode,
+	) -> Result<Self> {
+		let texture = renderer.wgpu_device().with_device_info(|info| {
+			WGPUTexture::from_image(
+				info.device,
+				info.queue,
+				&img,
+				mag_filter,
+				min_filter,
+				TextureType::Plain,
+			)
+		})?;
+		Self::from_texture(renderer, &texture)
+	}
 
-    pub(crate) fn from_texture(
-        renderer: &WGPURenderer<Device>,
-        texture: &WGPUTexture,
-    ) -> Result<Self> {
-        let dimensions = texture.dimensions.convert();
-        Self::from_texture_with_bounds(
-            renderer,
-            texture,
-            Rect {
-                location: Vector2 { x: 0.0, y: 0.0 },
-                dimensions,
-            },
-        )
-    }
+	pub(crate) fn from_texture(
+		renderer: &WGPURenderer<Device>,
+		texture: &WGPUTexture,
+	) -> Result<Self> {
+		let dimensions = texture.dimensions.convert();
+		Self::from_texture_with_bounds(
+			renderer,
+			texture,
+			Rect {
+				location: Vector2 { x: 0.0, y: 0.0 },
+				dimensions,
+			},
+		)
+	}
 
-    #[allow(clippy::unnecessary_wraps)]
-    pub(crate) fn from_texture_with_bounds(
-        renderer: &WGPURenderer<Device>,
-        texture: &WGPUTexture,
-        source_rect: Rect<f32>,
-    ) -> Result<Self> {
-        Ok(WGPUSprite {
-            renderer: renderer.clone_handle(),
-            texture: texture.clone_handle(),
-            source_rect,
-        })
-    }
+	#[allow(clippy::unnecessary_wraps)]
+	pub(crate) fn from_texture_with_bounds(
+		renderer: &WGPURenderer<Device>,
+		texture: &WGPUTexture,
+		source_rect: Rect<f32>,
+	) -> Result<Self> {
+		Ok(WGPUSprite {
+			renderer: renderer.clone_handle(),
+			texture: texture.clone_handle(),
+			source_rect,
+		})
+	}
 
-    /// Build a sprite that shares the same underlying texture but represents a different portion
-    /// of the texture.
-    ///
-    /// # Arguments
-    ///
-    /// * **source_rect** - The portion of the texture that the new sprite will render, relative to
-    ///                     the current sprite's bounds. The bounds of the output sprite will be
-    ///                     the intersection of the sprite's rect and the source_rect, so the dimensions
-    ///                     of the output sprite may not match the `source_rect` dimensions.
-    ///
-    /// # Example
-    ///
-    /// ```no_run
-    /// # use riddle::{common::Color, image::*, platform::*, renderer::*, math::*, *};
-    /// # fn main() -> Result<(), RiddleError> {
-    /// # let rdl =  RiddleLib::new()?; let window = WindowBuilder::new().build(rdl.context())?;
-    /// let renderer = Renderer::new_from_window(&window)?;
-    ///
-    /// // Load an image and create a sprite from it
-    /// let img = Image::new(100, 100);
-    /// let sprite = SpriteBuilder::new(img).build(&renderer)?;
-    ///
-    /// // Take a portion of the sprite as a new sprite.
-    /// let subsprite = sprite.subsprite(&Rect::new(vec2(75.0, 75.0), vec2(50.0, 50.0)));
-    ///
-    /// // The subsprite dimensions will be the size of the intersection between the
-    /// // source sprite and the new bounds.
-    /// assert_eq!(vec2(25.0, 25.0), subsprite.dimensions());
-    /// # Ok(()) }
-    /// ```
-    pub fn subsprite(&self, source_rect: &Rect<f32>) -> Self {
-        let mut translated_source = source_rect.clone();
-        translated_source.location += self.source_rect.location;
+	/// Build a sprite that shares the same underlying texture but represents a different portion
+	/// of the texture.
+	///
+	/// # Arguments
+	///
+	/// * **source_rect** - The portion of the texture that the new sprite will render, relative to
+	///                     the current sprite's bounds. The bounds of the output sprite will be
+	///                     the intersection of the sprite's rect and the source_rect, so the dimensions
+	///                     of the output sprite may not match the `source_rect` dimensions.
+	///
+	/// # Example
+	///
+	/// ```no_run
+	/// # use riddle::{common::Color, image::*, platform::*, renderer::*, math::*, *};
+	/// # fn main() -> Result<(), RiddleError> {
+	/// # let rdl =  RiddleLib::new()?; let window = WindowBuilder::new().build(rdl.context())?;
+	/// let renderer = Renderer::new_from_window(&window)?;
+	///
+	/// // Load an image and create a sprite from it
+	/// let img = Image::new(100, 100);
+	/// let sprite = SpriteBuilder::new(img).build(&renderer)?;
+	///
+	/// // Take a portion of the sprite as a new sprite.
+	/// let subsprite = sprite.subsprite(&Rect::new(vec2(75.0, 75.0), vec2(50.0, 50.0)));
+	///
+	/// // The subsprite dimensions will be the size of the intersection between the
+	/// // source sprite and the new bounds.
+	/// assert_eq!(vec2(25.0, 25.0), subsprite.dimensions());
+	/// # Ok(()) }
+	/// ```
+	pub fn subsprite(&self, source_rect: &Rect<f32>) -> Self {
+		let mut translated_source = source_rect.clone();
+		translated_source.location += self.source_rect.location;
 
-        WGPUSprite {
-            renderer: self.renderer.clone(),
-            texture: self.texture.clone(),
-            source_rect: self
-                .source_rect
-                .intersect(&translated_source)
-                .unwrap_or_else(|| Rect::new(self.source_rect.location, vec2(0.0, 0.0))),
-        }
-    }
+		WGPUSprite {
+			renderer: self.renderer.clone(),
+			texture: self.texture.clone(),
+			source_rect: self
+				.source_rect
+				.intersect(&translated_source)
+				.unwrap_or_else(|| Rect::new(self.source_rect.location, vec2(0.0, 0.0))),
+		}
+	}
 
-    /// Render multiple sub regions of the sprite at once.
-    ///
-    /// The regions are defined by pairs of the region of the sprite to draw in texels, and where
-    /// to position the region relative to the [`SpriteRenderArgs::location`].
-    ///
-    /// The pivot and rotation are relative to the location arg. A change in rotation will
-    /// transform all rendered regions as one, not individually.
-    pub(crate) fn render_regions(
-        &self,
-        render_ctx: &mut impl RenderContext,
-        args: &SpriteRenderArgs,
-        parts: &[(Rect<f32>, Vector2<f32>)],
-    ) -> Result<()> {
-        let rot: glam::Mat2 = glam::Mat2::from_angle(args.angle);
-        let scale: glam::Mat2 = glam::Mat2::from_scale(args.scale.into());
-        let origin: glam::Vec2 = args.location.into();
-        let pivot: glam::Vec2 = args.pivot.into();
+	/// Render multiple sub regions of the sprite at once.
+	///
+	/// The regions are defined by pairs of the region of the sprite to draw in texels, and where
+	/// to position the region relative to the [`SpriteRenderArgs::location`].
+	///
+	/// The pivot and rotation are relative to the location arg. A change in rotation will
+	/// transform all rendered regions as one, not individually.
+	pub(crate) fn render_regions(
+		&self,
+		render_ctx: &mut impl RenderContext,
+		args: &SpriteRenderArgs,
+		parts: &[(Rect<f32>, Vector2<f32>)],
+	) -> Result<()> {
+		let rot: glam::Mat2 = glam::Mat2::from_angle(args.angle);
+		let scale: glam::Mat2 = glam::Mat2::from_scale(args.scale.into());
+		let origin: glam::Vec2 = args.location.into();
+		let pivot: glam::Vec2 = args.pivot.into();
 
-        let Vector2::<f32> {
-            x: tex_width,
-            y: tex_height,
-        } = self.texture.dimensions.convert();
+		let Vector2::<f32> {
+			x: tex_width,
+			y: tex_height,
+		} = self.texture.dimensions.convert();
 
-        let vertex_data: Vec<Vertex> = parts
-            .iter()
-            .flat_map(|(src_rect, location)| {
-                let location = glam::Vec2::from(*location);
-                let src_rect = Rect::new(
-                    self.source_rect.location + src_rect.location,
-                    src_rect.dimensions,
-                );
+		let vertex_data: Vec<Vertex> = parts
+			.iter()
+			.flat_map(|(src_rect, location)| {
+				let location = glam::Vec2::from(*location);
+				let src_rect = Rect::new(
+					self.source_rect.location + src_rect.location,
+					src_rect.dimensions,
+				);
 
-                let pos_topleft: glam::Vec2 = location - pivot;
-                let pos_topright: glam::Vec2 = pos_topleft + glam::vec2(src_rect.dimensions.x, 0.0);
-                let pos_bottomleft: glam::Vec2 =
-                    pos_topleft + glam::vec2(0.0, src_rect.dimensions.y);
-                let pos_bottomright: glam::Vec2 =
-                    pos_bottomleft + glam::vec2(src_rect.dimensions.x, 0.0);
+				let pos_topleft: glam::Vec2 = location - pivot;
+				let pos_topright: glam::Vec2 = pos_topleft + glam::vec2(src_rect.dimensions.x, 0.0);
+				let pos_bottomleft: glam::Vec2 =
+					pos_topleft + glam::vec2(0.0, src_rect.dimensions.y);
+				let pos_bottomright: glam::Vec2 =
+					pos_bottomleft + glam::vec2(src_rect.dimensions.x, 0.0);
 
-                let uv_top = src_rect.location.y / (tex_height as f32);
-                let uv_left = src_rect.location.x / (tex_width as f32);
-                let uv_bottom = uv_top + (src_rect.dimensions.y / (tex_height as f32));
-                let uv_right = uv_left + (src_rect.dimensions.x / (tex_width as f32));
+				let uv_top = src_rect.location.y / (tex_height as f32);
+				let uv_left = src_rect.location.x / (tex_width as f32);
+				let uv_bottom = uv_top + (src_rect.dimensions.y / (tex_height as f32));
+				let uv_right = uv_left + (src_rect.dimensions.x / (tex_width as f32));
 
-                let color_arr: [f32; 4] = args.diffuse_color.clone().into();
+				let color_arr: [f32; 4] = args.diffuse_color.clone().into();
 
-                vec![
-                    Vertex::ptc(
-                        origin + (rot * (scale * pos_topleft)),
-                        [uv_left, uv_top],
-                        &color_arr,
-                    ),
-                    Vertex::ptc(
-                        origin + (rot * (scale * pos_bottomleft)),
-                        [uv_left, uv_bottom],
-                        &color_arr,
-                    ),
-                    Vertex::ptc(
-                        origin + (rot * (scale * pos_bottomright)),
-                        [uv_right, uv_bottom],
-                        &color_arr,
-                    ),
-                    Vertex::ptc(
-                        origin + (rot * (scale * pos_topright)),
-                        [uv_right, uv_top],
-                        &color_arr,
-                    ),
-                ]
-            })
-            .collect();
+				vec![
+					Vertex::ptc(
+						origin + (rot * (scale * pos_topleft)),
+						[uv_left, uv_top],
+						&color_arr,
+					),
+					Vertex::ptc(
+						origin + (rot * (scale * pos_bottomleft)),
+						[uv_left, uv_bottom],
+						&color_arr,
+					),
+					Vertex::ptc(
+						origin + (rot * (scale * pos_bottomright)),
+						[uv_right, uv_bottom],
+						&color_arr,
+					),
+					Vertex::ptc(
+						origin + (rot * (scale * pos_topright)),
+						[uv_right, uv_top],
+						&color_arr,
+					),
+				]
+			})
+			.collect();
 
-        let index_data: Vec<u16> = parts
-            .iter()
-            .enumerate()
-            .flat_map(|(i, _)| {
-                let base = (i as u16) * 4;
-                vec![1 + base, 2 + base, base, 2 + base, base, 3 + base]
-            })
-            .collect();
+		let index_data: Vec<u16> = parts
+			.iter()
+			.enumerate()
+			.flat_map(|(i, _)| {
+				let base = (i as u16) * 4;
+				vec![1 + base, 2 + base, base, 2 + base, base, 3 + base]
+			})
+			.collect();
 
-        let renderable = WGPURenderableDesc {
-            texture: self.texture.clone(),
-            shader: self.renderer.standard_res().default_shader.clone(),
-            verts: &vertex_data[..],
-            indices: &index_data[..],
-        };
+		let renderable = WGPURenderableDesc {
+			texture: self.texture.clone(),
+			shader: self.renderer.standard_res().default_shader.clone(),
+			verts: &vertex_data[..],
+			indices: &index_data[..],
+		};
 
-        render_ctx.render_internal(&renderable)
-    }
+		render_ctx.render_internal(&renderable)
+	}
 
-    /// Render the entire sprite.
-    pub fn render(
-        &self,
-        render_ctx: &mut impl RenderContext,
-        args: &SpriteRenderArgs,
-    ) -> Result<()> {
-        self.render_regions(
-            render_ctx,
-            args,
-            &[(
-                Rect::new([0.0, 0.0], self.source_rect.dimensions.into()),
-                Vector2::new(0.0, 0.0),
-            )],
-        )
-    }
+	/// Render the entire sprite.
+	pub fn render(
+		&self,
+		render_ctx: &mut impl RenderContext,
+		args: &SpriteRenderArgs,
+	) -> Result<()> {
+		self.render_regions(
+			render_ctx,
+			args,
+			&[(
+				Rect::new([0.0, 0.0], self.source_rect.dimensions.into()),
+				Vector2::new(0.0, 0.0),
+			)],
+		)
+	}
 
-    /// Utility function to simply render the sprite at a given location
-    ///
-    /// See [`SpriteRenderArgs`] for how to render the sprite with more control.
-    pub fn render_at<P: Into<Vector2<f32>>>(
-        &self,
-        render_ctx: &mut impl RenderContext,
-        location: P,
-    ) -> Result<()> {
-        self.render(
-            render_ctx,
-            &SpriteRenderArgs {
-                location: location.into(),
-                ..Default::default()
-            },
-        )
-    }
+	/// Utility function to simply render the sprite at a given location
+	///
+	/// See [`SpriteRenderArgs`] for how to render the sprite with more control.
+	pub fn render_at<P: Into<Vector2<f32>>>(
+		&self,
+		render_ctx: &mut impl RenderContext,
+		location: P,
+	) -> Result<()> {
+		self.render(
+			render_ctx,
+			&SpriteRenderArgs {
+				location: location.into(),
+				..Default::default()
+			},
+		)
+	}
 
-    /// Get the dimensions of the sprite
-    ///
-    /// # Example
-    ///
-    /// ```no_run
-    /// # use riddle::{common::Color, image::*, platform::*, renderer::*, math::*, *};
-    /// # fn main() -> Result<(), RiddleError> {
-    /// # let rdl =  RiddleLib::new()?; let window = WindowBuilder::new().build(rdl.context())?;
-    /// let renderer = Renderer::new_from_window(&window)?;
-    ///
-    /// // Load an image and create a sprite from it
-    /// let img = Image::new(100, 100);
-    /// let sprite = SpriteBuilder::new(img).build(&renderer)?;
-    ///
-    /// // The sprite dimensions will be the same of the source image
-    /// assert_eq!(vec2(100.0, 100.0), sprite.dimensions());
-    /// # Ok(()) }
-    /// ```
-    pub fn dimensions(&self) -> Vector2<f32> {
-        self.source_rect.dimensions
-    }
+	/// Get the dimensions of the sprite
+	///
+	/// # Example
+	///
+	/// ```no_run
+	/// # use riddle::{common::Color, image::*, platform::*, renderer::*, math::*, *};
+	/// # fn main() -> Result<(), RiddleError> {
+	/// # let rdl =  RiddleLib::new()?; let window = WindowBuilder::new().build(rdl.context())?;
+	/// let renderer = Renderer::new_from_window(&window)?;
+	///
+	/// // Load an image and create a sprite from it
+	/// let img = Image::new(100, 100);
+	/// let sprite = SpriteBuilder::new(img).build(&renderer)?;
+	///
+	/// // The sprite dimensions will be the same of the source image
+	/// assert_eq!(vec2(100.0, 100.0), sprite.dimensions());
+	/// # Ok(()) }
+	/// ```
+	pub fn dimensions(&self) -> Vector2<f32> {
+		self.source_rect.dimensions
+	}
 }

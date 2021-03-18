@@ -1,3 +1,3 @@
 pub trait RustTypeTTFontExt {
-    fn rustype_font(&self) -> &rusttype::Font<'static>;
+	fn rustype_font(&self) -> &rusttype::Font<'static>;
 }

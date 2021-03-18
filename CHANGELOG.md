@@ -15,6 +15,7 @@
 * renderer: Add `SpriteFont` to efficiently render `ImgFont` strings.
 * **breaking** renderer: Make `Sprite::render` public, and `Sprite::new_from_image` takes the image
     by reference instead of by value.
+* riddle: Add rustfmt.toml, setting `hard_tabs = true`. Reformat repo.
 
 ## 0.2.0
 
