@@ -41,6 +41,7 @@
 //! with custom WGPU devices.
 
 mod error;
+mod sprite_render_args;
 mod sprite_utils;
 
 pub mod wgpu_ext;
@@ -54,6 +55,7 @@ use wgpu_ext::*;
 type Result<R> = std::result::Result<R, RendererError>;
 
 pub use error::*;
+pub use sprite_render_args::*;
 pub use sprite_utils::*;
 pub use wgpu_ext::{FilterMode, RenderContext};
 

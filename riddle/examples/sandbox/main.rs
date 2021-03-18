@@ -188,9 +188,10 @@ impl RendererState {
 		)?;
 
 		self.subsprite.render_at(&mut frame, [60.0, 60.0])?;
-		SpriteRenderArgs::new(vec2(10.0, 100.0))
-			.with_color(Color::BLACK)
-			.render(&mut frame, &self.label_sprite)?;
+		self.label_sprite.render(
+			&mut frame,
+			SpriteRenderArgs::new(vec2(10.0, 100.0)).with_color(Color::BLACK),
+		)?;
 
 		frame.set_transform(glam::Mat4::identity().into())?;
 
