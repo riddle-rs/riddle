@@ -22,6 +22,8 @@ jobs:
           toolchain: nightly
           components: clippy, rustfmt
           override: true
+    - name: Update system packages
+      run: sudo apt-get update
     - name: Install packages
       run: sudo apt-get install libasound2-dev libudev-dev
     - name: Build
