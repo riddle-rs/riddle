@@ -17,6 +17,7 @@
     by reference instead of by value.
 * riddle: Add rustfmt.toml, setting `hard_tabs = true`. Reformat repo.
 * **breaking** renderer: Remove `SpriteRenderArgs::render`, instead prefer use of `Sprite::render`.
+* image: Add deriving ImageFormat from path extension.
 
 ## 0.2.0
 

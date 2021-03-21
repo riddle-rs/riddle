@@ -411,3 +411,30 @@ pub enum ImageFormat {
 	Bmp,
 	Jpeg,
 }
+
+impl ImageFormat {
+	/// Derive the image format from a path. It uses the file extension to pick from the
+	/// supported formats, or returns None if the extension doesn't map to a known format.
+	///
+	/// # Example
+	///
+	/// ```
+	/// # use riddle_image::*;
+	/// assert_eq!(Some(ImageFormat::Png), ImageFormat::derive_from_path("FOO.PNG"));
+	/// assert_eq!(Some(ImageFormat::Bmp), ImageFormat::derive_from_path("Bar.Bmp"));
+	/// assert_eq!(Some(ImageFormat::Jpeg), ImageFormat::derive_from_path("baz.jpg"));
+	/// assert_eq!(None, ImageFormat::derive_from_path("Bad.txt"));
+	/// ```
+	pub fn derive_from_path(path: &str) -> Option<Self> {
+		let p = std::path::Path::new(path);
+		let extension_str = p.extension()?.to_str()?;
+		let extension = String::from(extension_str).to_lowercase();
+
+		match extension.as_str() {
+			"png" => Some(ImageFormat::Png),
+			"bmp" => Some(ImageFormat::Bmp),
+			"jpeg" | "jpg" => Some(ImageFormat::Jpeg),
+			_ => None,
+		}
+	}
+}
