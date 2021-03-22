@@ -7,9 +7,9 @@ use crate::wgpu_ext::*;
 /// A renderable region of a texture.
 ///
 /// Multiple sprites can share a single texture. Sprites can either be built using
-/// [`crate::SpriteBuilder`], or [`SpriteAtlasBuilder`].
+/// [`Sprite`], or [`SpriteAtlasBuilder`].
 ///
-/// Use [`crate::SpriteRenderArgs`] for access to all supported paramters when rendering
+/// Use [`SpriteRenderArgs`] for access to all supported paramters when rendering
 /// sprites, or use [`WGPUSprite::render_at`] to specify only a location and use default
 /// arguments for everything else.
 ///
