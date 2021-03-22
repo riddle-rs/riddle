@@ -50,8 +50,10 @@ impl<Device: WGPUDevice> WGPUSpriteFont<Device> {
 		let sprite = WGPUSprite::new_from_image(
 			renderer,
 			font.image(),
-			FilterMode::Linear,
-			FilterMode::Linear,
+			&SpriteInitArgs {
+				min_filter: FilterMode::Linear,
+				mag_filter: FilterMode::Linear,
+			},
 		)?;
 
 		Ok(Self { sprite, font })

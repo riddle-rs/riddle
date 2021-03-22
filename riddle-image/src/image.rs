@@ -272,6 +272,30 @@ impl Image {
 		}
 	}
 
+	/// Create a new image containing the contents of some part of the image. The output will be
+	/// the intersection of the rect provided and the rect enclosing the source image. If the source
+	/// rect is not completely contained in the image the output image may be smaller than the
+	/// dimensions of the source rect.
+	///
+	/// # Example
+	///
+	/// ```
+	/// # use riddle_image::*; use riddle_math::*;
+	/// let mut source = Image::new(2,2);
+	/// source.fill(Color::<u8>::RED);
+	///
+	/// let copy = source.copy_rect(&Rect::new([0, 0], [2, 1]));
+	/// assert_eq!(Vector2::new(2,1), copy.dimensions());
+	/// assert_eq!(Color::<u8>::RED, copy.get_pixel([0, 0]));
+	/// ```
+	pub fn copy_rect(&self, source: &Rect<u32>) -> Image {
+		let source_rect = self.rect().intersect(&source).unwrap_or_default();
+		let mut dest_img = Image::new(source_rect.dimensions.x, source_rect.dimensions.y);
+
+		dest_img.blit_rect(self, &source_rect, Vector2::default());
+		dest_img
+	}
+
 	/// Blit another image on to self. The location is the relative offset of the (0,0) pixel of the
 	/// source image relative to self's (0,0) pixel.
 	///

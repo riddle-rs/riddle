@@ -28,7 +28,7 @@ use crate::wgpu_ext::*;
 /// // Load an image and create a sprite from it
 /// let png_bytes = include_bytes!("../../../example_assets/image.png");
 /// let img = Image::load(&png_bytes[..], ImageFormat::Png)?;
-/// let sprite = SpriteBuilder::new(img).build(&renderer)?;
+/// let sprite = Sprite::new_from_image(&renderer, &img, &SpriteInitArgs::new())?;
 ///
 /// // Render the sprite at the top left corner of the screen
 /// let mut render_ctx = renderer.begin_render()?;
@@ -46,19 +46,18 @@ pub struct WGPUSprite<Device: WGPUDevice> {
 impl<Device: WGPUDevice> WGPUSprite<Device> {
 	/// Construct a new sprite from an image. The image contents are copied to a texture
 	/// in RGBA8 format. The entire image will be used
-	pub(crate) fn new_from_image(
+	pub fn new_from_image(
 		renderer: &WGPURenderer<Device>,
 		img: &image::Image,
-		mag_filter: FilterMode,
-		min_filter: FilterMode,
+		init_args: &SpriteInitArgs,
 	) -> Result<Self> {
 		let texture = renderer.wgpu_device().with_device_info(|info| {
 			WGPUTexture::from_image(
 				info.device,
 				info.queue,
 				&img,
-				mag_filter,
-				min_filter,
+				init_args.mag_filter,
+				init_args.min_filter,
 				TextureType::Plain,
 			)
 		})?;
@@ -113,7 +112,7 @@ impl<Device: WGPUDevice> WGPUSprite<Device> {
 	///
 	/// // Load an image and create a sprite from it
 	/// let img = Image::new(100, 100);
-	/// let sprite = SpriteBuilder::new(img).build(&renderer)?;
+	/// let sprite = Sprite::new_from_image(&renderer, &img, &SpriteInitArgs::new())?;
 	///
 	/// // Take a portion of the sprite as a new sprite.
 	/// let subsprite = sprite.subsprite(&Rect::new(vec2(75.0, 75.0), vec2(50.0, 50.0)));
@@ -272,7 +271,7 @@ impl<Device: WGPUDevice> WGPUSprite<Device> {
 	///
 	/// // Load an image and create a sprite from it
 	/// let img = Image::new(100, 100);
-	/// let sprite = SpriteBuilder::new(img).build(&renderer)?;
+	/// let sprite = Sprite::new_from_image(&renderer, &img, &SpriteInitArgs::new())?;
 	///
 	/// // The sprite dimensions will be the same of the source image
 	/// assert_eq!(vec2(100.0, 100.0), sprite.dimensions());

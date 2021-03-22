@@ -103,6 +103,7 @@ impl WGPUTexture {
 }
 
 /// Interpolation mode between texels when rendering
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum FilterMode {
 	Nearest,
 	Linear,

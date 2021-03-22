@@ -18,6 +18,8 @@
 * riddle: Add rustfmt.toml, setting `hard_tabs = true`. Reformat repo.
 * **breaking** renderer: Remove `SpriteRenderArgs::render`, instead prefer use of `Sprite::render`.
 * image: Add deriving ImageFormat from path extension.
+* **breaking** renderer: Refactor `SpriteBuilder` in to `SpriteInitArgs` and make
+    `Sprite::new_from_image` public.
 
 ## 0.2.0
 

@@ -26,7 +26,7 @@ use crate::{math::*, *};
 /// # let window = WindowBuilder::new().build(rdl.context())?;
 /// # let renderer = Renderer::new_from_window(&window)?;
 /// # let img = Image::new(100, 100);
-/// let sprite = SpriteBuilder::new(img).build(&renderer)?;
+/// let sprite = Sprite::new_from_image(&renderer, &img, &SpriteInitArgs::new())?;
 ///
 /// let mut render_ctx = renderer.begin_render()?;
 /// render_ctx.clear(Color::WHITE)?;
