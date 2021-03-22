@@ -78,7 +78,8 @@ impl WGPURendererDemo {
 			font::TTFont::load(&font_bytes[..])?
 		};
 		let label = font.render_simple("Riddle Label", 24)?;
-		let label_sprite = SpriteBuilder::new(label).build(&rdl_renderer)?;
+		let label_sprite =
+			WGPUSprite::new_from_image(&rdl_renderer, &label, &SpriteInitArgs::new())?;
 
 		Ok(Self {
 			_window: window,
