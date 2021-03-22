@@ -20,6 +20,7 @@ use crate::wgpu_ext::*;
 ///     .with_filter_modes(FilterMode::Linear, FilterMode::Linear))?;
 /// # Ok(()) }
 /// ```
+#[derive(Default, Debug, Clone, PartialEq, Eq)]
 pub struct SpriteInitArgs {
 	pub mag_filter: FilterMode,
 	pub min_filter: FilterMode,
