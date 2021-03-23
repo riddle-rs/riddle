@@ -20,6 +20,7 @@
 * image: Add deriving ImageFormat from path extension.
 * **breaking** renderer: Refactor `SpriteBuilder` in to `SpriteInitArgs` and make
     `Sprite::new_from_image` public.
+* renderer: Refactor to allow RenderContext to be passed as `dyn RenderContext`.
 
 ## 0.2.0
 

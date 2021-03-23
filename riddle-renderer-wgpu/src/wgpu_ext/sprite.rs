@@ -223,7 +223,7 @@ impl<Device: WGPUDevice> WGPUSprite<Device> {
 			indices: &index_data[..],
 		};
 
-		render_ctx.render_internal(&renderable)
+		render_ctx.draw(&renderable)
 	}
 
 	/// Render the entire sprite.
