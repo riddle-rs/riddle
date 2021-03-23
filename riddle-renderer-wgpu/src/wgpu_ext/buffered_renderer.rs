@@ -250,10 +250,11 @@ where
 		Ok(())
 	}
 
-	fn render_internal<S: WGPURenderable>(&mut self, renderable: &S) -> Result<()> {
-		renderable.with_renderable(|r| {
-			self.buffered_render(&BufferedRenderArgs::new(r), r.verts, r.indices)?;
-			Ok(())
-		})
+	fn draw(&mut self, renderable: &WGPURenderableDesc) -> Result<()> {
+		self.buffered_render(
+			&BufferedRenderArgs::new(renderable),
+			renderable.verts,
+			renderable.indices,
+		)
 	}
 }

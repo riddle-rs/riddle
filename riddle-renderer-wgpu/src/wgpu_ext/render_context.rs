@@ -32,7 +32,7 @@ pub trait RenderContext {
 	/// Render a `Renderable` to the target with the current world transform.
 	///
 	/// This is only called by internal crate code.
-	fn render_internal<R: WGPURenderable>(&mut self, renderable: &R) -> Result<()>;
+	fn draw(&mut self, renderable: &WGPURenderableDesc) -> Result<()>;
 
 	/// Draw a solid rect with the given color.
 	fn fill_rect(&mut self, rect: &Rect<f32>, color: Color<f32>) -> Result<()>;
