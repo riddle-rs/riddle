@@ -143,9 +143,9 @@ impl<Device: WGPUDevice> WGPUSprite<Device> {
 	///
 	/// The pivot and rotation are relative to the location arg. A change in rotation will
 	/// transform all rendered regions as one, not individually.
-	pub(crate) fn render_regions(
+	pub(crate) fn render_regions<R: RenderContext + ?Sized>(
 		&self,
-		render_ctx: &mut impl RenderContext,
+		render_ctx: &mut R,
 		args: &SpriteRenderArgs,
 		parts: &[(Rect<f32>, Vector2<f32>)],
 	) -> Result<()> {
@@ -227,9 +227,9 @@ impl<Device: WGPUDevice> WGPUSprite<Device> {
 	}
 
 	/// Render the entire sprite.
-	pub fn render(
+	pub fn render<R: RenderContext + ?Sized>(
 		&self,
-		render_ctx: &mut impl RenderContext,
+		render_ctx: &mut R,
 		args: &SpriteRenderArgs,
 	) -> Result<()> {
 		self.render_regions(
@@ -245,9 +245,9 @@ impl<Device: WGPUDevice> WGPUSprite<Device> {
 	/// Utility function to simply render the sprite at a given location
 	///
 	/// See [`SpriteRenderArgs`] for how to render the sprite with more control.
-	pub fn render_at<P: Into<Vector2<f32>>>(
+	pub fn render_at<P: Into<Vector2<f32>>, R: RenderContext + ?Sized>(
 		&self,
-		render_ctx: &mut impl RenderContext,
+		render_ctx: &mut R,
 		location: P,
 	) -> Result<()> {
 		self.render(

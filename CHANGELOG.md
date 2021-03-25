@@ -21,6 +21,7 @@
 * **breaking** renderer: Refactor `SpriteBuilder` in to `SpriteInitArgs` and make
     `Sprite::new_from_image` public.
 * renderer: Refactor to allow RenderContext to be passed as `dyn RenderContext`.
+* renderer: Remove Sized constraint on calls that took `&mut impl RenderContext`.
 
 ## 0.2.0
 
