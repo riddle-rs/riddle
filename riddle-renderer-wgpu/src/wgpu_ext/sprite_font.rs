@@ -59,9 +59,9 @@ impl<Device: WGPUDevice> WGPUSpriteFont<Device> {
 		Ok(Self { sprite, font })
 	}
 
-	pub fn render(
+	pub fn render<R: RenderContext + ?Sized>(
 		&self,
-		render_ctx: &mut impl RenderContext,
+		render_ctx: &mut R,
 		render_args: &SpriteRenderArgs,
 		text: &str,
 	) -> Result<()> {
