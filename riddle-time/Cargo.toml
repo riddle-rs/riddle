@@ -8,6 +8,7 @@ edition = "2018"
 
 [dependencies]
 riddle-common = {path = "../riddle-common"}
+instant = "0.1"
 
 [dev-dependencies]
 riddle = {path = "../riddle"}

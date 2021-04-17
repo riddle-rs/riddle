@@ -228,7 +228,7 @@ impl From<u32> for Scancode {
 	}
 }
 
-#[cfg(target_os = "windows")]
+#[cfg(any(target_arch = "wasm32", target_os = "windows"))]
 impl From<u32> for Scancode {
 	fn from(sc: u32) -> Self {
 		match sc {
