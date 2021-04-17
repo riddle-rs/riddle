@@ -8,5 +8,6 @@ members = ["riddle",
 "riddle-math",
 "riddle-platform-common",
 "riddle-platform-winit",
+"riddle-renderer-common",
 "riddle-renderer-wgpu",
 "riddle-time"]
