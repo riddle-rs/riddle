@@ -15,5 +15,12 @@ thiserror = "1.0"
 
 winit = "0.24"
 
+[target.'cfg(target_arch = "wasm32")'.dependencies.winit]
+version = "0.24"
+features = ["web-sys"]
+
+[target.'cfg(target_arch = "wasm32")'.dependencies.web-sys]
+version = "0.3"
+
 [dev-dependencies]
 riddle = {path = "../riddle"}

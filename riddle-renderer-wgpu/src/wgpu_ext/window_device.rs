@@ -21,6 +21,7 @@ impl WindowWGPUDevice {
 		let instance = wgpu::Instance::new(wgpu::BackendBit::PRIMARY);
 		let surface = unsafe { instance.create_surface(window) };
 
+		log::debug!("Initializing WGPU adapter...");
 		let adapter =
 			futures::executor::block_on(instance.request_adapter(&wgpu::RequestAdapterOptions {
 				power_preference: wgpu::PowerPreference::HighPerformance,
@@ -28,6 +29,7 @@ impl WindowWGPUDevice {
 			}))
 			.ok_or(RendererError::APIInitError("Failed to get WGPU adapter"))?;
 
+		log::debug!("Initializing WGPU device...");
 		let (device, queue) = futures::executor::block_on(adapter.request_device(
 			&wgpu::DeviceDescriptor {
 				..Default::default()

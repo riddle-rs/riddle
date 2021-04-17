@@ -22,13 +22,26 @@ pub struct RiddleState {
 
 impl RiddleState {
 	pub(crate) fn new() -> Result<(Self, MainThreadState)> {
+		log::debug!("Initializing platform...");
 		let (platform_system, platform_main_thread) = PlatformSystem::new_shared();
+		log::debug!("Platform initialized");
+
+		log::debug!("Initializing input...");
 		let (input_system, input_main_thread) =
 			InputSystem::new_shared(platform_system.event_pub())?;
+		log::debug!("Input initialized");
+
+		log::debug!("Initializing time...");
 		let time = TimeSystem::new_shared();
+		log::debug!("Time initialized");
 
 		#[cfg(feature = "riddle-audio")]
-		let (audio, audio_main_thread) = AudioSystem::new_shared()?;
+		let (audio, audio_main_thread) = {
+			log::debug!("Initializing audio...");
+			let result = AudioSystem::new_shared()?;
+			log::debug!("Audio initialized");
+			result
+		};
 
 		let riddle_state = RiddleState {
 			platform: platform_system,

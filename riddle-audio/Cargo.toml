@@ -14,9 +14,13 @@ riddle-mp3 = ["rodio/mp3"]
 riddle-common = {path = "../riddle-common"}
 
 futures = "0.3"
-rodio = { version = "0.13", features=["wav", "vorbis"] }
+rodio = { version = "0.13", default-features=false, features=["wav", "vorbis"] }
 thiserror = "1.0"
 
+[target.'cfg(target_arch = "wasm32")'.dependencies.rodio]
+version = "^0.13.1"
+default-features = false
+features = ["wav", "vorbis", "wasm-bindgen"]
 
 [dev-dependencies]
 riddle = {path = "../riddle"}

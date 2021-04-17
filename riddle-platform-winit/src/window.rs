@@ -80,6 +80,20 @@ impl Window {
 				.map_err(|_| PlatformError::WindowInitFailure)
 		})?;
 
+		#[cfg(target_arch = "wasm32")]
+		{
+			use winit::platform::web::WindowExtWebSys;
+
+			let canvas = winit_window.canvas();
+
+			let window = web_sys::window().unwrap();
+			let document = window.document().unwrap();
+			let body = document.body().unwrap();
+
+			body.append_child(&canvas)
+				.expect("Append canvas to HTML body");
+		}
+
 		args.configure_window(&winit_window);
 
 		let event_sub = EventSub::new_with_filter(Self::event_filter);

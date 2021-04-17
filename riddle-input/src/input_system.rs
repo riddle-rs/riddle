@@ -381,7 +381,7 @@ impl ext::InputSystemExt for InputSystem {
 	}
 
 	fn take_input_events(&self) -> Vec<InputEvent> {
-		std::mem::replace(&mut self.outgoing_input_events.lock().unwrap(), vec![])
+		std::mem::take(&mut self.outgoing_input_events.lock().unwrap())
 	}
 }
 

@@ -16,9 +16,14 @@ riddle-platform-winit = {path = "../riddle-platform-winit"}
 bytemuck = "1.3"
 glam = {version= "0.11", features=["mint"]}
 futures = "0.3"
+log = "0.4"
 thiserror = "1.0"
 wgpu = "0.7"
 mint = "0.5"
 
 [dev-dependencies]
 riddle = {path = "../riddle"}
+
+[target.'cfg(target_arch = "wasm32")'.dependencies.wgpu]
+version = "0.7"
+features = ["webgl"]
