@@ -1,6 +1,6 @@
 use crate::{math::*, *};
 
-/// A [`WGPURenderer`] compatible WGPU device.
+/// A [`Renderer`] compatible WGPU device.
 ///
 /// A default implementation exists for `riddle_platform_winit::Window`
 /// in [`WindowWGPUDevice`].
@@ -12,7 +12,7 @@ use crate::{math::*, *};
 ///
 /// ```no_run
 /// use std::sync::Arc;
-/// use riddle::{common::Color, platform::*, renderer::{wgpu_ext::*, *}, *};
+/// use riddle::{common::Color, platform::*, renderer::*, *};
 ///
 /// #[derive(Clone)]
 /// struct ACustomRendererHandle {
@@ -29,11 +29,11 @@ use crate::{math::*, *};
 ///
 /// impl WGPUDevice for ACustomRendererHandle {
 ///     // [..]
-/// #   fn begin_frame(&self) -> Result<(), RendererError> { todo!() }
+/// #   fn begin_frame(&self) -> Result<(), WGPURendererError> { todo!() }
 /// #   fn end_frame(&self) { todo!() }
 /// #   fn viewport_dimensions(&self) -> math::Vector2<f32>  { todo!() }
-/// #   fn with_device_info<R, F: FnOnce(&WGPUDeviceInfo) -> Result<R, RendererError>>(&self, f: F) -> Result<R, RendererError> { todo!() }
-/// #   fn with_frame<R, F: FnOnce(&wgpu::SwapChainFrame) -> Result<R, RendererError>>(&self, f: F) -> Result<R, RendererError> { todo!() }
+/// #   fn with_device_info<R, F: FnOnce(&WGPUDeviceInfo) -> Result<R, WGPURendererError>>(&self, f: F) -> Result<R, WGPURendererError> { todo!() }
+/// #   fn with_frame<R, F: FnOnce(&wgpu::SwapChainFrame) -> Result<R, WGPURendererError>>(&self, f: F) -> Result<R, WGPURendererError> { todo!() }
 /// }
 ///
 /// fn main() -> Result<(), RiddleError> {
@@ -42,7 +42,7 @@ use crate::{math::*, *};
 ///
 ///     let custom_renderer = ACustomRendererHandle::new();
 ///
-///     let renderer = WGPURenderer::new_from_device(custom_renderer.clone())?;
+///     let renderer = Renderer::new_from_device(custom_renderer.clone())?;
 ///
 ///     rdl.run(move |rdl| match rdl.event() {
 ///         Event::Platform(PlatformEvent::WindowClose(_)) => rdl.quit(),
@@ -50,9 +50,9 @@ use crate::{math::*, *};
 ///             custom_renderer.start_render();
 ///             custom_renderer.render_3d_scene();
 ///
-///             let mut render_ctx = renderer.begin_render().unwrap();
-///             render_ctx.clear(Color::RED);
-///             render_ctx.present();
+///             renderer.render(|render_ctx| {
+///                 render_ctx.clear(Color::RED)
+///             }).unwrap();
 ///
 ///             custom_renderer.end_render();
 ///         }
@@ -61,15 +61,15 @@ use crate::{math::*, *};
 /// }
 /// ```
 pub trait WGPUDevice {
-	/// Called when the [`WGPURenderer`] begins rendering to the swap chain frame.
+	/// Called when the [`Renderer`] begins rendering to the swap chain frame.
 	///
-	/// Invoked through [`WGPURenderer::begin_render`]
+	/// Invoked through [`Renderer::render`]
 	fn begin_frame(&self) -> Result<()>;
 
 	/// When the renderer is done renderering to the swap chain frame.
 	///
 	/// Invoked by a [`RenderContext::present`] call on the context returned from
-	/// [`WGPURenderer::begin_render`].
+	/// [`Renderer::render`].
 	fn end_frame(&self);
 
 	/// The viewport dimensions of the swapchain frame.

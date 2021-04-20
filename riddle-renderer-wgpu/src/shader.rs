@@ -1,24 +1,50 @@
 use std::num::NonZeroU64;
 
-use crate::wgpu_ext::*;
+use crate::*;
 
+use math::Vector2;
 use wgpu::util::DeviceExt;
 use wgpu::{CommandEncoder, RenderPass, TextureView};
 
-pub(crate) struct WGPUShader {
-	weak_self: WGPUShaderWeak,
+pub struct Shader {
+	pub(crate) internal: std::sync::Arc<ShaderInternal>,
+}
+
+impl Shader {
+	pub(crate) fn from_readers<SR>(
+		device: &wgpu::Device,
+		shader_reader: SR,
+		primitive_type: wgpu::PrimitiveTopology,
+	) -> Result<Self>
+	where
+		SR: std::io::Read + std::io::Seek,
+	{
+		let internal = ShaderInternal::from_readers(device, shader_reader, primitive_type)?;
+		Ok(Self {
+			internal: internal.into(),
+		})
+	}
+}
+
+impl Clone for Shader {
+	fn clone(&self) -> Self {
+		Self {
+			internal: self.internal.clone(),
+		}
+	}
+}
+
+pub(crate) struct ShaderInternal {
 	pub bind_group_layout: wgpu::BindGroupLayout,
 	pipeline: wgpu::RenderPipeline,
 }
 
-define_handles!(<WGPUShader>::weak_self, pub(crate) WGPUShaderHandle, pub(crate) WGPUShaderWeak);
-
-impl WGPUShader {
+impl ShaderInternal {
 	pub(crate) fn from_readers<SR>(
 		device: &wgpu::Device,
 		mut shader_reader: SR,
 		primitive_type: wgpu::PrimitiveTopology,
-	) -> Result<WGPUShaderHandle>
+	) -> Result<Self>
 	where
 		SR: std::io::Read + std::io::Seek,
 	{
@@ -26,7 +52,8 @@ impl WGPUShader {
 		shader_reader
 			.read_to_end(&mut wgsl_buf)
 			.map_err(CommonError::IOError)?;
-		let wgsl_str = std::str::from_utf8(&wgsl_buf[..]).map_err(|_| RendererError::Unknown)?;
+		let wgsl_str =
+			std::str::from_utf8(&wgsl_buf[..]).map_err(|_| WGPURendererError::Unknown)?;
 		let wgsl_module = device.create_shader_module(&wgpu::ShaderModuleDescriptor {
 			source: wgpu::ShaderSource::Wgsl(std::borrow::Cow::from(wgsl_str)),
 			flags: wgpu::ShaderFlags::VALIDATION,
@@ -136,11 +163,10 @@ impl WGPUShader {
 			},
 		});
 
-		Ok(WGPUShaderHandle::new(|weak_self| Self {
-			weak_self,
+		Ok(Self {
 			bind_group_layout,
 			pipeline: render_pipeline,
-		}))
+		})
 	}
 
 	pub(crate) fn bind_params(
@@ -148,7 +174,7 @@ impl WGPUShader {
 		device: &wgpu::Device,
 		camera_size: Vector2<f32>,
 		view_matrix: mint::ColumnMatrix4<f32>,
-		texture: &WGPUTexture,
+		texture: &Texture,
 	) -> wgpu::BindGroup {
 		let ortho_matrix =
 			glam::Mat4::orthographic_lh(0.0, camera_size.x, camera_size.y, 0.0, 0.0, 1.0);
@@ -175,15 +201,18 @@ impl WGPUShader {
 				},
 				wgpu::BindGroupEntry {
 					binding: 1,
-					resource: wgpu::BindingResource::TextureView(&texture.texture.create_view(
-						&wgpu::TextureViewDescriptor {
-							..Default::default()
-						},
-					)),
+					resource: wgpu::BindingResource::TextureView(
+						&texture
+							.internal
+							.texture
+							.create_view(&wgpu::TextureViewDescriptor {
+								..Default::default()
+							}),
+					),
 				},
 				wgpu::BindGroupEntry {
 					binding: 2,
-					resource: wgpu::BindingResource::Sampler(&texture.sampler),
+					resource: wgpu::BindingResource::Sampler(&texture.internal.sampler),
 				},
 			],
 			label: None,

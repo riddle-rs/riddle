@@ -75,9 +75,9 @@
 //!             Event::Platform(PlatformEvent::WindowClose(_)) => rdl.quit(),
 //!             Event::ProcessFrame => {
 //!                 // Clear the window with black every frame
-//!                 let mut render_ctx = renderer.begin_render().unwrap();
-//!                 render_ctx.clear(Color::BLACK);
-//!                 render_ctx.present();
+//!                 renderer.render(|render_ctx| {
+//!                     render_ctx.clear(Color::BLACK)
+//!                 }).unwrap();
 //!             }
 //!             _ => (),
 //!          }

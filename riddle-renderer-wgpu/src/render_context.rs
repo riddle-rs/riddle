@@ -1,4 +1,6 @@
-use crate::wgpu_ext::*;
+use math::Rect;
+
+use crate::*;
 
 /// Types which accept render calls, tracks current world transform, and are consumed
 /// when the calls are presented.
@@ -22,7 +24,7 @@ use crate::wgpu_ext::*;
 /// render_ctx.present()?;
 /// # Ok(()) }
 /// ```
-pub trait RenderContext {
+pub trait WGPURenderContextX {
 	/// Replace the current world transform.
 	fn set_transform(&mut self, transform: mint::ColumnMatrix4<f32>) -> Result<()>;
 

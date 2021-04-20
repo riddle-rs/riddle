@@ -1,20 +1,20 @@
-use crate::{math::Vector2, wgpu_ext::*};
+use crate::{math::Vector2, *};
 
-pub(crate) struct SwapChainFrameTarget<'a, Device: WGPUDevice> {
-	renderer: &'a WGPURenderer<Device>,
+pub struct SwapChainFrameTarget<Device: WGPUDevice> {
+	renderer: Renderer<Device>,
 	dimensions: Vector2<f32>,
 }
 
-impl<'a, Device: WGPUDevice> SwapChainFrameTarget<'a, Device> {
-	pub fn new(renderer: &'a WGPURenderer<Device>, dimensions: Vector2<f32>) -> Self {
+impl<Device: WGPUDevice> SwapChainFrameTarget<Device> {
+	pub fn new(renderer: &Renderer<Device>, dimensions: Vector2<f32>) -> Self {
 		Self {
-			renderer,
+			renderer: renderer.clone(),
 			dimensions,
 		}
 	}
 }
 
-impl<'a, Device: WGPUDevice> WGPURenderTargetDesc<'a, Device> for SwapChainFrameTarget<'a, Device> {
+impl<Device: WGPUDevice> WGPURenderTargetDesc<Device> for SwapChainFrameTarget<Device> {
 	#[inline]
 	fn dimensions(&self) -> Vector2<f32> {
 		self.dimensions
@@ -30,7 +30,7 @@ impl<'a, Device: WGPUDevice> WGPURenderTargetDesc<'a, Device> for SwapChainFrame
 			.with_frame(|frame| f(&frame.output.view))
 	}
 
-	fn renderer(&self) -> &WGPURenderer<Device> {
+	fn renderer(&self) -> &Renderer<Device> {
 		&self.renderer
 	}
 

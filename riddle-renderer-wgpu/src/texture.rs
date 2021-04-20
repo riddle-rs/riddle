@@ -2,26 +2,20 @@ use crate::*;
 
 use riddle_math::Vector2;
 
-pub(crate) struct WGPUTexture {
-	weak_self: WGPUTextureWeak,
-	pub(crate) texture: wgpu::Texture,
-	pub(crate) sampler: wgpu::Sampler,
-	pub dimensions: Vector2<u32>,
+pub struct Texture {
+	pub(crate) internal: std::sync::Arc<TextureInternal>,
 }
 
-define_handles!(<WGPUTexture>::weak_self, pub(crate) WGPUTextureHandle, pub(crate) WGPUTextureWeak);
-
-impl WGPUTexture {
-	pub fn from_image(
+impl Texture {
+	pub(crate) fn from_image(
 		device: &wgpu::Device,
 		queue: &wgpu::Queue,
 		image: &image::Image,
 		mag_filter: FilterMode,
 		min_filter: FilterMode,
 		tex_type: TextureType,
-	) -> Result<WGPUTextureHandle> {
-		let texture =
-			WGPUTexture::new_shared(device, mag_filter, min_filter, tex_type, image.dimensions())?;
+	) -> Result<Self> {
+		let texture = Texture::new(device, mag_filter, min_filter, tex_type, image.dimensions())?;
 
 		let texture_extent = wgpu::Extent3d {
 			width: image.width(),
@@ -31,7 +25,7 @@ impl WGPUTexture {
 
 		queue.write_texture(
 			wgpu::TextureCopyView {
-				texture: &texture.texture,
+				texture: &texture.internal.texture,
 				mip_level: 0,
 				origin: wgpu::Origin3d::ZERO,
 			},
@@ -47,13 +41,54 @@ impl WGPUTexture {
 		Ok(texture)
 	}
 
-	pub fn new_shared(
+	pub(crate) fn new(
 		device: &wgpu::Device,
 		mag_filter: FilterMode,
 		min_filter: FilterMode,
 		tex_type: TextureType,
 		dimensions: Vector2<u32>,
-	) -> Result<WGPUTextureHandle> {
+	) -> Result<Texture> {
+		let internal = TextureInternal::new(device, mag_filter, min_filter, tex_type, dimensions)?;
+		Ok(Self {
+			internal: internal.into(),
+		})
+	}
+}
+
+impl Clone for Texture {
+	fn clone(&self) -> Self {
+		Self {
+			internal: self.internal.clone(),
+		}
+	}
+}
+
+fn filter_to_wgpu(filter: FilterMode) -> wgpu::FilterMode {
+	match filter {
+		FilterMode::Nearest => wgpu::FilterMode::Nearest,
+		FilterMode::Linear => wgpu::FilterMode::Linear,
+	}
+}
+
+pub(crate) enum TextureType {
+	Plain,
+	RenderTarget,
+}
+
+pub(crate) struct TextureInternal {
+	pub texture: wgpu::Texture,
+	pub sampler: wgpu::Sampler,
+	pub dimensions: Vector2<u32>,
+}
+
+impl TextureInternal {
+	pub(crate) fn new(
+		device: &wgpu::Device,
+		mag_filter: FilterMode,
+		min_filter: FilterMode,
+		tex_type: TextureType,
+		dimensions: Vector2<u32>,
+	) -> Result<Self> {
 		let texture_extent = wgpu::Extent3d {
 			width: dimensions.x,
 			height: dimensions.y,
@@ -88,43 +123,15 @@ impl WGPUTexture {
 			address_mode_u: wgpu::AddressMode::ClampToEdge,
 			address_mode_v: wgpu::AddressMode::ClampToEdge,
 			address_mode_w: wgpu::AddressMode::ClampToEdge,
-			mag_filter: mag_filter.into(),
-			min_filter: min_filter.into(),
+			mag_filter: filter_to_wgpu(mag_filter),
+			min_filter: filter_to_wgpu(min_filter),
 			..Default::default()
 		});
 
-		Ok(WGPUTextureHandle::new(|weak_self| WGPUTexture {
-			weak_self,
+		Ok(Self {
 			texture,
 			sampler,
 			dimensions,
-		}))
+		})
 	}
-}
-
-/// Interpolation mode between texels when rendering
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum FilterMode {
-	Nearest,
-	Linear,
-}
-
-impl From<FilterMode> for wgpu::FilterMode {
-	fn from(f: FilterMode) -> Self {
-		match f {
-			FilterMode::Nearest => wgpu::FilterMode::Nearest,
-			FilterMode::Linear => wgpu::FilterMode::Linear,
-		}
-	}
-}
-
-impl Default for FilterMode {
-	fn default() -> Self {
-		FilterMode::Nearest
-	}
-}
-
-pub(crate) enum TextureType {
-	Plain,
-	RenderTarget,
 }

@@ -18,9 +18,12 @@ pub enum RiddleError {
 	#[error(transparent)]
 	InputError(#[from] input::InputError),
 
-	#[cfg(feature = "riddle-renderer-wgpu")]
 	#[error(transparent)]
 	RendererError(#[from] renderer::RendererError),
+
+	#[cfg(feature = "riddle-renderer-wgpu")]
+	#[error(transparent)]
+	WGPURendererError(#[from] renderer::WGPURendererError),
 
 	#[error(transparent)]
 	WindowError(#[from] platform::PlatformError),

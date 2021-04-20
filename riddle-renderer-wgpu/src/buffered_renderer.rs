@@ -1,15 +1,18 @@
-use crate::wgpu_ext::*;
+use std::sync::Arc;
 
+use crate::*;
+
+use math::Rect;
 use wgpu::util::DeviceExt;
 
 #[derive(Clone)]
-pub(crate) struct BufferedRenderArgs {
-	pub(crate) texture: WGPUTextureHandle,
-	pub(crate) shader: WGPUShaderHandle,
+pub struct BufferedRenderArgs {
+	pub(crate) texture: Texture,
+	pub(crate) shader: Shader,
 }
 
 impl BufferedRenderArgs {
-	fn new(desc: &WGPURenderableDesc) -> Self {
+	fn new<D: WGPUDevice>(desc: &Renderable<'_, Renderer<D>>) -> Self {
 		Self {
 			texture: desc.texture.clone(),
 			shader: desc.shader.clone(),
@@ -19,17 +22,17 @@ impl BufferedRenderArgs {
 
 impl PartialEq for BufferedRenderArgs {
 	fn eq(&self, other: &Self) -> bool {
-		WGPUTextureHandle::eq(&self.texture, &other.texture)
-			&& WGPUShaderHandle::eq(&self.shader, &other.shader)
+		Arc::ptr_eq(&self.texture.internal, &other.texture.internal)
+			&& Arc::ptr_eq(&self.shader.internal, &other.shader.internal)
 	}
 }
 
 impl Eq for BufferedRenderArgs {}
 
-pub(crate) struct BufferedRenderer<'a, Device, R>
+pub struct BufferedRenderer<Device, R>
 where
 	Device: WGPUDevice,
-	R: WGPURenderTargetDesc<'a, Device>,
+	R: WGPURenderTargetDesc<Device>,
 {
 	target_desc: R,
 	current_args: Option<BufferedRenderArgs>,
@@ -41,13 +44,14 @@ where
 	view_matrix: mint::ColumnMatrix4<f32>,
 
 	encoder: wgpu::CommandEncoder,
-	_a_marker: std::marker::PhantomData<&'a Device>,
+
+	device_marker: std::marker::PhantomData<Device>,
 }
 
-impl<'a, Device, R> BufferedRenderer<'a, Device, R>
+impl<Device, R> BufferedRenderer<Device, R>
 where
 	Device: WGPUDevice,
-	R: WGPURenderTargetDesc<'a, Device>,
+	R: WGPURenderTargetDesc<Device>,
 {
 	pub fn new(target_desc: R, encoder: wgpu::CommandEncoder) -> Result<Self> {
 		target_desc.begin_render()?;
@@ -60,7 +64,7 @@ where
 			pending_clear_color: None,
 			view_matrix: identity,
 			encoder,
-			_a_marker: std::marker::PhantomData::default(),
+			device_marker: Default::default(),
 		})
 	}
 
@@ -100,7 +104,7 @@ where
 	}
 
 	fn do_flush(&mut self, args: &BufferedRenderArgs) -> Result<()> {
-		let renderer = self.target_desc.renderer().clone_handle();
+		let renderer = self.target_desc.renderer().clone();
 
 		let verts = std::mem::take(&mut self.verts);
 		let indices = std::mem::take(&mut self.indices);
@@ -123,7 +127,7 @@ where
 					usage: wgpu::BufferUsage::INDEX,
 				});
 
-			let bind_group = args.shader.bind_params(
+			let bind_group = args.shader.internal.bind_params(
 				info.device,
 				self.target_desc.dimensions(),
 				self.view_matrix,
@@ -144,7 +148,10 @@ where
 			let encoder = &mut self.encoder;
 			let indices_len = indices.len() as u32;
 			self.target_desc.with_view(|view| {
-				let mut rpass = args.shader.begin_render_pass(view, encoder, load_op);
+				let mut rpass = args
+					.shader
+					.internal
+					.begin_render_pass(view, encoder, load_op);
 
 				rpass.set_bind_group(0, &bind_group, &[]);
 
@@ -184,12 +191,15 @@ where
 	}
 }
 
-impl<'a, Device, R> RenderContext for BufferedRenderer<'a, Device, R>
+impl<Device, R> RenderContext<Renderer<Device>> for BufferedRenderer<Device, R>
 where
 	Device: WGPUDevice,
-	R: WGPURenderTargetDesc<'a, Device>,
+	R: WGPURenderTargetDesc<Device>,
 {
-	fn set_transform(&mut self, transform: mint::ColumnMatrix4<f32>) -> Result<()> {
+	fn set_transform(
+		&mut self,
+		transform: mint::ColumnMatrix4<f32>,
+	) -> std::result::Result<(), RendererError> {
 		self.flush()?;
 		self.view_matrix = transform;
 		Ok(())
@@ -198,13 +208,17 @@ where
 	/// Set the clear color and mark the frame buffer for clearing. The actual clear operation
 	/// will be performed when the next batched render happens, or when `present` is called,
 	/// whichever comes first.
-	fn clear(&mut self, color: Color<f32>) -> Result<()> {
+	fn clear(&mut self, color: Color<f32>) -> std::result::Result<(), RendererError> {
 		self.flush()?;
 		self.pending_clear_color = Some(color.into());
 		Ok(())
 	}
 
-	fn fill_rect(&mut self, rect: &Rect<f32>, color: Color<f32>) -> Result<()> {
+	fn fill_rect(
+		&mut self,
+		rect: &Rect<f32>,
+		color: Color<f32>,
+	) -> std::result::Result<(), RendererError> {
 		let pos_topleft = glam::Vec2::from(rect.location);
 		let pos_topright = pos_topleft + glam::vec2(rect.dimensions.x, 0.0);
 		let pos_bottomleft = pos_topleft + glam::vec2(0.0, rect.dimensions.y);
@@ -220,17 +234,17 @@ where
 		];
 		let index_data: &[u16] = &[1, 2, 0, 2, 0, 3];
 
-		self.buffered_render(
+		Ok(self.buffered_render(
 			&BufferedRenderArgs {
 				texture: self.target_desc.standard_resources().white_tex.clone(),
 				shader: self.target_desc.standard_resources().default_shader.clone(),
 			},
 			&vertex_data[..],
 			index_data,
-		)
+		)?)
 	}
 
-	fn present(mut self) -> Result<()> {
+	fn present(mut self) -> std::result::Result<(), RendererError> {
 		self.flush()?;
 		if let Some(clear_color) = self.pending_clear_color {
 			self.clear_immediate(clear_color.into())?;
@@ -250,11 +264,14 @@ where
 		Ok(())
 	}
 
-	fn draw(&mut self, renderable: &WGPURenderableDesc) -> Result<()> {
-		self.buffered_render(
+	fn draw(
+		&mut self,
+		renderable: &Renderable<'_, Renderer<Device>>,
+	) -> std::result::Result<(), RendererError> {
+		Ok(self.buffered_render(
 			&BufferedRenderArgs::new(renderable),
 			renderable.verts,
 			renderable.indices,
-		)
+		)?)
 	}
 }

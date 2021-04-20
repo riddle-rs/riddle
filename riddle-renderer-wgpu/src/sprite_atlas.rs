@@ -1,6 +1,8 @@
-use crate::wgpu_ext::*;
+use math::SpacialNumericConversion;
 
-/// Construct a set of [`WGPUSprite`]s from a set of `riddle_image::Image`s which share a texture atlas.
+use crate::*;
+
+/// Construct a set of [`Sprite`]s from a set of [`riddle_image::Image`]s which share a texture atlas.
 ///
 /// # Example
 ///
@@ -26,14 +28,14 @@ use crate::wgpu_ext::*;
 /// assert!(sprite2.is_some());
 /// # Ok(()) }
 /// ```
-pub struct WGPUSpriteAtlasBuilder<'a, Device: WGPUDevice> {
-	images: Vec<(image::Image, &'a mut Option<WGPUSprite<Device>>)>,
+pub struct SpriteAtlasBuilder<'a, Device: WGPUDevice> {
+	images: Vec<(image::Image, &'a mut Option<Sprite<Device>>)>,
 
 	mag_filter: FilterMode,
 	min_filter: FilterMode,
 }
 
-impl<'a, Device> WGPUSpriteAtlasBuilder<'a, Device>
+impl<'a, Device> SpriteAtlasBuilder<'a, Device>
 where
 	Device: WGPUDevice,
 {
@@ -48,11 +50,7 @@ where
 
 	/// Add an image to be packed in to the atlas, along with a reference
 	/// to the `Option<Sprite>` which will store the sprite when the atlas is built.
-	pub fn with_image(
-		mut self,
-		img: image::Image,
-		sprite: &'a mut Option<WGPUSprite<Device>>,
-	) -> Self {
+	pub fn with_image(mut self, img: image::Image, sprite: &'a mut Option<Sprite<Device>>) -> Self {
 		self.images.push((img, sprite));
 		self
 	}
@@ -66,8 +64,8 @@ where
 
 	/// Construct the atlas texture from the given set of images, and update the
 	/// `Option<Sprite>` references.
-	pub fn build(self, renderer: &WGPURenderer<Device>) -> Result<()> {
-		let WGPUSpriteAtlasBuilder {
+	pub fn build(self, renderer: &Renderer<Device>) -> Result<()> {
+		let SpriteAtlasBuilder {
 			mut images,
 			mag_filter,
 			min_filter,
@@ -76,10 +74,10 @@ where
 		let packing_images: Vec<&image::Image> = images.iter().map(|(img, _)| img).collect();
 		let packed = image::ImagePacker::new()
 			.pack(&packing_images[..])
-			.map_err(|_| RendererError::Unknown)?;
+			.map_err(|_| WGPURendererError::Unknown)?;
 
 		let texture = renderer.wgpu_device().with_device_info(|info| {
-			WGPUTexture::from_image(
+			Texture::from_image(
 				info.device,
 				info.queue,
 				packed.image(),
@@ -90,7 +88,7 @@ where
 		})?;
 
 		for ((_, output), rect) in images.iter_mut().zip(packed.rects().iter()) {
-			**output = Some(WGPUSprite::from_texture_with_bounds(
+			**output = Some(Sprite::from_texture_with_bounds(
 				renderer,
 				&texture,
 				rect.clone().convert(),
@@ -101,7 +99,7 @@ where
 	}
 }
 
-impl<'a, Device> Default for WGPUSpriteAtlasBuilder<'a, Device>
+impl<'a, Device> Default for SpriteAtlasBuilder<'a, Device>
 where
 	Device: WGPUDevice,
 {

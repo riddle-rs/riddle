@@ -1,14 +1,12 @@
-use crate::wgpu_ext::*;
+use crate::*;
 
 use riddle_font::ImgFont;
+use riddle_math::{Rect, SpacialNumericConversion, Vector2};
 
 /// An efficient [`riddle_font::ImgFont`] renderer.
 ///
 /// Use [`crate::SpriteRenderArgs`] for access to all supported paramters when rendering
 /// sprites.
-///
-/// Sprite fonts store a reference to the [`Renderer`] which built it, which will keep
-/// the renderer alive as long as the sprite font is alive.
 ///
 /// # Example
 ///
@@ -21,33 +19,33 @@ use riddle_font::ImgFont;
 ///
 /// // Load a TTFont, generate an ImgFont, and then construct the SpriteFont with it
 /// let img_font: ImgFont = {
-///     let font_bytes = include_bytes!("../../../example_assets/Roboto-Regular.ttf");
+///     let font_bytes = include_bytes!("../../example_assets/Roboto-Regular.ttf");
 ///     let ttfont = TTFont::load(&font_bytes[..])?;
 ///     ImgFontGenerator::new("abcdefghijklmnopqrstuvwxyz ", 32).generate(&ttfont)?
 /// };
 /// let sprite_font = SpriteFont::new(&renderer, img_font)?;
 ///
 /// // Render the sprite at the top left corner of the screen
-/// let mut render_ctx = renderer.begin_render()?;
-/// render_ctx.clear(Color::WHITE);
-/// sprite_font.render(
-///     &mut render_ctx,
-///     &SpriteRenderArgs::new([0.0, 0.0]).with_color(Color::BLACK),
-///     "hello world",
-/// )?;
-/// render_ctx.present()?;
+/// renderer.render(|render_ctx| {
+///     render_ctx.clear(Color::WHITE);
+///     sprite_font.render(
+///         render_ctx,
+///         &SpriteRenderArgs::new([0.0, 0.0]).with_color(Color::BLACK),
+///         "hello world",
+///     )
+/// })?;
 /// # Ok(()) }
 /// ```
-pub struct WGPUSpriteFont<Device: WGPUDevice> {
-	sprite: WGPUSprite<Device>,
+pub struct SpriteFont<R: CommonRenderer> {
+	sprite: R::Sprite,
 	font: ImgFont,
 }
 
-impl<Device: WGPUDevice> WGPUSpriteFont<Device> {
+impl<R: CommonRenderer> SpriteFont<R> {
 	/// Build a SpriteFont from the ImgFont given. The ImgFont's image will get loaded in to a
 	/// texture, and its glyph information will be used for layout.
-	pub fn new(renderer: &WGPURenderer<Device>, font: ImgFont) -> Result<Self> {
-		let sprite = WGPUSprite::new_from_image(
+	pub fn new(renderer: &R, font: ImgFont) -> Result<Self> {
+		let sprite = R::Sprite::new_from_image(
 			renderer,
 			font.image(),
 			&SpriteInitArgs {
@@ -59,12 +57,12 @@ impl<Device: WGPUDevice> WGPUSpriteFont<Device> {
 		Ok(Self { sprite, font })
 	}
 
-	pub fn render<R: RenderContext + ?Sized>(
+	pub fn render<Ctx: RenderContext<R> + ?Sized>(
 		&self,
-		render_ctx: &mut R,
+		render_ctx: &mut Ctx,
 		render_args: &SpriteRenderArgs,
 		text: &str,
-	) -> Result<()> {
+	) -> std::result::Result<(), RendererError> {
 		let mut parts: Vec<(Rect<f32>, Vector2<f32>)> = Vec::with_capacity(text.len());
 		self.font.layout(text, |_, rect, location| {
 			parts.push((rect.clone().convert(), location.convert()));

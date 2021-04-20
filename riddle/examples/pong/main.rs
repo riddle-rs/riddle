@@ -21,7 +21,7 @@ fn main() -> Result<(), RiddleError> {
 
 struct Pong {
 	window: WindowHandle,
-	renderer: RendererHandle,
+	renderer: Renderer<WindowWGPUDevice>,
 	state: RiddleState,
 
 	clip: audio::Clip,
@@ -41,7 +41,7 @@ impl Pong {
 			.dimensions(800, 600)
 			.cursor_visible(false)
 			.build(&rdl.context())?;
-		let renderer = Renderer::new_from_window(&window)?;
+		let renderer = DefaultRenderer::new_from_window(&window)?;
 
 		let clip = {
 			let clip_bytes = include_bytes!("../../../example_assets/boop.wav");
@@ -62,15 +62,15 @@ impl Pong {
 	}
 
 	fn render(&self) -> Result<(), RiddleError> {
-		let mut render_ctx = self.renderer.begin_render()?;
-		render_ctx.clear(Color::BLACK)?;
+		self.renderer.render(|render_ctx| {
+			render_ctx.clear(Color::BLACK)?;
 
-		render_ctx.fill_rect(&self.left_paddle, Color::GREEN)?;
-		render_ctx.fill_rect(&self.right_paddle, Color::GREEN)?;
+			render_ctx.fill_rect(&self.left_paddle, Color::GREEN)?;
+			render_ctx.fill_rect(&self.right_paddle, Color::GREEN)?;
 
-		render_ctx.fill_rect(&self.ball, Color::GREEN)?;
-
-		render_ctx.present()?;
+			render_ctx.fill_rect(&self.ball, Color::GREEN)?;
+			Ok(())
+		})?;
 		Ok(())
 	}
 
