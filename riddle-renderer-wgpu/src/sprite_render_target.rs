@@ -1,4 +1,6 @@
-use crate::wgpu_ext::*;
+use math::Vector2;
+
+use crate::*;
 
 /// A target which can be both rendered to and referenced as a [`Sprite`] for rendering.
 ///
@@ -13,31 +15,31 @@ use crate::wgpu_ext::*;
 ///
 /// let target = SpriteRenderTarget::new(&renderer, vec2(100, 100))?;
 ///
-/// let mut target_ctx = target.begin_render()?;
-/// target_ctx.clear(Color::BLUE)?;
-/// target_ctx.present()?;
+/// target.render(|target_ctx| {
+///     target_ctx.clear(Color::BLUE)
+/// })?;
 ///
-/// let mut render_ctx = renderer.begin_render()?;
-/// render_ctx.clear(Color::GREEN)?;
-/// target.sprite().render_at(&mut render_ctx, vec2(0.0, 0.0))?;
-/// render_ctx.present()?;
+/// renderer.render(|render_ctx| {
+///     render_ctx.clear(Color::GREEN)?;
+///     target.sprite().render_at(render_ctx, vec2(0.0, 0.0))
+/// })?;
 /// # Ok(()) }
 /// ```
-pub struct WGPUSpriteRenderTarget<Device: WGPUDevice> {
-	renderer: WGPURendererHandle<Device>,
+pub struct SpriteRenderTarget<Device: WGPUDevice> {
+	renderer: Renderer<Device>,
 
-	texture: WGPUTextureHandle,
-	sprite: WGPUSprite<Device>,
+	texture: Texture,
+	sprite: Sprite<Device>,
 }
 
-impl<Device> WGPUSpriteRenderTarget<Device>
+impl<Device> SpriteRenderTarget<Device>
 where
 	Device: WGPUDevice,
 {
 	/// Create a new render target with the specified dimensions
-	pub fn new(renderer: &WGPURenderer<Device>, dimensions: Vector2<u32>) -> Result<Self> {
+	pub fn new(renderer: &Renderer<Device>, dimensions: Vector2<u32>) -> Result<Self> {
 		let texture = renderer.wgpu_device().with_device_info(|info| {
-			WGPUTexture::new_shared(
+			Texture::new(
 				info.device,
 				FilterMode::Linear,
 				FilterMode::Linear,
@@ -46,10 +48,10 @@ where
 			)
 		})?;
 
-		let sprite = WGPUSprite::from_texture(renderer, &texture)?;
+		let sprite = Sprite::from_texture(renderer, &texture)?;
 
 		Ok(Self {
-			renderer: renderer.clone_handle(),
+			renderer: renderer.clone(),
 
 			texture,
 			sprite,
@@ -68,27 +70,37 @@ where
 	/// # let renderer = Renderer::new_from_window(&window)?;
 	/// let target = SpriteRenderTarget::new(&renderer, vec2(100, 100))?;
 	///
-	/// let mut target_ctx = target.begin_render()?;
-	/// target_ctx.clear(Color::RED);
-	/// target_ctx.present();
+	/// target.render(|target_ctx| {
+	///     target_ctx.clear(Color::RED)
+	/// })?;
 	/// # Ok(()) }
 	/// ```
-	pub fn begin_render(&self) -> Result<impl RenderContext + '_> {
+	pub fn render<R, F>(&self, f: F) -> std::result::Result<R, RendererError>
+	where
+		F: FnOnce(
+			&mut BufferedRenderer<Device, &SpriteRenderTarget<Device>>,
+		) -> std::result::Result<R, RendererError>,
+	{
 		let encoder = self.renderer.wgpu_device().with_device_info(|info| {
 			Ok(info
 				.device
 				.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None }))
 		})?;
-		BufferedRenderer::new(self, encoder)
+
+		let mut ctx = BufferedRenderer::new(self, encoder)?;
+		let result = f(&mut ctx)?;
+		ctx.present()?;
+
+		Ok(result)
 	}
 
 	/// Get the sprite which can be used to render the contents of the render target.
-	pub fn sprite(&self) -> &WGPUSprite<Device> {
+	pub fn sprite(&self) -> &Sprite<Device> {
 		&self.sprite
 	}
 }
 
-impl<'a, Device> WGPURenderTargetDesc<'a, Device> for &'a WGPUSpriteRenderTarget<Device>
+impl<Device> WGPURenderTargetDesc<Device> for &SpriteRenderTarget<Device>
 where
 	Device: WGPUDevice,
 {
@@ -100,6 +112,7 @@ where
 	fn with_view<F: FnOnce(&wgpu::TextureView) -> Result<()>>(&self, f: F) -> Result<()> {
 		let view = self
 			.texture
+			.internal
 			.texture
 			.create_view(&wgpu::TextureViewDescriptor {
 				format: Some(wgpu::TextureFormat::Bgra8UnormSrgb),
@@ -110,7 +123,7 @@ where
 		f(&view)
 	}
 
-	fn renderer(&self) -> &WGPURenderer<Device> {
+	fn renderer(&self) -> &Renderer<Device> {
 		&self.renderer
 	}
 

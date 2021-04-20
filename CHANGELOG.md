@@ -22,6 +22,8 @@
     `Sprite::new_from_image` public.
 * renderer: Refactor to allow RenderContext to be passed as `dyn RenderContext`.
 * renderer: Remove Sized constraint on calls that took `&mut impl RenderContext`.
+* **breaking**: renderer: Introduce `riddle-renderer-common` crate. Remove use of handle types.
+    Rename many types in `riddle-renderer-wgpu` to drop the WGPU prefix.
 
 ## 0.2.0
 

@@ -3,9 +3,9 @@ use bytemuck::{Pod, Zeroable};
 #[repr(C)]
 #[derive(Clone, Copy)]
 pub struct Vertex {
-	_pos: [f32; 2],
-	_uv: [f32; 2],
-	_color: [f32; 4],
+	pub pos: [f32; 2],
+	pub uv: [f32; 2],
+	pub color: [f32; 4],
 }
 
 unsafe impl Pod for Vertex {}
@@ -21,9 +21,9 @@ impl Vertex {
 		let uv = uv.into();
 
 		Vertex {
-			_pos: [pos.x, pos.y],
-			_uv: uv.into(),
-			_color: *color,
+			pos: [pos.x, pos.y],
+			uv: uv.into(),
+			color: *color,
 		}
 	}
 }

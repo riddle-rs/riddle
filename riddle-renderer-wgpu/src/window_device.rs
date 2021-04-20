@@ -1,8 +1,16 @@
-use crate::wgpu_ext::*;
+use math::Vector2;
+
+use crate::{
+	eventpub::EventSub,
+	platform::{PlatformEvent, Window, WindowHandle},
+	*,
+};
+
+use std::sync::Mutex;
 
 /// A standard Renderer WGPU device used with `riddle_platform_winit` windows.
 ///
-/// While this can be used directly, if using [`WGPURenderer::new_from_window`], this
+/// While this can be used directly, if using [`Renderer::new_from_window`], this
 /// type shouldn't need to be used by consumer code.
 pub struct WindowWGPUDevice {
 	window: WindowHandle,
@@ -27,7 +35,9 @@ impl WindowWGPUDevice {
 				power_preference: wgpu::PowerPreference::HighPerformance,
 				compatible_surface: Some(&surface),
 			}))
-			.ok_or(RendererError::APIInitError("Failed to get WGPU adapter"))?;
+			.ok_or(WGPURendererError::APIInitError(
+				"Failed to get WGPU adapter",
+			))?;
 
 		log::debug!("Initializing WGPU device...");
 		let (device, queue) = futures::executor::block_on(adapter.request_device(
@@ -36,7 +46,7 @@ impl WindowWGPUDevice {
 			},
 			None,
 		))
-		.map_err(|_| RendererError::APIInitError("Failed to create WGPU device"))?;
+		.map_err(|_| WGPURendererError::APIInitError("Failed to create WGPU device"))?;
 
 		let (width, height) = window.physical_size();
 		let sc_desc = wgpu::SwapChainDescriptor {
@@ -92,7 +102,7 @@ impl WindowWGPUDevice {
 
 		let new_frame = swap_chain
 			.get_current_frame()
-			.map_err(|_| RendererError::BeginRenderError("Error getting swap chain frame"))?;
+			.map_err(|_| WGPURendererError::BeginRenderError("Error getting swap chain frame"))?;
 
 		*frame = Some(new_frame);
 

@@ -25,9 +25,9 @@
 //!         match rdl.event() {
 //!             Event::Platform(PlatformEvent::WindowClose(_)) => rdl.quit(),
 //!             Event::ProcessFrame => {
-//!                 let mut render_ctx = renderer.begin_render().unwrap();
-//!                 render_ctx.clear(Color::RED);
-//!                 render_ctx.present();
+//!                 renderer.render(|render_ctx| {
+//!                     render_ctx.clear(Color::RED)
+//!                 }).unwrap();
 //!             },
 //!             _ => ()
 //!          }
@@ -37,45 +37,44 @@
 //!
 //! # Direct Usage
 //!
-//! To use this crate directly see [`wgpu_ext::WGPUDevice`] for how to use the renderer
+//! To use this crate directly see [`WGPUDevice`] for how to use the renderer
 //! with custom WGPU devices.
 
+mod buffered_renderer;
+mod device;
 mod error;
-mod sprite_init_args;
-mod sprite_render_args;
-
-pub mod wgpu_ext;
+mod renderer;
+mod shader;
+mod sprite;
+mod sprite_atlas;
+mod sprite_render_target;
+mod swap_chain_target;
+mod target;
+mod texture;
+mod window_device;
 
 use riddle_common::*;
 use riddle_image as image;
 use riddle_math as math;
 use riddle_platform_winit as platform;
-use wgpu_ext::*;
 
-type Result<R> = std::result::Result<R, RendererError>;
+type Result<R> = std::result::Result<R, WGPURendererError>;
 
+use buffered_renderer::*;
+pub use device::*;
 pub use error::*;
-pub use sprite_init_args::*;
-pub use sprite_render_args::*;
-pub use wgpu_ext::{FilterMode, RenderContext};
+pub use renderer::*;
+use shader::*;
+pub use sprite::*;
+pub use sprite_atlas::*;
+pub use sprite_render_target::*;
+use swap_chain_target::*;
+use target::*;
+use texture::*;
+pub use window_device::*;
 
-/// A simple 2D sprite based renderer for a riddle Window.
-pub type Renderer = WGPURenderer<WindowWGPUDevice>;
+pub use riddle_renderer_common::*;
 
-/// Strong handle to a [`Renderer`].
-pub type RendererHandle = WGPURendererHandle<WindowWGPUDevice>;
+use riddle_renderer_common::vertex::*;
 
-/// Weak handle to a [`Renderer`].
-pub type RendererWeak = WGPURendererWeak<WindowWGPUDevice>;
-
-/// A sprite for the default Window renderer.
-pub type Sprite = WGPUSprite<WindowWGPUDevice>;
-
-/// A sprite based renderer for [`riddle_font::ImgFont`]s.
-pub type SpriteFont = WGPUSpriteFont<WindowWGPUDevice>;
-
-/// Construct a set of [`Sprite`]s from a set of `riddle_image::Image`s which share a texture atlas.
-pub type SpriteAtlasBuilder<'a> = WGPUSpriteAtlasBuilder<'a, WindowWGPUDevice>;
-
-/// A target which can be both rendered to and referenced as a [`Sprite`] for rendering.
-pub type SpriteRenderTarget = WGPUSpriteRenderTarget<WindowWGPUDevice>;
+pub type DefaultRenderer = Renderer<WindowWGPUDevice>;

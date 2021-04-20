@@ -8,13 +8,7 @@
 //! - Implement WGPUDevice for CustomRenderer is the main piece of work
 //!   needed to adapt the riddle renderer to a custom device.
 
-use riddle::{
-	common::Color,
-	math::*,
-	platform::*,
-	renderer::{wgpu_ext::*, *},
-	*,
-};
+use riddle::{common::Color, math::*, platform::*, renderer::*, *};
 
 use anyhow::Result;
 
@@ -41,9 +35,9 @@ struct WGPURendererDemo {
 	_window: WindowHandle,
 
 	custom_renderer: CustomRendererHandle,
-	rdl_renderer: WGPURendererHandle<CustomRendererHandle>,
+	rdl_renderer: Renderer<CustomRendererHandle>,
 
-	label_sprite: WGPUSprite<CustomRendererHandle>,
+	label_sprite: Sprite<CustomRendererHandle>,
 
 	point_cloud: Vec<Vertex>,
 	rotation: f32,
@@ -60,7 +54,7 @@ impl WGPURendererDemo {
 		let custom_renderer = CustomRendererHandle {
 			renderer: std::rc::Rc::new(std::cell::RefCell::new(CustomRenderer::new(&window)?)),
 		};
-		let rdl_renderer = wgpu_ext::WGPURenderer::new_from_device(custom_renderer.clone())?;
+		let rdl_renderer = Renderer::new_from_device(custom_renderer.clone())?;
 
 		let mut point_cloud = vec![];
 		for _ in 0..300 {
@@ -78,8 +72,7 @@ impl WGPURendererDemo {
 			font::TTFont::load(&font_bytes[..])?
 		};
 		let label = font.render_simple("Riddle Label", 24)?;
-		let label_sprite =
-			WGPUSprite::new_from_image(&rdl_renderer, &label, &SpriteInitArgs::new())?;
+		let label_sprite = Sprite::new_from_image(&rdl_renderer, &label, &SpriteInitArgs::new())?;
 
 		Ok(Self {
 			_window: window,
@@ -102,14 +95,12 @@ impl WGPURendererDemo {
 			.draw_points(&self.point_cloud, -1.5, self.rotation);
 
 		// Use the riddle renderer to draw a label on top
-		let mut render_ctx = self.rdl_renderer.begin_render()?;
-
-		self.label_sprite.render(
-			&mut render_ctx,
-			SpriteRenderArgs::new(vec2(10.0, 10.0)).with_color(Color::RED),
-		)?;
-
-		render_ctx.present()?;
+		self.rdl_renderer.render(|render_ctx| {
+			self.label_sprite.render(
+				render_ctx,
+				SpriteRenderArgs::new(vec2(10.0, 10.0)).with_color(Color::RED),
+			)
+		})?;
 
 		// End frame
 		self.custom_renderer.renderer.borrow_mut().end();
@@ -128,8 +119,8 @@ struct CustomRendererHandle {
 	renderer: std::rc::Rc<std::cell::RefCell<CustomRenderer>>,
 }
 
-impl wgpu_ext::WGPUDevice for CustomRendererHandle {
-	fn begin_frame(&self) -> Result<(), RendererError> {
+impl WGPUDevice for CustomRendererHandle {
+	fn begin_frame(&self) -> Result<(), WGPURendererError> {
 		self.renderer.borrow_mut().commit();
 		Ok(())
 	}
@@ -142,9 +133,9 @@ impl wgpu_ext::WGPUDevice for CustomRendererHandle {
 		vec2(800.0, 600.0)
 	}
 
-	fn with_device_info<R, F>(&self, f: F) -> Result<R, RendererError>
+	fn with_device_info<R, F>(&self, f: F) -> Result<R, WGPURendererError>
 	where
-		F: FnOnce(&WGPUDeviceInfo) -> Result<R, RendererError>,
+		F: FnOnce(&WGPUDeviceInfo) -> Result<R, WGPURendererError>,
 	{
 		let renderer = self.renderer.borrow();
 		let info = WGPUDeviceInfo {
@@ -154,9 +145,9 @@ impl wgpu_ext::WGPUDevice for CustomRendererHandle {
 		f(&info)
 	}
 
-	fn with_frame<R, F>(&self, f: F) -> Result<R, RendererError>
+	fn with_frame<R, F>(&self, f: F) -> Result<R, WGPURendererError>
 	where
-		F: FnOnce(&wgpu::SwapChainFrame) -> Result<R, RendererError>,
+		F: FnOnce(&wgpu::SwapChainFrame) -> Result<R, WGPURendererError>,
 	{
 		let renderer = self.renderer.borrow();
 		f(renderer.current_frame.as_ref().unwrap())

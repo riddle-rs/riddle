@@ -29,7 +29,9 @@ impl CustomRenderer {
 				power_preference: wgpu::PowerPreference::HighPerformance,
 				compatible_surface: Some(&surface),
 			}))
-			.ok_or(RendererError::APIInitError("Failed to get WGPU adapter"))?;
+			.ok_or(WGPURendererError::APIInitError(
+				"Failed to get WGPU adapter",
+			))?;
 
 		let (device, queue) = futures::executor::block_on(adapter.request_device(
 			&wgpu::DeviceDescriptor {
@@ -37,7 +39,7 @@ impl CustomRenderer {
 			},
 			None,
 		))
-		.map_err(|_| RendererError::APIInitError("Failed to create WGPU device"))?;
+		.map_err(|_| WGPURendererError::APIInitError("Failed to create WGPU device"))?;
 
 		let (width, height) = window.physical_size();
 		let sc_desc = wgpu::SwapChainDescriptor {

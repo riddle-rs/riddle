@@ -1,12 +1,26 @@
-#![feature(generic_associated_types)]
+//! Riddle crate containing providing the common API to which riddle renderers abide. This allows
+//! secondary libraries to be defined in terms of the traits and structs defined in this crate
+//! without needing to encode knowledge of any specific renderers.
 
-use riddle_math::Vector2;
+mod renderer;
+mod sprite;
+mod sprite_font;
+pub mod vertex;
 
-trait Renderer {
-	type RenderContextT<'a>: RenderContext + 'a;
+pub use renderer::*;
+pub use sprite::*;
+pub use sprite_font::*;
 
-	fn dimensions(&self) -> Vector2<f32>;
-	fn begin_render(&self) -> Result<Self::RenderContextT<'_>, ()>;
+use riddle_common::Color;
+use riddle_image::Image;
+use riddle_math::{Rect, Vector2};
+
+use thiserror::Error;
+
+#[derive(Debug, Error)]
+pub enum RendererError {
+	#[error("Unkown")]
+	Unknown,
 }
 
-trait RenderContext {}
+type Result<T> = std::result::Result<T, RendererError>;

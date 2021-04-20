@@ -12,6 +12,8 @@ use riddle::{
 
 use std::sync::{Arc, Mutex};
 
+type AppRenderer = renderer::Renderer<WindowWGPUDevice>;
+
 struct DemoState {
 	state: RiddleState,
 
@@ -130,13 +132,13 @@ impl DemoState {
 }
 
 struct RendererState {
-	renderer: renderer::RendererHandle,
-	sprite: renderer::Sprite,
-	subsprite: renderer::Sprite,
-	label_sprite: renderer::Sprite,
-	sprite_font: renderer::SpriteFont,
+	renderer: AppRenderer,
+	sprite: <AppRenderer as CommonRenderer>::Sprite,
+	subsprite: <AppRenderer as CommonRenderer>::Sprite,
+	label_sprite: <AppRenderer as CommonRenderer>::Sprite,
+	sprite_font: <AppRenderer as CommonRenderer>::SpriteFont,
 
-	target: renderer::SpriteRenderTarget,
+	target: renderer::SpriteRenderTarget<WindowWGPUDevice>,
 
 	mouse_location: Arc<Mutex<input::LogicalPosition>>,
 	prev_frame_time: std::time::Instant,
@@ -150,12 +152,10 @@ impl RendererState {
 	}
 
 	fn render_to_target(&self) -> Result<(), RiddleError> {
-		let mut ctx = self.target.begin_render()?;
-		ctx.clear(Color::rgb(0.0, 0.0, 1.0))?;
-
-		self.sprite.render_at(&mut ctx, [0.0, 0.0])?;
-
-		ctx.present()?;
+		self.target.render(|ctx| {
+			ctx.clear(Color::rgb(0.0, 0.0, 1.0))?;
+			self.sprite.render_at(ctx, [0.0, 0.0].into())
+		})?;
 		Ok(())
 	}
 
@@ -167,7 +167,15 @@ impl RendererState {
 
 		self.render_to_target()?;
 
-		let mut frame = self.renderer.begin_render()?;
+		self.renderer
+			.render(|frame| self.render_internal(frame, fps))?;
+		Ok(())
+	}
+
+	fn render_internal<R>(&self, frame: &mut R, fps: f32) -> Result<(), RendererError>
+	where
+		R: RenderContext<Renderer<WindowWGPUDevice>>,
+	{
 		frame.clear(Color::rgb(0.0, 1.0, 0.0))?;
 
 		frame.set_transform(glam::Mat4::from_scale(glam::vec3(2.0, 2.0, 1.0)).into())?;
@@ -187,29 +195,30 @@ impl RendererState {
 			Color::WHITE,
 		)?;
 
-		self.subsprite.render_at(&mut frame, [60.0, 60.0])?;
+		self.subsprite.render_at(frame, [60.0, 60.0].into())?;
 		self.label_sprite.render(
-			&mut frame,
+			frame,
 			SpriteRenderArgs::new(vec2(10.0, 100.0)).with_color(Color::BLACK),
 		)?;
 
 		frame.set_transform(glam::Mat4::identity().into())?;
 
-		self.target.sprite().render_at(&mut frame, [400.0, 400.0])?;
+		self.target
+			.sprite()
+			.render_at(frame, [400.0, 400.0].into())?;
 
 		let pos: input::LogicalPosition = self.mouse_location.lock().unwrap().clone();
 
-		self.sprite.render_at(&mut frame, pos)?;
+		self.sprite.render_at(frame, pos.into())?;
 
 		let fps_str = format!("FPS: {}", fps);
 
 		self.sprite_font.render(
-			&mut frame,
+			frame,
 			&SpriteRenderArgs::new([0.0, 0.0]).with_color(Color::BLACK),
 			&fps_str,
 		)?;
 
-		frame.present()?;
 		Ok(())
 	}
 }
