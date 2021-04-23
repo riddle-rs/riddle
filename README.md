@@ -1,6 +1,6 @@
 # About Riddle
 
-![Build](https://github.com/vickles/riddle/workflows/Build/badge.svg)
+![Build](https://github.com/riddle-rs/riddle/workflows/Build/badge.svg)
 
 Riddle is a Rust media library in the vein of SDL, building as far as possible
 on the most active/standard rust libraries (winit, wgpu, image, etc). Riddle
@@ -13,29 +13,29 @@ primarily built upen. Riddle is only possible due to the massive efforts of the
 greater rust community.
 
 * **Windowing and System Event Loops**
-    ([Docs](https://vickles.github.io/riddle/0.1.0/riddle_platform_winit)),
+    ([Docs](https://riddle-rs.github.io/riddle/0.1.0/riddle_platform_winit)),
     exposed through `riddle::platform`. Uses `winit`.
 * **Input State Management**
-    ([Docs](https://vickles.github.io/riddle/0.1.0/riddle_input)),
+    ([Docs](https://riddle-rs.github.io/riddle/0.1.0/riddle_input)),
     exposed through `riddle::input`. Gamepad, mouse and keyboard support.
     Built on `winit` and `gilrs`
 * **Image Loading and Basic Graphics Operations**
-    ([Docs](https://vickles.github.io/riddle/0.1.0/riddle_image)),
+    ([Docs](https://riddle-rs.github.io/riddle/0.1.0/riddle_image)),
     exposed through `riddle::image`. Uses `image`.
 * **Font Loading and Rendering**
-    ([Docs](https://vickles.github.io/riddle/0.1.0/riddle_font)),
+    ([Docs](https://riddle-rs.github.io/riddle/0.1.0/riddle_font)),
     exposed through `riddle::font`. Uses `rusttype`.
 * **Math**
-    ([Docs](https://vickles.github.io/riddle/0.1.0/riddle_math)),
+    ([Docs](https://riddle-rs.github.io/riddle/0.1.0/riddle_math)),
     exposed through `riddle::math`. Uses `mint`, and `glam`.
 * **Audio Loading and Playing**.
-    ([Docs](https://vickles.github.io/riddle/0.1.0/riddle_audio)),
+    ([Docs](https://riddle-rs.github.io/riddle/0.1.0/riddle_audio)),
     Uses `rodio`.
 * **Basic 2D Renderer**
-    ([Docs](https://vickles.github.io/riddle/0.1.0/riddle_renderer_wgpu)),
+    ([Docs](https://riddle-rs.github.io/riddle/0.1.0/riddle_renderer_wgpu)),
     exposed through `riddle::renderer`. Uses `wgpu`.
 * **Timers and Framerate Tracking**
-    ([Docs](https://vickles.github.io/riddle/0.1.0/riddle_time)),
+    ([Docs](https://riddle-rs.github.io/riddle/0.1.0/riddle_time)),
     exposed throug `riddle::time`.
 
 This crate depends on an array of crates, each of which implements a specific
@@ -54,9 +54,9 @@ such as `mint`, and `raw-window-handle`.
 
 Since the crate isn't on crates.io docs are hosted on Github Pages:
 
-* **master**: [Link](https://vickles.github.io/riddle/master/riddle)
-* **0.2.0**: [Link](https://vickles.github.io/riddle/0.2.0/riddle)
-* **0.1.0**: [Link](https://vickles.github.io/riddle/0.1.0/riddle)
+* **master**: [Link](https://riddle-rs.github.io/riddle/master/riddle)
+* **0.2.0**: [Link](https://riddle-rs.github.io/riddle/0.2.0/riddle)
+* **0.1.0**: [Link](https://riddle-rs.github.io/riddle/0.1.0/riddle)
 
 ## Cargo Features
 
@@ -155,4 +155,4 @@ sudo apt install libasound2-dev libudev-dev
 2. Currently Riddle depends on some patches to underlying libraries, which are
    being maintained in forked git repositories until the changes are
    integrated upstream. This means Riddle can't be uploaded to crates.io at
-   the moment. [Tracking issue](https://github.com/vickles/riddle/issues/23)
+   the moment. [Tracking issue](https://github.com/riddle-rs/riddle/issues/23)
