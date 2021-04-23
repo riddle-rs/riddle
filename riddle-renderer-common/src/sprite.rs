@@ -74,7 +74,7 @@ pub trait CommonSprite<R: CommonRenderer>: Sized {
 	) -> Result<()>;
 
 	/// Render the entire sprite.
-	fn render<Ctx: RenderContext<R>>(
+	fn render<Ctx: RenderContext<R> + ?Sized>(
 		&self,
 		render_ctx: &mut Ctx,
 		args: &SpriteRenderArgs,
@@ -92,7 +92,7 @@ pub trait CommonSprite<R: CommonRenderer>: Sized {
 	/// Utility function to simply render the sprite at a given location
 	///
 	/// See [`SpriteRenderArgs`] for how to render the sprite with more control.
-	fn render_at<Ctx: RenderContext<R>>(
+	fn render_at<Ctx: RenderContext<R> + ?Sized>(
 		&self,
 		render_ctx: &mut Ctx,
 		location: Vector2<f32>,
