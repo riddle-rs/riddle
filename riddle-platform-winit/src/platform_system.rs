@@ -7,16 +7,16 @@ use std::{cell::RefCell, sync::Mutex};
 /// The winit platform system core state, along with [`PlatformMainThreadState`].
 ///
 /// Mostly used to lookup [`Window`] by [`WindowId`], and subscribe to [`PlatformEvent`]s.
+#[derive(Clone)]
 pub struct PlatformSystem {
-	weak_self: PlatformSystemWeak,
-	pub(crate) event_proxy: Mutex<winit::event_loop::EventLoopProxy<InternalEvent>>,
-
-	window_map: Mutex<WindowMap>,
-
-	event_pub: EventPub<PlatformEvent>,
+	pub(crate) internal: std::sync::Arc<PlatformSystemInternal>,
 }
 
-define_handles!(<PlatformSystem>::weak_self, pub PlatformSystemHandle, pub PlatformSystemWeak);
+pub(crate) struct PlatformSystemInternal {
+	pub(crate) event_proxy: Mutex<winit::event_loop::EventLoopProxy<InternalEvent>>,
+	window_map: Mutex<WindowMap>,
+	event_pub: EventPub<PlatformEvent>,
+}
 
 impl PlatformSystem {
 	/// Get the [`PlatformEvent`] publisher, so that other systems can consume events.
@@ -34,10 +34,10 @@ impl PlatformSystem {
 	/// # Ok(()) }
 	/// ```
 	pub fn event_pub(&self) -> &EventPub<PlatformEvent> {
-		&self.event_pub
+		&self.internal.event_pub
 	}
 
-	/// Get a [`WindowHandle`] associated with a [`WindowId`], if one exists.
+	/// Get a [`Window`] associated with a [`WindowId`], if one exists.
 	///
 	/// # Example
 	///
@@ -47,26 +47,31 @@ impl PlatformSystem {
 	/// let rdl =  RiddleLib::new()?;
 	/// let window = WindowBuilder::new().build(rdl.context())?;
 	/// let window_id = window.id();
-	/// assert!(WindowHandle::eq(&window,
+	/// assert!(Window::eq(&window,
 	///        &rdl.state().platform().lookup_window(window_id).unwrap()));
 	/// # Ok(()) }
 	/// ```
-	pub fn lookup_window(&self, window_id: WindowId) -> Option<WindowHandle> {
-		self.window_map.lock().unwrap().lookup_window(window_id)
+	pub fn lookup_window(&self, window_id: WindowId) -> Option<Window> {
+		self.internal
+			.window_map
+			.lock()
+			.unwrap()
+			.lookup_window(window_id)
 	}
 
 	#[inline]
 	pub(crate) fn with_window_map<R, F: FnOnce(&WindowMap) -> R>(&self, f: F) -> R {
-		f(&self.window_map.lock().unwrap())
+		f(&self.internal.window_map.lock().unwrap())
 	}
 
 	#[inline]
 	pub(crate) fn with_window_map_mut<R, F: FnOnce(&mut WindowMap) -> R>(&self, f: F) -> R {
-		f(&mut self.window_map.lock().unwrap())
+		let mut window_map_lock = self.internal.window_map.lock().unwrap();
+		f(&mut window_map_lock)
 	}
 
 	fn update_windows(&self) {
-		let windows = self.window_map.lock().unwrap().windows();
+		let windows = self.internal.window_map.lock().unwrap().windows();
 		for window in windows {
 			window.update()
 		}
@@ -74,17 +79,21 @@ impl PlatformSystem {
 }
 
 impl ext::PlatformSystemExt for PlatformSystem {
-	fn new_shared() -> (PlatformSystemHandle, PlatformMainThreadState) {
+	fn new_system_pair() -> (PlatformSystem, PlatformMainThreadState) {
 		let event_loop = winit::event_loop::EventLoop::with_user_event();
 		let event_proxy = event_loop.create_proxy();
-		let system = PlatformSystemHandle::new(|weak_self| PlatformSystem {
-			weak_self,
+
+		let internal = PlatformSystemInternal {
 			event_proxy: Mutex::new(event_proxy),
 
 			window_map: WindowMap::new().into(),
 
 			event_pub: EventPub::new(),
-		});
+		};
+		let system = Self {
+			internal: std::sync::Arc::new(internal),
+		};
+
 		let main_thread_state = PlatformMainThreadState {
 			system: system.clone(),
 			event_loop: RefCell::new(Some(event_loop)),
@@ -94,7 +103,7 @@ impl ext::PlatformSystemExt for PlatformSystem {
 }
 
 pub struct PlatformMainThreadState {
-	pub(crate) system: PlatformSystemHandle,
+	pub(crate) system: PlatformSystem,
 	pub(crate) event_loop: RefCell<Option<winit::event_loop::EventLoop<InternalEvent>>>,
 }
 
@@ -110,7 +119,7 @@ impl PlatformMainThreadState {
 	{
 		let el = std::mem::replace(&mut *self.event_loop.borrow_mut(), None).unwrap();
 		let mut main_loop = main_loop;
-		let this = self.system.clone_handle();
+		let this = self.system.clone();
 		el.run(move |event, el, cf| {
 			match &event {
 				winit::event::Event::UserEvent(InternalEvent::QuitRequested) => {
@@ -126,7 +135,7 @@ impl PlatformMainThreadState {
 					triggering_event: system_event.clone(),
 				};
 
-				this.event_pub.dispatch(system_event);
+				this.internal.event_pub.dispatch(system_event);
 				this.update_windows();
 
 				main_loop(ctx).unwrap();

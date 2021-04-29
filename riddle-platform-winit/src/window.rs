@@ -36,21 +36,23 @@ use std::borrow::Borrow;
 /// })
 /// # }
 /// ```
+#[derive(Clone)]
 pub struct Window {
-	weak_self: WindowWeak,
-	window_system: PlatformSystemHandle,
-	winit_window: winit::window::Window,
+	pub(crate) internal: std::sync::Arc<WindowInternal>,
+}
+
+pub(crate) struct WindowInternal {
+	window_system: PlatformSystem,
+	pub winit_window: winit::window::Window,
 	event_sub: EventSub<PlatformEvent>,
 	event_pub: EventPub<PlatformEvent>,
 
-	id: WindowId,
+	pub id: WindowId,
 }
 
-define_handles!(<Window>::weak_self, pub WindowHandle, pub WindowWeak);
-
 impl Window {
-	fn new_shared(ctx: &PlatformContext, args: &WindowBuilder) -> Result<WindowHandle> {
-		let system = ctx.system().clone_handle();
+	fn new(ctx: &PlatformContext, args: &WindowBuilder) -> Result<Window> {
+		let system = ctx.system().clone();
 
 		#[cfg(target_os = "windows")]
 		let winit_builder = {
@@ -99,14 +101,17 @@ impl Window {
 		let event_sub = EventSub::new_with_filter(Self::event_filter);
 		ctx.system().event_pub().attach(&event_sub);
 
-		let window = WindowHandle::new(|weak_self| Self {
-			weak_self,
+		let internal = WindowInternal {
 			window_system: system.clone(),
 			winit_window,
 			event_sub,
 			event_pub: EventPub::new(),
 			id: system.with_window_map_mut(|wmap| wmap.take_next_window_id()),
-		});
+		};
+
+		let window = Self {
+			internal: std::sync::Arc::new(internal),
+		};
 
 		ctx.system()
 			.with_window_map_mut(|wmap| wmap.register_window(window.clone()));
@@ -116,27 +121,27 @@ impl Window {
 
 	/// Get the size of the drawable area of the window in pixels
 	pub fn physical_size(&self) -> (u32, u32) {
-		let size = self.winit_window.inner_size();
+		let size = self.internal.winit_window.inner_size();
 		(size.width, size.height)
 	}
 
 	/// Get the size of the drawable area of the window in logical units.
 	pub fn logical_size(&self) -> LogicalSize {
-		let physical_size = self.winit_window.inner_size();
+		let physical_size = self.internal.winit_window.inner_size();
 		let logical_size: winit::dpi::LogicalSize<u32> =
-			physical_size.to_logical(self.winit_window.scale_factor());
+			physical_size.to_logical(self.internal.winit_window.scale_factor());
 		dimensions::logical_size_from_winit(logical_size)
 	}
 
 	/// Get the scale factor of the window, based on how the window manager
 	/// configures hidpi scaling
 	pub fn scale_factor(&self) -> f64 {
-		self.winit_window.scale_factor()
+		self.internal.winit_window.scale_factor()
 	}
 
 	/// Set the window title
 	pub fn set_title(&self, title: &str) {
-		self.winit_window.set_title(title)
+		self.internal.winit_window.set_title(title)
 	}
 
 	/// Attach a subscriber to the subset of platform events that relate to this window
@@ -154,22 +159,22 @@ impl Window {
 	/// # Ok(()) }
 	/// ```
 	pub fn subscribe_to_events(&self, sub: &EventSub<PlatformEvent>) {
-		self.event_pub.attach(sub);
+		self.internal.event_pub.attach(sub);
 	}
 
 	/// The window id which is used to identify this window in [`PlatformEvent`]s
 	pub fn id(&self) -> WindowId {
-		self.id
+		self.internal.id
 	}
 
 	pub(crate) fn update(&self) {
-		for event in self.event_sub.collect() {
-			self.event_pub.dispatch(event);
+		for event in self.internal.event_sub.collect() {
+			self.internal.event_pub.dispatch(event);
 		}
 	}
 
 	pub(crate) fn winit_window_id(&self) -> winit::window::WindowId {
-		self.winit_window.id()
+		self.internal.winit_window.id()
 	}
 
 	fn event_filter(event: &PlatformEvent) -> bool {
@@ -179,7 +184,7 @@ impl Window {
 
 impl winit_ext::WinitWindowExt for Window {
 	fn winit_window(&self) -> &winit::window::Window {
-		&self.winit_window
+		&self.internal.winit_window
 	}
 }
 
@@ -199,16 +204,16 @@ impl std::cmp::PartialEq for Window {
 
 impl std::cmp::Eq for Window {}
 
-impl Drop for Window {
+impl Drop for WindowInternal {
 	fn drop(&mut self) {
 		self.window_system
-			.with_window_map_mut(|wmap| wmap.unregister_window(&self));
+			.with_window_map_mut(|wmap| wmap.unregister_window_internal(self));
 	}
 }
 
 unsafe impl HasRawWindowHandle for Window {
 	fn raw_window_handle(&self) -> RawWindowHandle {
-		self.winit_window.raw_window_handle()
+		self.internal.winit_window.raw_window_handle()
 	}
 }
 
@@ -230,7 +235,7 @@ unsafe impl HasRawWindowHandle for Window {
 /// fn main() -> Result<(), RiddleError> {
 ///     let rdl =  RiddleLib::new()?;
 ///
-///     let window: WindowHandle = WindowBuilder::new()
+///     let window: Window = WindowBuilder::new()
 ///         .title("A Sample Title")
 ///         .dimensions(320, 240)
 ///         .build(rdl.context())?;
@@ -296,11 +301,11 @@ impl WindowBuilder {
 	/// Build the new window, returning a handle to the new window.
 	///
 	/// The window will be visible as long as the handle, or a clone of it, is alive.
-	pub fn build<'a, C>(&self, ctx: C) -> Result<WindowHandle>
+	pub fn build<'a, C>(&self, ctx: C) -> Result<Window>
 	where
 		C: Borrow<PlatformContext<'a>>,
 	{
-		Window::new_shared(ctx.borrow(), self)
+		Window::new(ctx.borrow(), self)
 	}
 
 	fn configure_window(&self, window: &winit::window::Window) {

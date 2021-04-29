@@ -8,7 +8,7 @@ const CHAR_SET: &str = "abcdefghijklmnopqrstuvwxyz_ ";
 
 fn main() -> Result<(), FontError> {
 	let font_bytes = include_bytes!("../../../example_assets/Roboto-Regular.ttf");
-	let ttf_font = TTFont::load(&font_bytes[..])?;
+	let ttf_font = TtFont::load(&font_bytes[..])?;
 	println!("+ TTF Loaded...");
 
 	let img_font = ImgFontGenerator::new(CHAR_SET, 32).generate(&ttf_font)?;

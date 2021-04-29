@@ -23,7 +23,7 @@ pub enum RiddleError {
 
 	#[cfg(feature = "riddle-renderer-wgpu")]
 	#[error(transparent)]
-	WGPURendererError(#[from] renderer::WGPURendererError),
+	WgpuRendererError(#[from] renderer::WgpuRendererError),
 
 	#[error(transparent)]
 	WindowError(#[from] platform::PlatformError),

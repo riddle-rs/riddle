@@ -25,7 +25,7 @@ use crate::*;
 /// })?;
 /// # Ok(()) }
 /// ```
-pub struct SpriteRenderTarget<Device: WGPUDevice> {
+pub struct SpriteRenderTarget<Device: WgpuDevice> {
 	renderer: Renderer<Device>,
 
 	texture: Texture,
@@ -34,18 +34,18 @@ pub struct SpriteRenderTarget<Device: WGPUDevice> {
 
 impl<Device> SpriteRenderTarget<Device>
 where
-	Device: WGPUDevice,
+	Device: WgpuDevice,
 {
 	/// Create a new render target with the specified dimensions
 	pub fn new(renderer: &Renderer<Device>, dimensions: Vector2<u32>) -> Result<Self> {
 		let texture = renderer.wgpu_device().with_device_info(|info| {
-			Texture::new(
+			Ok(Texture::new(
 				info.device,
 				FilterMode::Linear,
 				FilterMode::Linear,
 				TextureType::RenderTarget,
 				dimensions,
-			)
+			))
 		})?;
 
 		let sprite = Sprite::from_texture(renderer, &texture)?;
@@ -100,9 +100,9 @@ where
 	}
 }
 
-impl<Device> WGPURenderTargetDesc<Device> for &SpriteRenderTarget<Device>
+impl<Device> WgpuRenderTargetDesc<Device> for &SpriteRenderTarget<Device>
 where
-	Device: WGPUDevice,
+	Device: WgpuDevice,
 {
 	fn dimensions(&self) -> Vector2<f32> {
 		self.sprite.dimensions()

@@ -39,13 +39,13 @@ use crate::*;
 /// })?;
 /// # Ok(()) }
 /// ```
-pub struct Sprite<Device: WGPUDevice> {
+pub struct Sprite<Device: WgpuDevice> {
 	renderer: Renderer<Device>,
 	texture: Texture,
 	source_rect: Rect<f32>,
 }
 
-impl<Device: WGPUDevice> Sprite<Device> {
+impl<Device: WgpuDevice> Sprite<Device> {
 	pub(crate) fn from_texture(renderer: &Renderer<Device>, texture: &Texture) -> Result<Self> {
 		let dimensions = texture.internal.dimensions.convert();
 		Self::from_texture_with_bounds(
@@ -72,21 +72,21 @@ impl<Device: WGPUDevice> Sprite<Device> {
 	}
 }
 
-impl<Device: WGPUDevice> CommonSprite<Renderer<Device>> for Sprite<Device> {
+impl<Device: WgpuDevice> CommonSprite<Renderer<Device>> for Sprite<Device> {
 	fn new_from_image(
 		renderer: &Renderer<Device>,
 		img: &image::Image,
 		init_args: &SpriteInitArgs,
 	) -> std::result::Result<Self, RendererError> {
 		let texture = renderer.wgpu_device().with_device_info(|info| {
-			Texture::from_image(
+			Ok(Texture::from_image(
 				info.device,
 				info.queue,
 				&img,
 				init_args.mag_filter,
 				init_args.min_filter,
 				TextureType::Plain,
-			)
+			))
 		})?;
 		Ok(Self::from_texture(renderer, &texture)?)
 	}

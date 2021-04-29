@@ -25,13 +25,13 @@ impl From<::image::ImageError> for ImageError {
 			::image::ImageError::Parameter(_) => ImageError::Unknown,
 			::image::ImageError::Limits(_) => ImageError::Unknown,
 			::image::ImageError::Unsupported(_) => ImageError::Unknown,
-			::image::ImageError::IoError(e) => CommonError::IOError(e).into(),
+			::image::ImageError::IoError(e) => CommonError::IoError(e).into(),
 		}
 	}
 }
 
 impl From<std::io::Error> for ImageError {
 	fn from(err: std::io::Error) -> Self {
-		ImageError::CommonError(CommonError::IOError(err))
+		ImageError::CommonError(CommonError::IoError(err))
 	}
 }

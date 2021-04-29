@@ -53,7 +53,6 @@ impl<'a> RiddleContext<'a> {
 
 	/// The audio system.
 	#[cfg(feature = "riddle-audio")]
-	#[doc(cfg(feature = "riddle-audio"))]
 	pub fn audio(&self) -> &audio::AudioSystem {
 		&self.state.audio()
 	}

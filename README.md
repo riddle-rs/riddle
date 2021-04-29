@@ -13,29 +13,29 @@ primarily built upen. Riddle is only possible due to the massive efforts of the
 greater rust community.
 
 * **Windowing and System Event Loops**
-    ([Docs](https://riddle-rs.github.io/riddle/0.1.0/riddle_platform_winit)),
+    ([Docs](https://riddle-rs.github.io/riddle/0.2.0/riddle_platform_winit)),
     exposed through `riddle::platform`. Uses `winit`.
 * **Input State Management**
-    ([Docs](https://riddle-rs.github.io/riddle/0.1.0/riddle_input)),
+    ([Docs](https://riddle-rs.github.io/riddle/0.2.0/riddle_input)),
     exposed through `riddle::input`. Gamepad, mouse and keyboard support.
     Built on `winit` and `gilrs`
 * **Image Loading and Basic Graphics Operations**
-    ([Docs](https://riddle-rs.github.io/riddle/0.1.0/riddle_image)),
+    ([Docs](https://riddle-rs.github.io/riddle/0.2.0/riddle_image)),
     exposed through `riddle::image`. Uses `image`.
 * **Font Loading and Rendering**
-    ([Docs](https://riddle-rs.github.io/riddle/0.1.0/riddle_font)),
+    ([Docs](https://riddle-rs.github.io/riddle/0.2.0/riddle_font)),
     exposed through `riddle::font`. Uses `rusttype`.
 * **Math**
-    ([Docs](https://riddle-rs.github.io/riddle/0.1.0/riddle_math)),
+    ([Docs](https://riddle-rs.github.io/riddle/0.2.0/riddle_math)),
     exposed through `riddle::math`. Uses `mint`, and `glam`.
 * **Audio Loading and Playing**.
-    ([Docs](https://riddle-rs.github.io/riddle/0.1.0/riddle_audio)),
+    ([Docs](https://riddle-rs.github.io/riddle/0.2.0/riddle_audio)),
     Uses `rodio`.
 * **Basic 2D Renderer**
-    ([Docs](https://riddle-rs.github.io/riddle/0.1.0/riddle_renderer_wgpu)),
+    ([Docs](https://riddle-rs.github.io/riddle/0.2.0/riddle_renderer_wgpu)),
     exposed through `riddle::renderer`. Uses `wgpu`.
 * **Timers and Framerate Tracking**
-    ([Docs](https://riddle-rs.github.io/riddle/0.1.0/riddle_time)),
+    ([Docs](https://riddle-rs.github.io/riddle/0.2.0/riddle_time)),
     exposed throug `riddle::time`.
 
 This crate depends on an array of crates, each of which implements a specific
@@ -104,9 +104,9 @@ fn main() -> Result<(), RiddleError> {
             Event::Platform(PlatformEvent::WindowClose(_)) => rdl.quit(),
             Event::ProcessFrame => {
                 // Clear the window with black every frame
-                let mut render_ctx = renderer.begin_render().unwrap();
-                render_ctx.clear(Color::BLACK);
-                render_ctx.present();
+                renderer.render(|render_ctx| {
+                    render_ctx.clear(Color::BLACK);
+                }).unwrap();
             }
             _ => (),
          }
@@ -130,12 +130,6 @@ The current set of examples is:
     as possible to provide quick manual verification of changes to the library. It is
     not a learning resource.
 
-## Nightly Rust
-
-Riddle depends heavily on `Arc::new_cyclic` which is currently only available
-on rust nightly. Until this [feature](https://github.com/rust-lang/rust/issues/75861)
-is stablized nightly rust will be required.
-
 ## Linux build dependencies
 
 To build on Linux the following packages are required (on Ubuntu at least):
@@ -152,7 +146,3 @@ sudo apt install libasound2-dev libudev-dev
 
 1. A necesary exception is the top level `RiddleLib::run` function which must be
    used if `riddle::platform` is to be used.
-2. Currently Riddle depends on some patches to underlying libraries, which are
-   being maintained in forked git repositories until the changes are
-   integrated upstream. This means Riddle can't be uploaded to crates.io at
-   the moment. [Tracking issue](https://github.com/riddle-rs/riddle/issues/23)

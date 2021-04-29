@@ -3,7 +3,7 @@ use crate::{math::*, *};
 /// A [`Renderer`] compatible WGPU device.
 ///
 /// A default implementation exists for `riddle_platform_winit::Window`
-/// in [`WindowWGPUDevice`].
+/// in [`WindowWgpuDevice`].
 ///
 /// The application may implement this trait to layer the renderer on
 /// top of custom WGPU renderer.
@@ -27,13 +27,13 @@ use crate::{math::*, *};
 /// #   fn render_3d_scene(&self) { todo!() }
 /// }
 ///
-/// impl WGPUDevice for ACustomRendererHandle {
+/// impl WgpuDevice for ACustomRendererHandle {
 ///     // [..]
-/// #   fn begin_frame(&self) -> Result<(), WGPURendererError> { todo!() }
+/// #   fn begin_frame(&self) -> Result<(), WgpuRendererError> { todo!() }
 /// #   fn end_frame(&self) { todo!() }
 /// #   fn viewport_dimensions(&self) -> math::Vector2<f32>  { todo!() }
-/// #   fn with_device_info<R, F: FnOnce(&WGPUDeviceInfo) -> Result<R, WGPURendererError>>(&self, f: F) -> Result<R, WGPURendererError> { todo!() }
-/// #   fn with_frame<R, F: FnOnce(&wgpu::SwapChainFrame) -> Result<R, WGPURendererError>>(&self, f: F) -> Result<R, WGPURendererError> { todo!() }
+/// #   fn with_device_info<R, F: FnOnce(&WgpuDeviceInfo) -> Result<R, WgpuRendererError>>(&self, f: F) -> Result<R, WgpuRendererError> { todo!() }
+/// #   fn with_frame<R, F: FnOnce(&wgpu::SwapChainFrame) -> Result<R, WgpuRendererError>>(&self, f: F) -> Result<R, WgpuRendererError> { todo!() }
 /// }
 ///
 /// fn main() -> Result<(), RiddleError> {
@@ -60,7 +60,7 @@ use crate::{math::*, *};
 ///     })
 /// }
 /// ```
-pub trait WGPUDevice {
+pub trait WgpuDevice {
 	/// Called when the [`Renderer`] begins rendering to the swap chain frame.
 	///
 	/// Invoked through [`Renderer::render`]
@@ -78,14 +78,14 @@ pub trait WGPUDevice {
 	fn viewport_dimensions(&self) -> Vector2<f32>;
 
 	/// Provides a reference to the set of wgpu device state for use by the renderer.
-	fn with_device_info<R, F: FnOnce(&WGPUDeviceInfo) -> Result<R>>(&self, f: F) -> Result<R>;
+	fn with_device_info<R, F: FnOnce(&WgpuDeviceInfo) -> Result<R>>(&self, f: F) -> Result<R>;
 
 	/// Provide a reference to the current swap chain frame for use by the
 	/// renderer.
 	fn with_frame<R, F: FnOnce(&wgpu::SwapChainFrame) -> Result<R>>(&self, f: F) -> Result<R>;
 }
 
-pub struct WGPUDeviceInfo<'a> {
+pub struct WgpuDeviceInfo<'a> {
 	pub device: &'a wgpu::Device,
 	pub queue: &'a wgpu::Queue,
 }

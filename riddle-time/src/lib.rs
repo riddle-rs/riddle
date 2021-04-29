@@ -1,4 +1,3 @@
-#![feature(arc_new_cyclic)]
 #![deny(clippy::all)]
 
 //! Riddle crate supporting some basic game-centric time functionality.
@@ -44,7 +43,7 @@
 //! use riddle_time::{ext::*, *};
 //! use std::sync::{Arc, atomic::{AtomicBool, Ordering}};
 //!
-//! let time = TimeSystem::new_shared();
+//! let time = TimeSystem::new();
 //!
 //! let quit_flag = Arc::new(AtomicBool::new(false));
 //! time.register_timer(std::time::Duration::from_millis(200), {

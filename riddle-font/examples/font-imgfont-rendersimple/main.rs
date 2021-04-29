@@ -1,6 +1,6 @@
 use std::{env, fs::File};
 
-use riddle_font::{FontError, ImgFontGenerator, TTFont};
+use riddle_font::{FontError, ImgFontGenerator, TtFont};
 use riddle_image::ImageFormat;
 
 const FONT_OUT_FILE: &str = "font-imgfont-rendersimple.imgfont.png";
@@ -11,7 +11,7 @@ const TEST_STRING: &str = "Hello World!";
 
 fn main() -> Result<(), FontError> {
 	let font_bytes = include_bytes!("../../../example_assets/Roboto-Regular.ttf");
-	let ttf_font = TTFont::load(&font_bytes[..])?;
+	let ttf_font = TtFont::load(&font_bytes[..])?;
 	println!("+ TTF Loaded...");
 
 	let img_font = ImgFontGenerator::new(CHAR_SET, 32).generate(&ttf_font)?;

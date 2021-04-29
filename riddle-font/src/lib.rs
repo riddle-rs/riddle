@@ -11,7 +11,7 @@
 //! # fn main() -> Result<(), FontError> {
 //! // Load font from TTF file
 //! let ttf_bytes = include_bytes!("../../example_assets/Roboto-Regular.ttf");
-//! let font = TTFont::load(&ttf_bytes[..])?;
+//! let font = TtFont::load(&ttf_bytes[..])?;
 //!
 //! // Render the loaded font to a Riddle image
 //! let image = font.render_simple("Simple String", 24)?;
@@ -27,7 +27,7 @@ pub mod rusttype_ext;
 
 pub use error::*;
 pub use imgfont::*;
-pub use ttfont::TTFont;
+pub use ttfont::TtFont;
 
 use riddle_common::CommonError;
 

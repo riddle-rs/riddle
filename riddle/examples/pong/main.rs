@@ -20,8 +20,8 @@ fn main() -> Result<(), RiddleError> {
 }
 
 struct Pong {
-	window: WindowHandle,
-	renderer: Renderer<WindowWGPUDevice>,
+	window: Window,
+	renderer: Renderer<WindowWgpuDevice>,
 	state: RiddleState,
 
 	clip: audio::Clip,

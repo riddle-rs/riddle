@@ -2,7 +2,7 @@ use math::Vector2;
 
 use crate::{
 	eventpub::EventSub,
-	platform::{PlatformEvent, Window, WindowHandle},
+	platform::{PlatformEvent, Window},
 	*,
 };
 
@@ -12,8 +12,8 @@ use std::sync::Mutex;
 ///
 /// While this can be used directly, if using [`Renderer::new_from_window`], this
 /// type shouldn't need to be used by consumer code.
-pub struct WindowWGPUDevice {
-	window: WindowHandle,
+pub struct WindowWgpuDevice {
+	window: Window,
 	window_event_sub: EventSub<PlatformEvent>,
 
 	device: wgpu::Device,
@@ -24,7 +24,7 @@ pub struct WindowWGPUDevice {
 	current_frame: Mutex<Option<wgpu::SwapChainFrame>>,
 }
 
-impl WindowWGPUDevice {
+impl WindowWgpuDevice {
 	pub fn new(window: &Window) -> Result<Self> {
 		let instance = wgpu::Instance::new(wgpu::BackendBit::PRIMARY);
 		let surface = unsafe { instance.create_surface(window) };
@@ -35,7 +35,7 @@ impl WindowWGPUDevice {
 				power_preference: wgpu::PowerPreference::HighPerformance,
 				compatible_surface: Some(&surface),
 			}))
-			.ok_or(WGPURendererError::APIInitError(
+			.ok_or(WgpuRendererError::ApiInitError(
 				"Failed to get WGPU adapter",
 			))?;
 
@@ -46,7 +46,7 @@ impl WindowWGPUDevice {
 			},
 			None,
 		))
-		.map_err(|_| WGPURendererError::APIInitError("Failed to create WGPU device"))?;
+		.map_err(|_| WgpuRendererError::ApiInitError("Failed to create WGPU device"))?;
 
 		let (width, height) = window.physical_size();
 		let sc_desc = wgpu::SwapChainDescriptor {
@@ -63,7 +63,7 @@ impl WindowWGPUDevice {
 		window.subscribe_to_events(&window_event_sub);
 
 		Ok(Self {
-			window: window.clone_handle(),
+			window: window.clone(),
 			window_event_sub,
 			device,
 			surface,
@@ -102,7 +102,7 @@ impl WindowWGPUDevice {
 
 		let new_frame = swap_chain
 			.get_current_frame()
-			.map_err(|_| WGPURendererError::BeginRenderError("Error getting swap chain frame"))?;
+			.map_err(|_| WgpuRendererError::BeginRenderError("Error getting swap chain frame"))?;
 
 		*frame = Some(new_frame);
 
@@ -115,7 +115,7 @@ impl WindowWGPUDevice {
 	}
 }
 
-impl WGPUDevice for WindowWGPUDevice {
+impl WgpuDevice for WindowWgpuDevice {
 	fn viewport_dimensions(&self) -> Vector2<f32> {
 		self.window.logical_size().into()
 	}
@@ -132,9 +132,9 @@ impl WGPUDevice for WindowWGPUDevice {
 	#[inline]
 	fn with_device_info<R, F>(&self, f: F) -> Result<R>
 	where
-		F: FnOnce(&WGPUDeviceInfo) -> Result<R>,
+		F: FnOnce(&WgpuDeviceInfo) -> Result<R>,
 	{
-		let info = WGPUDeviceInfo {
+		let info = WgpuDeviceInfo {
 			device: &self.device,
 			queue: &self.queue,
 		};

@@ -26,8 +26,8 @@ use std::ops::Deref;
 ///     let rdl =  RiddleLib::new()?;
 ///
 ///     // Get a context before the application starts the main event loop.
-///     let window_a: WindowHandle = WindowBuilder::new().build(rdl.context())?;
-///     let mut window_b: Option<WindowHandle> = None;
+///     let window_a: Window = WindowBuilder::new().build(rdl.context())?;
+///     let mut window_b: Option<Window> = None;
 ///
 ///     rdl.run(move |rdl| {
 ///         if window_b.is_none() {
@@ -71,6 +71,7 @@ impl<'a> PlatformContext<'a> {
 	pub fn quit(&self) -> Result<()> {
 		self.main_thread_state
 			.system
+			.internal
 			.event_proxy
 			.lock()
 			.unwrap()

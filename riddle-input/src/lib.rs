@@ -1,4 +1,3 @@
-#![feature(arc_new_cyclic)]
 #![deny(clippy::all)]
 
 //! Riddle crate dealing with user input (keyboard, mouse, gamepad).
@@ -44,7 +43,7 @@
 //!
 //! fn main() -> Result<(), InputError> {
 //!     let platform_events: EventPub<PlatformEvent> = EventPub::new();
-//!     let (input_system, mut main_thread_state) = InputSystem::new_shared(&platform_events)?;
+//!     let (input_system, mut main_thread_state) = InputSystem::new_system_pair(&platform_events)?;
 //!
 //!     platform_events.dispatch(PlatformEvent::MouseButtonDown{
 //!         window: WindowId::new(0),

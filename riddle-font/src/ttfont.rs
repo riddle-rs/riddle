@@ -7,12 +7,12 @@ use futures::{AsyncRead, AsyncReadExt};
 use std::io::Read;
 
 /// Represents a parsed TTF file, and facilitates simple rendering
-pub struct TTFont {
+pub struct TtFont {
 	font: rusttype::Font<'static>,
 }
 
-impl TTFont {
-	/// Construct a new TTFont from a `Read` instance. The source will be read to
+impl TtFont {
+	/// Construct a new TtFont from a `Read` instance. The source will be read to
 	/// the end, and the entire buffer parsed as a TTF font file.
 	///
 	/// # Example
@@ -21,7 +21,7 @@ impl TTFont {
 	/// # use riddle_font::*;
 	/// # fn main() -> Result<(), FontError> {
 	/// let ttf_bytes = include_bytes!("../../example_assets/Roboto-Regular.ttf");
-	/// let font = TTFont::load(&ttf_bytes[..])?;
+	/// let font = TtFont::load(&ttf_bytes[..])?;
 	/// # Ok (()) }
 	/// ```
 	pub fn load<R: Read>(mut r: R) -> Result<Self> {
@@ -29,10 +29,10 @@ impl TTFont {
 		r.read_to_end(&mut data)?;
 
 		let font = rusttype::Font::try_from_vec(data).ok_or(FontError::FontParseFailed)?;
-		Ok(TTFont { font })
+		Ok(TtFont { font })
 	}
 
-	/// Construct a new TTFont from an `AsyncRead` instance. The source will be read
+	/// Construct a new TtFont from an `AsyncRead` instance. The source will be read
 	/// the end, and the entire buffer parsed as a TTF font file.
 	///
 	/// # Example
@@ -41,7 +41,7 @@ impl TTFont {
 	/// # use riddle_font::*; fn main() -> Result<(), FontError> { futures::executor::block_on(async_main()) }
 	/// # async fn async_main() -> Result<(), FontError> {
 	/// let ttf_bytes = include_bytes!("../../example_assets/Roboto-Regular.ttf");
-	/// let font = TTFont::load_async(&ttf_bytes[..]).await?;
+	/// let font = TtFont::load_async(&ttf_bytes[..]).await?;
 	/// # Ok(()) }
 	/// ```
 	pub async fn load_async<R: AsyncRead + Unpin>(mut r: R) -> Result<Self> {
@@ -49,7 +49,7 @@ impl TTFont {
 		r.read_to_end(&mut data).await?;
 
 		let font = rusttype::Font::try_from_vec(data).ok_or(FontError::FontParseFailed)?;
-		Ok(TTFont { font })
+		Ok(TtFont { font })
 	}
 
 	/// Render a string in this font to an image. It will only be a single line of text, even
@@ -67,7 +67,7 @@ impl TTFont {
 	/// # use riddle_font::*;
 	/// # fn main() -> Result<(), FontError> {
 	/// # let ttf_bytes = include_bytes!("../../example_assets/Roboto-Regular.ttf");
-	/// let font = TTFont::load(&ttf_bytes[..])?;
+	/// let font = TtFont::load(&ttf_bytes[..])?;
 	/// let image = font.render_simple("A String", 24)?;
 	/// # Ok (()) }
 	/// ```
@@ -110,7 +110,7 @@ impl TTFont {
 	}
 }
 
-impl rusttype_ext::RustTypeTTFontExt for TTFont {
+impl rusttype_ext::RustTypeTtFontExt for TtFont {
 	fn rustype_font(&self) -> &rusttype::Font<'static> {
 		&self.font
 	}

@@ -24,7 +24,7 @@ impl ImgFont {
 	/// # use riddle_font::*;
 	/// # fn main() -> Result<(), FontError> {
 	/// # let font_bytes = include_bytes!("../../example_assets/Roboto-Regular.ttf");
-	/// let ttf_font = TTFont::load(&font_bytes[..])?;
+	/// let ttf_font = TtFont::load(&font_bytes[..])?;
 	/// let img_font = ImgFontGenerator::new("ABCDEF", 32).generate(&ttf_font)?;
 	///
 	/// assert!(img_font.vertical_spacing() > 0);
@@ -42,7 +42,7 @@ impl ImgFont {
 	/// # use riddle_font::*;
 	/// # fn main() -> Result<(), FontError> {
 	/// # let font_bytes = include_bytes!("../../example_assets/Roboto-Regular.ttf");
-	/// let ttf_font = TTFont::load(&font_bytes[..])?;
+	/// let ttf_font = TtFont::load(&font_bytes[..])?;
 	/// let img_font = ImgFontGenerator::new("ABCDEF", 32).generate(&ttf_font)?;
 	///
 	/// assert!(img_font.image().width() > 0);
@@ -60,7 +60,7 @@ impl ImgFont {
 	/// # use riddle_font::*;
 	/// # fn main() -> Result<(), FontError> {
 	/// # let font_bytes = include_bytes!("../../example_assets/Roboto-Regular.ttf");
-	/// let ttf_font = TTFont::load(&font_bytes[..])?;
+	/// let ttf_font = TtFont::load(&font_bytes[..])?;
 	/// let img_font = ImgFontGenerator::new("ABCDEF", 32).generate(&ttf_font)?;
 	///
 	/// assert_eq!(6, img_font.glyphs().len());
@@ -79,7 +79,7 @@ impl ImgFont {
 	/// # use riddle_font::*;
 	/// # fn main() -> Result<(), FontError> {
 	/// # let font_bytes = include_bytes!("../../example_assets/Roboto-Regular.ttf");
-	/// let ttf_font = TTFont::load(&font_bytes[..])?;
+	/// let ttf_font = TtFont::load(&font_bytes[..])?;
 	/// let img_font = ImgFontGenerator::new("ABCDEF", 32).generate(&ttf_font)?;
 	///
 	/// let rendered_img = img_font.render_simple("AABCA")?;
@@ -135,7 +135,7 @@ impl ImgFont {
 	/// # use riddle_font::*;
 	/// # fn main() -> Result<(), FontError> {
 	/// # let font_bytes = include_bytes!("../../example_assets/Roboto-Regular.ttf");
-	/// let ttf_font = TTFont::load(&font_bytes[..])?;
+	/// let ttf_font = TtFont::load(&font_bytes[..])?;
 	/// let img_font = ImgFontGenerator::new("ABCDEF", 32).generate(&ttf_font)?;
 	///
 	/// let mut last_x = 0;
@@ -255,7 +255,7 @@ impl ImgFontBuilder {
 	}
 }
 
-/// A utility for generating [`ImgFont`]s from [`TTFont`]s.
+/// A utility for generating [`ImgFont`]s from [`TtFont`]s.
 ///
 /// # Example
 ///
@@ -264,7 +264,7 @@ impl ImgFontBuilder {
 /// # use riddle_font::*;
 /// # fn main() -> Result<(), FontError> {
 /// # let font_bytes = include_bytes!("../../example_assets/Roboto-Regular.ttf");
-/// let ttf_font = TTFont::load(&font_bytes[..])?;
+/// let ttf_font = TtFont::load(&font_bytes[..])?;
 ///
 /// let img_font = ImgFontGenerator::new("ABCDEF", 32).generate(&ttf_font)?;
 ///
@@ -300,8 +300,8 @@ impl ImgFontGenerator {
 		self
 	}
 
-	/// Build the ImgFont for the given [`TTFont`] using the parameters specified in the generator.
-	pub fn generate(&self, ttfont: &TTFont) -> Result<ImgFont> {
+	/// Build the ImgFont for the given [`TtFont`] using the parameters specified in the generator.
+	pub fn generate(&self, ttfont: &TtFont) -> Result<ImgFont> {
 		let characters: Vec<char> = self.characters.iter().copied().collect();
 		let mut images: Vec<Image> = vec![];
 		let mut imgfont_glyphs: Vec<ImgFontGlyph> = vec![];

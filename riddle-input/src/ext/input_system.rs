@@ -14,9 +14,9 @@ pub trait InputSystemExt {
 	///
 	/// The other return value stores the portion of this object's state that should
 	/// stay on the main thread - [`InputMainThreadState`].
-	fn new_shared(
+	fn new_system_pair(
 		sys_events: &EventPub<PlatformEvent>,
-	) -> Result<(InputSystemHandle, InputMainThreadState)>;
+	) -> Result<(InputSystem, InputMainThreadState)>;
 
 	/// Collect any buffered [`InputEvent`]s emitted by the input system.
 	///
@@ -31,7 +31,7 @@ pub trait InputSystemExt {
 	/// # use riddle_input::{ext::*, *}; use riddle_common::eventpub::*; use riddle_platform_common::*;
 	/// # fn main() -> Result<(), InputError> {
 	/// let platform_events: EventPub<PlatformEvent> = EventPub::new();
-	/// let (input_system, mut main_thread_state) = InputSystem::new_shared(&platform_events)?;
+	/// let (input_system, mut main_thread_state) = InputSystem::new_system_pair(&platform_events)?;
 	///
 	/// // Platform dispatches an event, and input processes it
 	/// platform_events.dispatch(PlatformEvent::MouseButtonDown{

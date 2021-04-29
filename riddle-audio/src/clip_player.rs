@@ -22,7 +22,7 @@ const QUICK_FADE_DURATION_SECONDS: f32 = 0.2;
 /// # Ok(player) });
 /// ```
 pub struct ClipPlayer {
-	audio: AudioSystemHandle,
+	audio: AudioSystem,
 	clip: Clip,
 	sink: Option<Arc<Sink>>,
 
@@ -32,7 +32,7 @@ pub struct ClipPlayer {
 impl ClipPlayer {
 	pub(crate) fn new(audio: &AudioSystem, clip: &Clip, volume: f32) -> Self {
 		Self {
-			audio: audio.clone_handle(),
+			audio: audio.clone(),
 			clip: clip.clone(),
 			sink: None,
 			volume,
@@ -40,7 +40,7 @@ impl ClipPlayer {
 	}
 
 	fn play(&mut self, mode: PlayMode, paused: bool) -> Result<()> {
-		let sink: Arc<Sink> = Sink::try_new(&self.audio.stream_handle)
+		let sink: Arc<Sink> = Sink::try_new(&self.audio.internal.stream_handle)
 			.map_err(|_| AudioError::PlayError {
 				cause: "Error making rodio Sink",
 			})?
@@ -275,7 +275,7 @@ pub enum PlayMode {
 /// ```
 pub struct ClipPlayerBuilder {
 	mode: PlayMode,
-	audio: AudioSystemHandle,
+	audio: AudioSystem,
 	volume: f32,
 }
 
@@ -289,7 +289,7 @@ impl ClipPlayerBuilder {
 	pub fn new(audio: &AudioSystem) -> Self {
 		Self {
 			mode: PlayMode::OneShot,
-			audio: audio.clone_handle(),
+			audio: audio.clone(),
 			volume: 1.0,
 		}
 	}

@@ -1,9 +1,6 @@
 use crate::*;
 
-use riddle_common::{
-	define_handles,
-	eventpub::{EventPub, EventSub},
-};
+use riddle_common::eventpub::{EventPub, EventSub};
 use riddle_platform_common::{LogicalPosition, PlatformEvent, WindowId};
 
 use std::{collections::HashMap, sync::Mutex};
@@ -17,16 +14,16 @@ struct WindowInputState {
 ///
 /// This stores the thread safe input state which can be queried to inspect the
 /// status of input devices. It is updated by [`InputMainThreadState::process_input`].
+#[derive(Clone)]
 pub struct InputSystem {
-	weak_self: InputSystemWeak,
-
-	window_states: Mutex<HashMap<WindowId, WindowInputState>>,
-	gamepad_states: Mutex<GamePadStateMap>,
-
-	outgoing_input_events: Mutex<Vec<InputEvent>>,
+	internal: std::sync::Arc<InputSystemInternal>,
 }
 
-define_handles!(<InputSystem>::weak_self, pub InputSystemHandle, pub InputSystemWeak);
+pub struct InputSystemInternal {
+	window_states: Mutex<HashMap<WindowId, WindowInputState>>,
+	gamepad_states: Mutex<GamePadStateMap>,
+	outgoing_input_events: Mutex<Vec<InputEvent>>,
+}
 
 impl InputSystem {
 	/// Query the cursor position with respect to a given window.
@@ -40,7 +37,7 @@ impl InputSystem {
 	/// # use riddle_input::{ext::*, *}; use riddle_common::eventpub::*; use riddle_platform_common::*;
 	/// # fn main() -> Result<(), InputError> {
 	/// # let platform_events: EventPub<PlatformEvent> = EventPub::new();
-	/// # let (input_system, mut main_thread_state) = InputSystem::new_shared(&platform_events)?;
+	/// # let (input_system, mut main_thread_state) = InputSystem::new_system_pair(&platform_events)?;
 	/// # let window = WindowId::new(0);
 	/// // The initial mouse position is (0,0)
 	/// assert_eq!(LogicalPosition{ x: 0, y: 0}, input_system.mouse_pos(window));
@@ -71,7 +68,7 @@ impl InputSystem {
 	/// # use riddle_input::{ext::*, *}; use riddle_common::eventpub::*; use riddle_platform_common::*;
 	/// # fn main() -> Result<(), InputError> {
 	/// # let platform_events: EventPub<PlatformEvent> = EventPub::new();
-	/// # let (input_system, mut main_thread_state) = InputSystem::new_shared(&platform_events)?;
+	/// # let (input_system, mut main_thread_state) = InputSystem::new_system_pair(&platform_events)?;
 	/// # let window = WindowId::new(0);
 	/// // The initial mouse position is (0,0)
 	/// assert_eq!(false, input_system.is_mouse_button_down(window, MouseButton::Left));
@@ -103,7 +100,7 @@ impl InputSystem {
 	/// # use riddle_input::{ext::*, *}; use riddle_common::eventpub::*; use riddle_platform_common::*;
 	/// # fn main() -> Result<(), InputError> {
 	/// # let platform_events: EventPub<PlatformEvent> = EventPub::new();
-	/// # let (input_system, mut main_thread_state) = InputSystem::new_shared(&platform_events)?;
+	/// # let (input_system, mut main_thread_state) = InputSystem::new_system_pair(&platform_events)?;
 	/// # let window = WindowId::new(0);
 	/// // The initial key state is that the button is unpressed
 	/// assert_eq!(false, input_system.is_key_down(window, Scancode::Escape));
@@ -137,7 +134,7 @@ impl InputSystem {
 	/// # use riddle_input::{ext::*, *}; use riddle_common::eventpub::*; use riddle_platform_common::*;
 	/// # fn main() -> Result<(), InputError> {
 	/// # let platform_events: EventPub<PlatformEvent> = EventPub::new();
-	/// # let (input_system, mut main_thread_state) = InputSystem::new_shared(&platform_events)?;
+	/// # let (input_system, mut main_thread_state) = InputSystem::new_system_pair(&platform_events)?;
 	/// # let window = WindowId::new(0);
 	/// // The initial key state is that the button is unpressed
 	/// assert_eq!(false, input_system.is_vkey_down(window, VirtualKey::Escape));
@@ -169,7 +166,7 @@ impl InputSystem {
 	/// # use riddle_input::{ext::*, *}; use riddle_common::eventpub::*; use riddle_platform_common::*;
 	/// # fn main() -> Result<(), InputError> {
 	/// # let platform_events: EventPub<PlatformEvent> = EventPub::new();
-	/// # let (input_system, mut main_thread_state) = InputSystem::new_shared(&platform_events)?;
+	/// # let (input_system, mut main_thread_state) = InputSystem::new_system_pair(&platform_events)?;
 	/// # let window = WindowId::new(0);
 	/// // The initial mouse position is (0,0)
 	/// assert_eq!(false, input_system.keyboard_modifiers(window).ctrl);
@@ -203,7 +200,7 @@ impl InputSystem {
 	/// # use riddle_input::{ext::*, *}; use riddle_common::eventpub::*; use riddle_platform_common::*;
 	/// # fn main() -> Result<(), InputError> {
 	/// # let platform_events: EventPub<PlatformEvent> = EventPub::new();
-	/// # let (input_system, mut main_thread_state) = InputSystem::new_shared(&platform_events)?;
+	/// # let (input_system, mut main_thread_state) = InputSystem::new_system_pair(&platform_events)?;
 	/// # let window = WindowId::new(0);
 	/// // The initial gamepad is None
 	/// assert_eq!(None, input_system.last_active_gamepad());
@@ -218,7 +215,11 @@ impl InputSystem {
 	/// # Ok(()) }
 	/// ```
 	pub fn last_active_gamepad(&self) -> Option<GamePadId> {
-		self.gamepad_states.lock().unwrap().last_active_pad()
+		self.internal
+			.gamepad_states
+			.lock()
+			.unwrap()
+			.last_active_pad()
 	}
 
 	/// Check if a specific button is pressed for a given gamepad.
@@ -227,7 +228,7 @@ impl InputSystem {
 	///
 	/// ```no_run
 	/// # use riddle_input::{ext::*, *};
-	/// # let input_system: InputSystemHandle = todo!();
+	/// # let input_system: InputSystem = todo!();
 	/// # let gamepad: GamePadId = todo!();
 	/// // The initial button state is false
 	/// assert_eq!(false, input_system.is_gamepad_button_down(gamepad, GamePadButton::North));
@@ -241,7 +242,8 @@ impl InputSystem {
 	/// assert_eq!(true, input_system.is_gamepad_button_down(gamepad, GamePadButton::North));
 	/// ```
 	pub fn is_gamepad_button_down(&self, gamepad: GamePadId, button: GamePadButton) -> bool {
-		self.gamepad_states
+		self.internal
+			.gamepad_states
 			.lock()
 			.unwrap()
 			.is_button_down(gamepad, button)
@@ -253,7 +255,7 @@ impl InputSystem {
 	///
 	/// ```no_run
 	/// # use riddle_input::{ext::*, *};
-	/// # let input_system: InputSystemHandle = todo!();
+	/// # let input_system: InputSystem = todo!();
 	/// # let gamepad: GamePadId = todo!();
 	/// // The initial button state is false
 	/// assert_eq!(0.0, input_system.gamepad_axis_value(gamepad, GamePadAxis::LeftStickX));
@@ -267,7 +269,8 @@ impl InputSystem {
 	/// assert_ne!(0.0, input_system.gamepad_axis_value(gamepad, GamePadAxis::LeftStickX));
 	/// ```
 	pub fn gamepad_axis_value(&self, gamepad: GamePadId, axis: GamePadAxis) -> f32 {
-		self.gamepad_states
+		self.internal
+			.gamepad_states
 			.lock()
 			.unwrap()
 			.axis_value(gamepad, axis)
@@ -277,7 +280,7 @@ impl InputSystem {
 	where
 		F: FnOnce(&WindowInputState) -> R,
 	{
-		let mut ms = self.window_states.lock().unwrap();
+		let mut ms = self.internal.window_states.lock().unwrap();
 		if !ms.contains_key(&window) {
 			ms.insert(window, Default::default());
 		}
@@ -288,7 +291,7 @@ impl InputSystem {
 	where
 		F: FnOnce(&mut WindowInputState) -> R,
 	{
-		let mut ms = self.window_states.lock().unwrap();
+		let mut ms = self.internal.window_states.lock().unwrap();
 		if !ms.contains_key(&window) {
 			ms.insert(window, Default::default());
 		}
@@ -351,25 +354,31 @@ impl InputSystem {
 	}
 
 	fn send_input_event(&self, event: InputEvent) {
-		self.outgoing_input_events.lock().unwrap().push(event);
+		self.internal
+			.outgoing_input_events
+			.lock()
+			.unwrap()
+			.push(event);
 	}
 }
 
 impl ext::InputSystemExt for InputSystem {
-	fn new_shared(
+	fn new_system_pair(
 		sys_events: &EventPub<PlatformEvent>,
-	) -> Result<(InputSystemHandle, InputMainThreadState)> {
+	) -> Result<(InputSystem, InputMainThreadState)> {
 		let event_sub = EventSub::new_with_filter(Self::event_filter);
 		sys_events.attach(&event_sub);
 
 		let gilrs = gilrs::Gilrs::new().map_err(|_| InputError::InitError("Gilrs init failure"))?;
 
-		let system = InputSystemHandle::new(|weak_self| InputSystem {
-			weak_self,
+		let internal = InputSystemInternal {
 			window_states: Mutex::new(HashMap::new()),
 			gamepad_states: Mutex::new(GamePadStateMap::new()),
 			outgoing_input_events: Mutex::new(vec![]),
-		});
+		};
+		let system = InputSystem {
+			internal: std::sync::Arc::new(internal),
+		};
 
 		let main_thread = InputMainThreadState {
 			system: system.clone(),
@@ -381,7 +390,7 @@ impl ext::InputSystemExt for InputSystem {
 	}
 
 	fn take_input_events(&self) -> Vec<InputEvent> {
-		std::mem::take(&mut self.outgoing_input_events.lock().unwrap())
+		std::mem::take(&mut self.internal.outgoing_input_events.lock().unwrap())
 	}
 }
 
@@ -396,9 +405,9 @@ impl Default for WindowInputState {
 
 /// The portion of the input system that needs to remain on a single thread.
 ///
-/// Constructed paired with its thread-safe counterpart via [`ext::InputSystemExt::new_shared`].
+/// Constructed paired with its thread-safe counterpart via [`ext::InputSystemExt::new_system_pair`].
 pub struct InputMainThreadState {
-	system: InputSystemHandle,
+	system: InputSystem,
 
 	event_sub: EventSub<PlatformEvent>,
 	gilrs: gilrs::Gilrs,
@@ -416,6 +425,7 @@ impl InputMainThreadState {
 				gilrs::EventType::ButtonPressed(button, _) => {
 					if let Ok(button) = GamePadButton::try_from(button) {
 						self.system
+							.internal
 							.gamepad_states
 							.lock()
 							.unwrap()
@@ -430,6 +440,7 @@ impl InputMainThreadState {
 				gilrs::EventType::ButtonReleased(button, _) => {
 					if let Ok(button) = GamePadButton::try_from(button) {
 						self.system
+							.internal
 							.gamepad_states
 							.lock()
 							.unwrap()
@@ -443,11 +454,12 @@ impl InputMainThreadState {
 				gilrs::EventType::ButtonChanged(_, _, _) => {}
 				gilrs::EventType::AxisChanged(axis, value, _) => {
 					if let Ok(axis) = GamePadAxis::try_from(axis) {
-						self.system.gamepad_states.lock().unwrap().set_axis_value(
-							id.into(),
-							axis,
-							value,
-						);
+						self.system
+							.internal
+							.gamepad_states
+							.lock()
+							.unwrap()
+							.set_axis_value(id.into(), axis, value);
 						self.system
 							.send_input_event(InputEvent::GamePadAxisChanged {
 								gamepad: id.into(),

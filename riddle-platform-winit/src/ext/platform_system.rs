@@ -13,7 +13,7 @@ pub trait PlatformSystemExt {
 	/// ```no_run
 	/// # use riddle_platform_winit::{ext::*, *};
 	/// # fn main() -> Result<(), PlatformError> {
-	/// let (platform_system, main_thread_state) = PlatformSystem::new_shared();
+	/// let (platform_system, main_thread_state) = PlatformSystem::new_system_pair();
 	/// let window = WindowBuilder::new().build(main_thread_state.borrow_context())?;
 	///
 	/// main_thread_state.run::<PlatformError, _>(move |ctx| {
@@ -25,5 +25,5 @@ pub trait PlatformSystemExt {
 	/// })
 	/// # }
 	/// ```
-	fn new_shared() -> (PlatformSystemHandle, PlatformMainThreadState);
+	fn new_system_pair() -> (PlatformSystem, PlatformMainThreadState);
 }

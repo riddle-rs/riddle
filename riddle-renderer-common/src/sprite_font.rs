@@ -20,7 +20,7 @@ use riddle_math::{Rect, SpacialNumericConversion, Vector2};
 /// // Load a TTFont, generate an ImgFont, and then construct the SpriteFont with it
 /// let img_font: ImgFont = {
 ///     let font_bytes = include_bytes!("../../example_assets/Roboto-Regular.ttf");
-///     let ttfont = TTFont::load(&font_bytes[..])?;
+///     let ttfont = TtFont::load(&font_bytes[..])?;
 ///     ImgFontGenerator::new("abcdefghijklmnopqrstuvwxyz ", 32).generate(&ttfont)?
 /// };
 /// let sprite_font = SpriteFont::new(&renderer, img_font)?;

@@ -19,6 +19,6 @@ pub enum AudioError {
 
 impl From<std::io::Error> for AudioError {
 	fn from(err: std::io::Error) -> Self {
-		AudioError::CommonError(CommonError::IOError(err))
+		AudioError::CommonError(CommonError::IoError(err))
 	}
 }
