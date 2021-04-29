@@ -1,11 +1,11 @@
 use crate::{math::Vector2, *};
 
-pub struct SwapChainFrameTarget<Device: WGPUDevice> {
+pub struct SwapChainFrameTarget<Device: WgpuDevice> {
 	renderer: Renderer<Device>,
 	dimensions: Vector2<f32>,
 }
 
-impl<Device: WGPUDevice> SwapChainFrameTarget<Device> {
+impl<Device: WgpuDevice> SwapChainFrameTarget<Device> {
 	pub fn new(renderer: &Renderer<Device>, dimensions: Vector2<f32>) -> Self {
 		Self {
 			renderer: renderer.clone(),
@@ -14,7 +14,7 @@ impl<Device: WGPUDevice> SwapChainFrameTarget<Device> {
 	}
 }
 
-impl<Device: WGPUDevice> WGPURenderTargetDesc<Device> for SwapChainFrameTarget<Device> {
+impl<Device: WgpuDevice> WgpuRenderTargetDesc<Device> for SwapChainFrameTarget<Device> {
 	#[inline]
 	fn dimensions(&self) -> Vector2<f32> {
 		self.dimensions

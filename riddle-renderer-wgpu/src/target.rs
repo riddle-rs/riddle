@@ -3,7 +3,7 @@ use math::Vector2;
 use crate::*;
 
 #[doc(hidden)]
-pub trait WGPURenderTargetDesc<Device: WGPUDevice> {
+pub trait WgpuRenderTargetDesc<Device: WgpuDevice> {
 	fn begin_render(&self) -> Result<()>;
 	fn end_render(&self);
 	fn renderer(&self) -> &Renderer<Device>;

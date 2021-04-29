@@ -91,7 +91,7 @@ pub enum VirtualKey {
 	KeyPad3,
 	KeyPad0,
 	KeyPadDot,
-	NonUSBackslash,
+	NonUsBackslash,
 	F11,
 	F12,
 	KeyPadEnter,

@@ -28,7 +28,7 @@ use crate::*;
 /// assert!(sprite2.is_some());
 /// # Ok(()) }
 /// ```
-pub struct SpriteAtlasBuilder<'a, Device: WGPUDevice> {
+pub struct SpriteAtlasBuilder<'a, Device: WgpuDevice> {
 	images: Vec<(image::Image, &'a mut Option<Sprite<Device>>)>,
 
 	mag_filter: FilterMode,
@@ -37,7 +37,7 @@ pub struct SpriteAtlasBuilder<'a, Device: WGPUDevice> {
 
 impl<'a, Device> SpriteAtlasBuilder<'a, Device>
 where
-	Device: WGPUDevice,
+	Device: WgpuDevice,
 {
 	/// A new empty atlas builder
 	pub fn new() -> Self {
@@ -74,17 +74,17 @@ where
 		let packing_images: Vec<&image::Image> = images.iter().map(|(img, _)| img).collect();
 		let packed = image::ImagePacker::new()
 			.pack(&packing_images[..])
-			.map_err(|_| WGPURendererError::Unknown)?;
+			.map_err(|_| WgpuRendererError::Unknown)?;
 
 		let texture = renderer.wgpu_device().with_device_info(|info| {
-			Texture::from_image(
+			Ok(Texture::from_image(
 				info.device,
 				info.queue,
 				packed.image(),
 				mag_filter,
 				min_filter,
 				TextureType::Plain,
-			)
+			))
 		})?;
 
 		for ((_, output), rect) in images.iter_mut().zip(packed.rects().iter()) {
@@ -101,7 +101,7 @@ where
 
 impl<'a, Device> Default for SpriteAtlasBuilder<'a, Device>
 where
-	Device: WGPUDevice,
+	Device: WgpuDevice,
 {
 	fn default() -> Self {
 		Self::new()

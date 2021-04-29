@@ -14,8 +14,8 @@ impl Texture {
 		mag_filter: FilterMode,
 		min_filter: FilterMode,
 		tex_type: TextureType,
-	) -> Result<Self> {
-		let texture = Texture::new(device, mag_filter, min_filter, tex_type, image.dimensions())?;
+	) -> Self {
+		let texture = Texture::new(device, mag_filter, min_filter, tex_type, image.dimensions());
 
 		let texture_extent = wgpu::Extent3d {
 			width: image.width(),
@@ -38,7 +38,7 @@ impl Texture {
 			texture_extent,
 		);
 
-		Ok(texture)
+		texture
 	}
 
 	pub(crate) fn new(
@@ -47,11 +47,11 @@ impl Texture {
 		min_filter: FilterMode,
 		tex_type: TextureType,
 		dimensions: Vector2<u32>,
-	) -> Result<Texture> {
-		let internal = TextureInternal::new(device, mag_filter, min_filter, tex_type, dimensions)?;
-		Ok(Self {
+	) -> Texture {
+		let internal = TextureInternal::new(device, mag_filter, min_filter, tex_type, dimensions);
+		Self {
 			internal: internal.into(),
-		})
+		}
 	}
 }
 
@@ -88,7 +88,7 @@ impl TextureInternal {
 		min_filter: FilterMode,
 		tex_type: TextureType,
 		dimensions: Vector2<u32>,
-	) -> Result<Self> {
+	) -> Self {
 		let texture_extent = wgpu::Extent3d {
 			width: dimensions.x,
 			height: dimensions.y,
@@ -128,10 +128,10 @@ impl TextureInternal {
 			..Default::default()
 		});
 
-		Ok(Self {
+		Self {
 			texture,
 			sampler,
 			dimensions,
-		})
+		}
 	}
 }

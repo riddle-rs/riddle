@@ -3,9 +3,9 @@ use crate::*;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
-pub enum WGPURendererError {
+pub enum WgpuRendererError {
 	#[error("Error initializing graphics API")]
-	APIInitError(&'static str),
+	ApiInitError(&'static str),
 
 	#[error("Error beginning render")]
 	BeginRenderError(&'static str),
@@ -23,15 +23,15 @@ pub enum WGPURendererError {
 	Unknown,
 }
 
-impl From<WGPURendererError> for RendererError {
-	fn from(err: WGPURendererError) -> Self {
+impl From<WgpuRendererError> for RendererError {
+	fn from(err: WgpuRendererError) -> Self {
 		match err {
-			WGPURendererError::APIInitError(_) => RendererError::Unknown,
-			WGPURendererError::BeginRenderError(_) => RendererError::Unknown,
-			WGPURendererError::ImageError(_) => RendererError::Unknown,
-			WGPURendererError::CommonError(_) => RendererError::Unknown,
-			WGPURendererError::RendererCommonError(err) => err,
-			WGPURendererError::Unknown => RendererError::Unknown,
+			WgpuRendererError::ApiInitError(_) => RendererError::Unknown,
+			WgpuRendererError::BeginRenderError(_) => RendererError::Unknown,
+			WgpuRendererError::ImageError(_) => RendererError::Unknown,
+			WgpuRendererError::CommonError(_) => RendererError::Unknown,
+			WgpuRendererError::RendererCommonError(err) => err,
+			WgpuRendererError::Unknown => RendererError::Unknown,
 		}
 	}
 }

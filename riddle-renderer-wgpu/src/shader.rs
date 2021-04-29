@@ -51,9 +51,9 @@ impl ShaderInternal {
 		let mut wgsl_buf = vec![];
 		shader_reader
 			.read_to_end(&mut wgsl_buf)
-			.map_err(CommonError::IOError)?;
+			.map_err(CommonError::IoError)?;
 		let wgsl_str =
-			std::str::from_utf8(&wgsl_buf[..]).map_err(|_| WGPURendererError::Unknown)?;
+			std::str::from_utf8(&wgsl_buf[..]).map_err(|_| WgpuRendererError::Unknown)?;
 		let wgsl_module = device.create_shader_module(&wgpu::ShaderModuleDescriptor {
 			source: wgpu::ShaderSource::Wgsl(std::borrow::Cow::from(wgsl_str)),
 			flags: wgpu::ShaderFlags::VALIDATION,

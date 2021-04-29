@@ -10,7 +10,7 @@ use crate::{ext::*, *};
 use std::time::{Duration, Instant};
 
 pub fn simple<R, F: FnOnce(&TimeSystem) -> R>(f: F) {
-	let time_system = TimeSystem::new_shared();
+	let time_system = TimeSystem::new();
 	let _r = f(&time_system);
 	let start_time = Instant::now();
 	while Instant::now() - start_time < Duration::from_secs(2) {

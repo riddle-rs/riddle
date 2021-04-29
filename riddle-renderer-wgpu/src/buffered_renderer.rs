@@ -12,7 +12,7 @@ pub struct BufferedRenderArgs {
 }
 
 impl BufferedRenderArgs {
-	fn new<D: WGPUDevice>(desc: &Renderable<'_, Renderer<D>>) -> Self {
+	fn new<D: WgpuDevice>(desc: &Renderable<'_, Renderer<D>>) -> Self {
 		Self {
 			texture: desc.texture.clone(),
 			shader: desc.shader.clone(),
@@ -31,8 +31,8 @@ impl Eq for BufferedRenderArgs {}
 
 pub struct BufferedRenderer<Device, R>
 where
-	Device: WGPUDevice,
-	R: WGPURenderTargetDesc<Device>,
+	Device: WgpuDevice,
+	R: WgpuRenderTargetDesc<Device>,
 {
 	target_desc: R,
 	current_args: Option<BufferedRenderArgs>,
@@ -50,8 +50,8 @@ where
 
 impl<Device, R> BufferedRenderer<Device, R>
 where
-	Device: WGPUDevice,
-	R: WGPURenderTargetDesc<Device>,
+	Device: WgpuDevice,
+	R: WgpuRenderTargetDesc<Device>,
 {
 	pub fn new(target_desc: R, encoder: wgpu::CommandEncoder) -> Result<Self> {
 		target_desc.begin_render()?;
@@ -193,8 +193,8 @@ where
 
 impl<Device, R> RenderContext<Renderer<Device>> for BufferedRenderer<Device, R>
 where
-	Device: WGPUDevice,
-	R: WGPURenderTargetDesc<Device>,
+	Device: WgpuDevice,
+	R: WgpuRenderTargetDesc<Device>,
 {
 	fn set_transform(
 		&mut self,

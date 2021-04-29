@@ -96,7 +96,7 @@ impl RiddleLib {
 	/// let rdl =  RiddleLib::new()?;
 	///
 	/// // Get a context before the application starts the main event loop.
-	/// let window: WindowHandle = WindowBuilder::new().build(rdl.context())?;
+	/// let window: Window = WindowBuilder::new().build(rdl.context())?;
 	/// # Ok (()) }
 	/// ```
 	pub fn context(&self) -> RiddleContext {

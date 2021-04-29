@@ -24,6 +24,10 @@
 * renderer: Remove Sized constraint on calls that took `&mut impl RenderContext`.
 * **breaking**: renderer: Introduce `riddle-renderer-common` crate. Remove use of handle types.
     Rename many types in `riddle-renderer-wgpu` to drop the WGPU prefix.
+* **breaking**: Remove use use Arc::new_cyclic throughout the repo, to add support for current rust
+    stable. 
+* **breaking**: Fix clippy naming errors relating to capitalized acronyms, amongst others. Wide spread
+    API compat breakages.
 
 ## 0.2.0
 

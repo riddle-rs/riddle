@@ -1,5 +1,3 @@
-#![feature(arc_new_cyclic)]
-#![feature(doc_cfg)]
 #![deny(clippy::all)]
 
 //! Riddle crate for loading and playing audio data.
@@ -42,7 +40,7 @@
 //! use riddle_audio::{ext::*, *};
 //!
 //! fn main() -> Result<(), AudioError> {
-//!     let (audio_system, _audio_main_thread_state) = AudioSystem::new_shared()?;
+//!     let (audio_system, _audio_main_thread_state) = AudioSystem::new_system_pair()?;
 //!
 //!     // Load the clip
 //!     let clip_bytes = include_bytes!("../../example_assets/boop.wav");
@@ -56,7 +54,7 @@
 //!     let start_time = std::time::Instant::now();
 //!     while std::time::Instant::now() - start_time < std::time::Duration::from_secs(2) {
 //!         audio_system.process_frame();
-//!         std::thread::sleep_ms(100);
+//!         std::thread::sleep(std::time::Duration::from_millis(100));
 //!     }
 //!     Ok(())
 //! }
@@ -74,7 +72,6 @@ pub mod ext;
 pub mod doctest;
 
 use fades::*;
-use riddle_common::*;
 
 pub use audio_system::*;
 pub use clip::*;

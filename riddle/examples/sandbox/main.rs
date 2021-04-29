@@ -12,7 +12,7 @@ use riddle::{
 
 use std::sync::{Arc, Mutex};
 
-type AppRenderer = renderer::Renderer<WindowWGPUDevice>;
+type AppRenderer = renderer::Renderer<WindowWgpuDevice>;
 
 struct DemoState {
 	state: RiddleState,
@@ -37,7 +37,7 @@ impl DemoState {
 
 		let font = {
 			let font_bytes = include_bytes!("../../../example_assets/Roboto-Regular.ttf");
-			font::TTFont::load(&font_bytes[..])?
+			font::TtFont::load(&font_bytes[..])?
 		};
 
 		let clip = {
@@ -138,7 +138,7 @@ struct RendererState {
 	label_sprite: <AppRenderer as CommonRenderer>::Sprite,
 	sprite_font: <AppRenderer as CommonRenderer>::SpriteFont,
 
-	target: renderer::SpriteRenderTarget<WindowWGPUDevice>,
+	target: renderer::SpriteRenderTarget<WindowWgpuDevice>,
 
 	mouse_location: Arc<Mutex<input::LogicalPosition>>,
 	prev_frame_time: std::time::Instant,
@@ -174,7 +174,7 @@ impl RendererState {
 
 	fn render_internal<R>(&self, frame: &mut R, fps: f32) -> Result<(), RendererError>
 	where
-		R: RenderContext<Renderer<WindowWGPUDevice>>,
+		R: RenderContext<Renderer<WindowWgpuDevice>>,
 	{
 		frame.clear(Color::rgb(0.0, 1.0, 0.0))?;
 

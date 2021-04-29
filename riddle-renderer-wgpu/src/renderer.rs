@@ -28,11 +28,11 @@ use crate::*;
 ///     Ok(())
 /// }
 /// ```
-pub struct Renderer<Device: WGPUDevice> {
+pub struct Renderer<Device: WgpuDevice> {
 	pub(crate) internal: std::sync::Arc<RendererInternal<Device>>,
 }
 
-impl Renderer<WindowWGPUDevice> {
+impl Renderer<WindowWgpuDevice> {
 	/// Initialize a new Renderer, creating a WGPU device for the window.
 	///
 	/// # Example
@@ -47,12 +47,12 @@ impl Renderer<WindowWGPUDevice> {
 	/// # Ok(()) }
 	/// ```
 	pub fn new_from_window(window: &Window) -> Result<Self> {
-		let wgpu_device = WindowWGPUDevice::new(window)?;
+		let wgpu_device = WindowWgpuDevice::new(window)?;
 		Self::new_from_device(wgpu_device)
 	}
 }
 
-impl<Device: WGPUDevice> CommonRenderer for Renderer<Device> {
+impl<Device: WgpuDevice> CommonRenderer for Renderer<Device> {
 	type RenderContext = BufferedRenderer<Device, SwapChainFrameTarget<Device>>;
 	type Sprite = Sprite<Device>;
 	type Texture = Texture;
@@ -84,8 +84,8 @@ impl<Device: WGPUDevice> CommonRenderer for Renderer<Device> {
 	}
 }
 
-impl<Device: WGPUDevice> Renderer<Device> {
-	/// Get the frame dimensions as reported by the [`WGPUDevice`].
+impl<Device: WgpuDevice> Renderer<Device> {
+	/// Get the frame dimensions as reported by the [`WgpuDevice`].
 	///
 	/// In the case of a default Window renderer, this will be the internal size of
 	/// the window in logical units.
@@ -125,7 +125,7 @@ impl<Device: WGPUDevice> Renderer<Device> {
 	}
 }
 
-impl<D: WGPUDevice> Clone for Renderer<D> {
+impl<D: WgpuDevice> Clone for Renderer<D> {
 	fn clone(&self) -> Self {
 		Self {
 			internal: self.internal.clone(),
@@ -140,12 +140,12 @@ pub struct StandardResources {
 	pub(super) white_tex: Texture,
 }
 
-pub(crate) struct RendererInternal<D: WGPUDevice> {
+pub(crate) struct RendererInternal<D: WgpuDevice> {
 	wgpu_device: D,
 	standard_res: StandardResources,
 }
 
-impl<D: WGPUDevice> RendererInternal<D> {
+impl<D: WgpuDevice> RendererInternal<D> {
 	/// Or the renderer can be built on top of existing WGPU contexts, to allow the simple
 	/// renderer to be used on top of custom renderers.
 	fn new(wgpu_device: D) -> Result<Self> {
@@ -166,7 +166,7 @@ impl<D: WGPUDevice> RendererInternal<D> {
 				FilterMode::Nearest,
 				FilterMode::Nearest,
 				TextureType::Plain,
-			)?;
+			);
 
 			Ok((sprite_shader, white_tex))
 		})?;

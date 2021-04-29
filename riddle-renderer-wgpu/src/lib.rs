@@ -1,4 +1,3 @@
-#![feature(arc_new_cyclic)]
 #![deny(clippy::all)]
 
 //! Riddle simple sprite-based renderer built on `wgpu`.
@@ -37,7 +36,7 @@
 //!
 //! # Direct Usage
 //!
-//! To use this crate directly see [`WGPUDevice`] for how to use the renderer
+//! To use this crate directly see [`WgpuDevice`] for how to use the renderer
 //! with custom WGPU devices.
 
 mod buffered_renderer;
@@ -58,7 +57,7 @@ use riddle_image as image;
 use riddle_math as math;
 use riddle_platform_winit as platform;
 
-type Result<R> = std::result::Result<R, WGPURendererError>;
+type Result<R> = std::result::Result<R, WgpuRendererError>;
 
 use buffered_renderer::*;
 pub use device::*;
@@ -77,4 +76,4 @@ pub use riddle_renderer_common::*;
 
 use riddle_renderer_common::vertex::*;
 
-pub type DefaultRenderer = Renderer<WindowWGPUDevice>;
+pub type DefaultRenderer = Renderer<WindowWgpuDevice>;

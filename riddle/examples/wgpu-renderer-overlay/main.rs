@@ -32,7 +32,7 @@ fn main() -> Result<()> {
 }
 
 struct WGPURendererDemo {
-	_window: WindowHandle,
+	_window: Window,
 
 	custom_renderer: CustomRendererHandle,
 	rdl_renderer: Renderer<CustomRendererHandle>,
@@ -69,7 +69,7 @@ impl WGPURendererDemo {
 
 		let font = {
 			let font_bytes = include_bytes!("../../../example_assets/Roboto-Regular.ttf");
-			font::TTFont::load(&font_bytes[..])?
+			font::TtFont::load(&font_bytes[..])?
 		};
 		let label = font.render_simple("Riddle Label", 24)?;
 		let label_sprite = Sprite::new_from_image(&rdl_renderer, &label, &SpriteInitArgs::new())?;
@@ -119,8 +119,8 @@ struct CustomRendererHandle {
 	renderer: std::rc::Rc<std::cell::RefCell<CustomRenderer>>,
 }
 
-impl WGPUDevice for CustomRendererHandle {
-	fn begin_frame(&self) -> Result<(), WGPURendererError> {
+impl WgpuDevice for CustomRendererHandle {
+	fn begin_frame(&self) -> Result<(), WgpuRendererError> {
 		self.renderer.borrow_mut().commit();
 		Ok(())
 	}
@@ -133,21 +133,21 @@ impl WGPUDevice for CustomRendererHandle {
 		vec2(800.0, 600.0)
 	}
 
-	fn with_device_info<R, F>(&self, f: F) -> Result<R, WGPURendererError>
+	fn with_device_info<R, F>(&self, f: F) -> Result<R, WgpuRendererError>
 	where
-		F: FnOnce(&WGPUDeviceInfo) -> Result<R, WGPURendererError>,
+		F: FnOnce(&WgpuDeviceInfo) -> Result<R, WgpuRendererError>,
 	{
 		let renderer = self.renderer.borrow();
-		let info = WGPUDeviceInfo {
+		let info = WgpuDeviceInfo {
 			device: &renderer.device,
 			queue: &renderer.queue,
 		};
 		f(&info)
 	}
 
-	fn with_frame<R, F>(&self, f: F) -> Result<R, WGPURendererError>
+	fn with_frame<R, F>(&self, f: F) -> Result<R, WgpuRendererError>
 	where
-		F: FnOnce(&wgpu::SwapChainFrame) -> Result<R, WGPURendererError>,
+		F: FnOnce(&wgpu::SwapChainFrame) -> Result<R, WgpuRendererError>,
 	{
 		let renderer = self.renderer.borrow();
 		f(renderer.current_frame.as_ref().unwrap())

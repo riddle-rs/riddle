@@ -2,7 +2,7 @@ use crate::*;
 
 pub trait AudioSystemExt {
 	/// Create the audio system, connected to the default audio output device.
-	fn new_shared() -> Result<(AudioSystemHandle, AudioMainThreadState)>;
+	fn new_system_pair() -> Result<(AudioSystem, AudioMainThreadState)>;
 
 	/// Update the system's state.
 	///
@@ -12,7 +12,7 @@ pub trait AudioSystemExt {
 	/// # Example
 	/// ```no_run
 	/// # use riddle_audio::{ext::*, *}; fn main() -> Result<(), AudioError> {
-	/// let (audio_system, _audio_main_thread_state) = AudioSystem::new_shared()?;
+	/// let (audio_system, _audio_main_thread_state) = AudioSystem::new_system_pair()?;
 	///
 	/// // Tick the audio system every 100ms
 	/// let start_time = std::time::Instant::now();

@@ -11,17 +11,19 @@ use std::{collections::HashMap, sync::Mutex, time::Instant};
 /// thing to note is that [`ext::AudioSystemExt::process_frame`] must be called periodically
 /// for [`ClipPlayer`] to work properly. This is **not** something that needs doing if
 /// using the `riddle` crate to manage the [`AudioSystem`] automatically.
+#[derive(Clone)]
 pub struct AudioSystem {
-	weak_self: AudioSystemWeak,
-	pub(super) stream_handle: rodio::OutputStreamHandle,
-	fades: Mutex<HashMap<FadeKey, Fade>>,
+	pub(crate) internal: std::sync::Arc<AudioSystemInternal>,
 }
 
-define_handles!(<AudioSystem>::weak_self, pub AudioSystemHandle, pub AudioSystemWeak);
+pub(crate) struct AudioSystemInternal {
+	pub stream_handle: rodio::OutputStreamHandle,
+	pub fades: Mutex<HashMap<FadeKey, Fade>>,
+}
 
 impl AudioSystem {
 	pub(crate) fn register_fade(&self, fade: Fade) {
-		let mut fades = self.fades.lock().unwrap();
+		let mut fades = self.internal.fades.lock().unwrap();
 		let existing = fades.remove(&fade.key());
 		match existing {
 			Some(old) => fades.insert(fade.key(), Fade::merge_pair(old, fade)),
@@ -30,24 +32,26 @@ impl AudioSystem {
 	}
 
 	fn tick_fades(&self, now: Instant) {
-		let mut fades = self.fades.lock().unwrap();
+		let mut fades = self.internal.fades.lock().unwrap();
 		fades.retain(|_, f| f.update(now));
 	}
 }
 
 impl ext::AudioSystemExt for AudioSystem {
-	fn new_shared() -> Result<(AudioSystemHandle, AudioMainThreadState)> {
+	fn new_system_pair() -> Result<(AudioSystem, AudioMainThreadState)> {
 		let (stream, stream_handle) =
 			rodio::OutputStream::try_default().map_err(|_| AudioError::InitFailed {
 				cause: "Failed to get rodio output device",
 			})?;
 		let main_thread_state = AudioMainThreadState { _stream: stream };
+		let internal = AudioSystemInternal {
+			stream_handle,
+			fades: Mutex::new(HashMap::new()),
+		};
 		Ok((
-			AudioSystemHandle::new(|weak_self| AudioSystem {
-				weak_self,
-				stream_handle,
-				fades: Mutex::new(HashMap::new()),
-			}),
+			AudioSystem {
+				internal: std::sync::Arc::new(internal),
+			},
 			main_thread_state,
 		))
 	}
