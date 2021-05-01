@@ -73,8 +73,8 @@ where
 		let encoder = &mut self.encoder;
 		self.target_desc.with_view(|view| {
 			let _rpass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
-				color_attachments: &[wgpu::RenderPassColorAttachmentDescriptor {
-					attachment: view,
+				color_attachments: &[wgpu::RenderPassColorAttachment {
+					view,
 					resolve_target: None,
 					ops: wgpu::Operations {
 						load: wgpu::LoadOp::Clear(wgpu::Color {

@@ -1,3 +1,5 @@
+use std::num::NonZeroU32;
+
 use crate::*;
 
 use riddle_math::Vector2;
@@ -20,20 +22,20 @@ impl Texture {
 		let texture_extent = wgpu::Extent3d {
 			width: image.width(),
 			height: image.height(),
-			depth: 1,
+			depth_or_array_layers: 1,
 		};
 
 		queue.write_texture(
-			wgpu::TextureCopyView {
+			wgpu::ImageCopyTexture {
 				texture: &texture.internal.texture,
 				mip_level: 0,
 				origin: wgpu::Origin3d::ZERO,
 			},
 			image.as_rgba8(),
-			wgpu::TextureDataLayout {
+			wgpu::ImageDataLayout {
 				offset: 0,
-				bytes_per_row: image.width() * 4,
-				rows_per_image: image.height(),
+				bytes_per_row: NonZeroU32::new(image.width() * 4),
+				rows_per_image: NonZeroU32::new(image.height()),
 			},
 			texture_extent,
 		);
@@ -92,7 +94,7 @@ impl TextureInternal {
 		let texture_extent = wgpu::Extent3d {
 			width: dimensions.x,
 			height: dimensions.y,
-			depth: 1,
+			depth_or_array_layers: 1,
 		};
 
 		let usage = match tex_type {
