@@ -95,7 +95,7 @@ impl CustomRenderer {
 					array_stride: vertex_size as wgpu::BufferAddress,
 					step_mode: wgpu::InputStepMode::Vertex,
 					attributes: &[wgpu::VertexAttribute {
-						format: wgpu::VertexFormat::Float3,
+						format: wgpu::VertexFormat::Float32x3,
 						offset: 0,
 						shader_location: 0,
 					}],
@@ -106,16 +106,18 @@ impl CustomRenderer {
 				entry_point: fs_entry,
 				targets: &[wgpu::ColorTargetState {
 					format: wgpu::TextureFormat::Bgra8UnormSrgb,
-					color_blend: wgpu::BlendState {
-						src_factor: wgpu::BlendFactor::SrcAlpha,
-						dst_factor: wgpu::BlendFactor::OneMinusSrcAlpha,
-						operation: wgpu::BlendOperation::Add,
-					},
-					alpha_blend: wgpu::BlendState {
-						src_factor: wgpu::BlendFactor::One,
-						dst_factor: wgpu::BlendFactor::One,
-						operation: wgpu::BlendOperation::Add,
-					},
+					blend: Some(wgpu::BlendState {
+						color: wgpu::BlendComponent {
+							src_factor: wgpu::BlendFactor::SrcAlpha,
+							dst_factor: wgpu::BlendFactor::OneMinusSrcAlpha,
+							operation: wgpu::BlendOperation::Add,
+						},
+						alpha: wgpu::BlendComponent {
+							src_factor: wgpu::BlendFactor::One,
+							dst_factor: wgpu::BlendFactor::One,
+							operation: wgpu::BlendOperation::Add,
+						},
+					}),
 					write_mask: wgpu::ColorWrite::ALL,
 				}],
 			}),
@@ -124,8 +126,9 @@ impl CustomRenderer {
 				topology: wgpu::PrimitiveTopology::PointList,
 				strip_index_format: None,
 				front_face: wgpu::FrontFace::Ccw,
-				cull_mode: wgpu::CullMode::None,
+				cull_mode: None,
 				polygon_mode: wgpu::PolygonMode::Fill,
+				..Default::default()
 			},
 			multisample: wgpu::MultisampleState {
 				count: 1,
@@ -157,8 +160,8 @@ impl CustomRenderer {
 
 		let encoder = &mut new_encoder;
 		encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
-			color_attachments: &[wgpu::RenderPassColorAttachmentDescriptor {
-				attachment: &new_frame.output.view,
+			color_attachments: &[wgpu::RenderPassColorAttachment {
+				view: &new_frame.output.view,
 				resolve_target: None,
 				ops: wgpu::Operations {
 					load: wgpu::LoadOp::Clear(wgpu::Color {
@@ -201,11 +204,11 @@ impl CustomRenderer {
 			layout: &self.bind_group_layout,
 			entries: &[wgpu::BindGroupEntry {
 				binding: 0,
-				resource: wgpu::BindingResource::Buffer {
+				resource: wgpu::BindingResource::Buffer(wgpu::BufferBinding {
 					buffer: &camera_uniform,
 					offset: 0,
 					size: None,
-				},
+				}),
 			}],
 			label: None,
 		});
@@ -220,8 +223,8 @@ impl CustomRenderer {
 
 		let mut encoder = self.current_encoder.as_ref().unwrap().borrow_mut();
 		let mut rpass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
-			color_attachments: &[wgpu::RenderPassColorAttachmentDescriptor {
-				attachment: &self.current_frame.as_ref().unwrap().output.view,
+			color_attachments: &[wgpu::RenderPassColorAttachment {
+				view: &self.current_frame.as_ref().unwrap().output.view,
 				resolve_target: None,
 				ops: wgpu::Operations {
 					load: wgpu::LoadOp::Load,
