@@ -11,7 +11,7 @@ default = []
 riddle-mp3 = ["rodio/mp3"]
 
 [dependencies]
-riddle-common = {path = "../riddle-common"}
+riddle-common = {version = "0.3.0-dev", path = "../riddle-common"}
 
 futures = "0.3"
 rodio = { version = "0.13", default-features=false, features=["wav", "vorbis"] }

@@ -7,9 +7,9 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-riddle-common = {path = "../riddle-common"}
-riddle-image = {path = "../riddle-image"}
-riddle-math = {path = "../riddle-math"}
+riddle-common = {version = "0.3.0-dev", path = "../riddle-common"}
+riddle-image = {version = "0.3.0-dev", path = "../riddle-image"}
+riddle-math = {version = "0.3.0-dev", path = "../riddle-math"}
 
 futures = "0.3"
 rusttype = "0.9"

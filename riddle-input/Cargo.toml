@@ -7,8 +7,8 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-riddle-common = {path = "../riddle-common"}
-riddle-platform-common = {path = "../riddle-platform-common"}
+riddle-common = {version = "0.3.0-dev", path = "../riddle-common"}
+riddle-platform-common = {version = "0.3.0-dev", path = "../riddle-platform-common"}
 
 bitflags = "1.2.1"
 gilrs = "0.8"
