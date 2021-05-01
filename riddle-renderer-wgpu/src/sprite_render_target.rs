@@ -115,7 +115,7 @@ where
 			.internal
 			.texture
 			.create_view(&wgpu::TextureViewDescriptor {
-				format: Some(wgpu::TextureFormat::Bgra8UnormSrgb),
+				format: Some(wgpu::TextureFormat::Bgra8Unorm),
 				dimension: Some(wgpu::TextureViewDimension::D2),
 				aspect: wgpu::TextureAspect::All,
 				..Default::default()

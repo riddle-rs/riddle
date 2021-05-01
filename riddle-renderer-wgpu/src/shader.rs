@@ -134,7 +134,7 @@ impl ShaderInternal {
 				module: &wgsl_module,
 				entry_point: "fs_main",
 				targets: &[wgpu::ColorTargetState {
-					format: wgpu::TextureFormat::Bgra8UnormSrgb,
+					format: wgpu::TextureFormat::Bgra8Unorm,
 					blend: Some(wgpu::BlendState {
 						color: wgpu::BlendComponent {
 							src_factor: wgpu::BlendFactor::SrcAlpha,

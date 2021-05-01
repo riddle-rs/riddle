@@ -107,8 +107,8 @@ impl TextureInternal {
 		};
 
 		let format = match tex_type {
-			TextureType::Plain => wgpu::TextureFormat::Rgba8UnormSrgb,
-			TextureType::RenderTarget => wgpu::TextureFormat::Bgra8UnormSrgb,
+			TextureType::Plain => wgpu::TextureFormat::Rgba8Unorm,
+			TextureType::RenderTarget => wgpu::TextureFormat::Bgra8Unorm,
 		};
 
 		let texture = device.create_texture(&wgpu::TextureDescriptor {

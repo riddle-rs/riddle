@@ -51,7 +51,7 @@ impl WindowWgpuDevice {
 		let (width, height) = window.physical_size();
 		let sc_desc = wgpu::SwapChainDescriptor {
 			usage: wgpu::TextureUsage::RENDER_ATTACHMENT,
-			format: wgpu::TextureFormat::Bgra8UnormSrgb,
+			format: wgpu::TextureFormat::Bgra8Unorm,
 			width,
 			height,
 			present_mode: wgpu::PresentMode::Mailbox,
@@ -85,7 +85,7 @@ impl WindowWgpuDevice {
 			let (width, height) = self.window.physical_size();
 			let sc_desc = wgpu::SwapChainDescriptor {
 				usage: wgpu::TextureUsage::RENDER_ATTACHMENT,
-				format: wgpu::TextureFormat::Bgra8UnormSrgb,
+				format: wgpu::TextureFormat::Bgra8Unorm,
 				width,
 				height,
 				present_mode: wgpu::PresentMode::Mailbox,

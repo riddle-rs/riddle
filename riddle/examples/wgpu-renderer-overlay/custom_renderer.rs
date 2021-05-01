@@ -44,7 +44,7 @@ impl CustomRenderer {
 		let (width, height) = window.physical_size();
 		let sc_desc = wgpu::SwapChainDescriptor {
 			usage: wgpu::TextureUsage::RENDER_ATTACHMENT,
-			format: wgpu::TextureFormat::Bgra8UnormSrgb,
+			format: wgpu::TextureFormat::Bgra8Unorm,
 			width,
 			height,
 			present_mode: wgpu::PresentMode::Mailbox,
@@ -105,7 +105,7 @@ impl CustomRenderer {
 				module: fs_module,
 				entry_point: fs_entry,
 				targets: &[wgpu::ColorTargetState {
-					format: wgpu::TextureFormat::Bgra8UnormSrgb,
+					format: wgpu::TextureFormat::Bgra8Unorm,
 					blend: Some(wgpu::BlendState {
 						color: wgpu::BlendComponent {
 							src_factor: wgpu::BlendFactor::SrcAlpha,
