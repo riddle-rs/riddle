@@ -201,7 +201,7 @@ impl RendererState {
 			SpriteRenderArgs::new(vec2(10.0, 100.0)).with_color(Color::BLACK),
 		)?;
 
-		frame.set_transform(glam::Mat4::identity().into())?;
+		frame.set_transform(glam::Mat4::IDENTITY.into())?;
 
 		self.target
 			.sprite()

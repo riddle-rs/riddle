@@ -29,7 +29,7 @@ thiserror = "1.0"
 anyhow = "1.0"
 bytemuck = "1.4"
 futures = "0.3"
-glam = {version= "0.11", features=["mint"]}
+glam = {version= "0.14", features=["mint"]}
 mint = "0.5"
 rand = "0.8"
 wgpu = "0.8"
