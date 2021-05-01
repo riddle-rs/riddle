@@ -113,17 +113,17 @@ impl ShaderInternal {
 					step_mode: wgpu::InputStepMode::Vertex,
 					attributes: &[
 						wgpu::VertexAttribute {
-							format: wgpu::VertexFormat::Float2,
+							format: wgpu::VertexFormat::Float32x2,
 							offset: 0,
 							shader_location: 0,
 						},
 						wgpu::VertexAttribute {
-							format: wgpu::VertexFormat::Float2,
+							format: wgpu::VertexFormat::Float32x2,
 							offset: (std::mem::size_of::<f32>() * 2) as u64,
 							shader_location: 1,
 						},
 						wgpu::VertexAttribute {
-							format: wgpu::VertexFormat::Float4,
+							format: wgpu::VertexFormat::Float32x4,
 							offset: (std::mem::size_of::<f32>() * 4) as u64,
 							shader_location: 2,
 						},
@@ -135,16 +135,18 @@ impl ShaderInternal {
 				entry_point: "fs_main",
 				targets: &[wgpu::ColorTargetState {
 					format: wgpu::TextureFormat::Bgra8UnormSrgb,
-					color_blend: wgpu::BlendState {
-						src_factor: wgpu::BlendFactor::SrcAlpha,
-						dst_factor: wgpu::BlendFactor::OneMinusSrcAlpha,
-						operation: wgpu::BlendOperation::Add,
-					},
-					alpha_blend: wgpu::BlendState {
-						src_factor: wgpu::BlendFactor::One,
-						dst_factor: wgpu::BlendFactor::One,
-						operation: wgpu::BlendOperation::Add,
-					},
+					blend: Some(wgpu::BlendState {
+						color: wgpu::BlendComponent {
+							src_factor: wgpu::BlendFactor::SrcAlpha,
+							dst_factor: wgpu::BlendFactor::OneMinusSrcAlpha,
+							operation: wgpu::BlendOperation::Add,
+						},
+						alpha: wgpu::BlendComponent {
+							src_factor: wgpu::BlendFactor::One,
+							dst_factor: wgpu::BlendFactor::One,
+							operation: wgpu::BlendOperation::Add,
+						},
+					}),
 					write_mask: wgpu::ColorWrite::ALL,
 				}],
 			}),
@@ -152,8 +154,9 @@ impl ShaderInternal {
 				topology: primitive_type,
 				strip_index_format: None,
 				front_face: wgpu::FrontFace::Ccw,
-				cull_mode: wgpu::CullMode::None,
+				cull_mode: None,
 				polygon_mode: wgpu::PolygonMode::Fill,
+				..Default::default()
 			},
 			depth_stencil: None,
 			multisample: wgpu::MultisampleState {
@@ -193,11 +196,11 @@ impl ShaderInternal {
 			entries: &[
 				wgpu::BindGroupEntry {
 					binding: 0,
-					resource: wgpu::BindingResource::Buffer {
+					resource: wgpu::BindingResource::Buffer(wgpu::BufferBinding {
 						buffer: &camera_uniform,
 						offset: 0,
 						size: NonZeroU64::new(std::mem::size_of::<f32>() as u64 * 16),
-					},
+					}),
 				},
 				wgpu::BindGroupEntry {
 					binding: 1,
@@ -226,8 +229,8 @@ impl ShaderInternal {
 		load_op: wgpu::LoadOp<wgpu::Color>,
 	) -> RenderPass<'a> {
 		let mut rpass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
-			color_attachments: &[wgpu::RenderPassColorAttachmentDescriptor {
-				attachment: target,
+			color_attachments: &[wgpu::RenderPassColorAttachment {
+				view: target,
 				resolve_target: None,
 				ops: wgpu::Operations {
 					load: load_op,
