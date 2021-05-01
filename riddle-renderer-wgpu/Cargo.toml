@@ -14,7 +14,7 @@ riddle-platform-winit = {version = "0.3.0-dev", path = "../riddle-platform-winit
 riddle-renderer-common = {version = "0.3.0-dev", path = "../riddle-renderer-common"}
 
 bytemuck = "1.3"
-glam = {version= "0.11", features=["mint"]}
+glam = {version= "0.14", features=["mint"]}
 futures = "0.3"
 log = "0.4"
 thiserror = "1.0"

@@ -55,7 +55,7 @@ where
 {
 	pub fn new(target_desc: R, encoder: wgpu::CommandEncoder) -> Result<Self> {
 		target_desc.begin_render()?;
-		let identity: mint::ColumnMatrix4<f32> = glam::Mat4::identity().into();
+		let identity: mint::ColumnMatrix4<f32> = glam::Mat4::IDENTITY.into();
 		Ok(Self {
 			target_desc,
 			current_args: None,

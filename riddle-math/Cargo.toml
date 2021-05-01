@@ -8,4 +8,4 @@ edition = "2018"
 
 [dependencies]
 mint = "0.5"
-glam = {version= "0.11", features=["mint"]}
+glam = {version= "0.14", features=["mint"]}

@@ -116,7 +116,7 @@ impl<Device: WgpuDevice> CommonSprite<Renderer<Device>> for Sprite<Device> {
 		parts: &[(Rect<f32>, Vector2<f32>)],
 	) -> std::result::Result<(), RendererError> {
 		let rot: glam::Mat2 = glam::Mat2::from_angle(args.angle);
-		let scale: glam::Mat2 = glam::Mat2::from_scale(args.scale.into());
+		let scale: glam::Mat2 = glam::Mat2::from_diagonal(args.scale.into());
 		let origin: glam::Vec2 = args.location.into();
 		let pivot: glam::Vec2 = args.pivot.into();
 
