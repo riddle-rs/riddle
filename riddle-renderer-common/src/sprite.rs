@@ -2,7 +2,7 @@ use crate::*;
 
 /// Sprites are conceptually both a reference to an image, and the sub region of the image
 /// which represents the logical sprite.
-pub trait CommonSprite<R: CommonRenderer>: Sized {
+pub trait CommonSprite<R: CommonRenderer>: Sized + Clone {
 	/// Construct a new sprite from an image. The image contents are copied to a texture
 	/// in RGBA8 format. The entire image will be used
 	fn new_from_image(renderer: &R, img: &Image, init_args: &SpriteInitArgs) -> Result<Self>;

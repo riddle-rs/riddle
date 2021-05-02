@@ -192,3 +192,13 @@ impl<Device: WgpuDevice> CommonSprite<Renderer<Device>> for Sprite<Device> {
 		render_ctx.draw(&renderable)
 	}
 }
+
+impl<Device: WgpuDevice> Clone for Sprite<Device> {
+	fn clone(&self) -> Self {
+		Self {
+			texture: self.texture.clone(),
+			renderer: self.renderer.clone(),
+			source_rect: self.source_rect.clone(),
+		}
+	}
+}

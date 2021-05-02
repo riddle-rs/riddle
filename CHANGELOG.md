@@ -28,6 +28,7 @@
     stable. 
 * **breaking**: Fix clippy naming errors relating to capitalized acronyms, amongst others. Wide spread
     API compat breakages.
+* renderer: Sprite implements Clone.
 
 ## 0.2.0
 
