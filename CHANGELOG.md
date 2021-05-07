@@ -31,6 +31,7 @@
 * renderer: Sprite implements Clone.
 * **breaking**: Improve error enums throughout. Remove all `Unknown` error values, and dropped
     redundant Error suffix on enum variants.
+* audio: Add ClipPlayer::is_finished.
 
 ## 0.2.0
 
