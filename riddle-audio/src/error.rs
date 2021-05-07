@@ -4,21 +4,21 @@ use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum AudioError {
-	#[error("Error acquiring rodio device")]
-	InitFailed { cause: &'static str },
+	#[error("Error acquiring rodio device: {0}")]
+	InitFailed(&'static str),
 
-	#[error("Error playing clip")]
-	PlayError { cause: &'static str },
+	#[error("Error playing clip: {0}")]
+	Playback(&'static str),
 
 	#[error("Error decoding clip")]
-	ClipDecodeError,
+	ClipDecode,
 
 	#[error(transparent)]
-	CommonError(#[from] CommonError),
+	Common(#[from] CommonError),
 }
 
 impl From<std::io::Error> for AudioError {
 	fn from(err: std::io::Error) -> Self {
-		AudioError::CommonError(CommonError::IoError(err))
+		AudioError::Common(CommonError::Io(err))
 	}
 }

@@ -72,9 +72,7 @@ where
 		} = self;
 
 		let packing_images: Vec<&image::Image> = images.iter().map(|(img, _)| img).collect();
-		let packed = image::ImagePacker::new()
-			.pack(&packing_images[..])
-			.map_err(|_| WgpuRendererError::Unknown)?;
+		let packed = image::ImagePacker::new().pack(&packing_images[..])?;
 
 		let texture = renderer.wgpu_device().with_device_info(|info| {
 			Ok(Texture::from_image(

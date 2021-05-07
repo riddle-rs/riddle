@@ -172,7 +172,11 @@ impl RendererState {
 		Ok(())
 	}
 
-	fn render_internal<R>(&self, frame: &mut R, fps: f32) -> Result<(), RendererError>
+	fn render_internal<R>(
+		&self,
+		frame: &mut R,
+		fps: f32,
+	) -> Result<(), <AppRenderer as CommonRenderer>::Error>
 	where
 		R: RenderContext<Renderer<WindowWgpuDevice>>,
 	{

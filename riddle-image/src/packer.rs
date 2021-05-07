@@ -2,7 +2,8 @@ use crate::*;
 
 use riddle_math::{Rect, SpacialNumericConversion, Vector2};
 
-use thiserror::Error;
+const ERR_UNABLE_TO_FIT_IMAGES: &str = "Unable to fit all images in to packed image";
+const ERR_NO_SOURCE_IMAGES: &str = "No source images supplied";
 
 /// Utility for packing multiple images to a single image.
 ///
@@ -93,12 +94,9 @@ impl ImagePacker {
 	/// assert_eq!(Vector2::new(2, 2), packed.rects()[0].dimensions);
 	/// assert_eq!(Vector2::new(3, 3), packed.rects()[1].dimensions);
 	/// ```
-	pub fn pack(
-		&self,
-		images: &[&Image],
-	) -> std::result::Result<ImagePackerResult, ImagePackerError> {
+	pub fn pack(&self, images: &[&Image]) -> Result<ImagePackerResult> {
 		if images.is_empty() {
-			return Err(ImagePackerError::NoSourceImages);
+			return Err(ImageError::Packing(ERR_NO_SOURCE_IMAGES));
 		}
 
 		let mut sorted_images: Vec<(usize, &Image)> = images
@@ -156,7 +154,7 @@ impl ImagePacker {
 					current_size = self
 						.size_policy
 						.increase_size(current_size)
-						.ok_or(ImagePackerError::UnableToFitImages)?;
+						.ok_or(ImageError::Packing(ERR_UNABLE_TO_FIT_IMAGES))?;
 					continue 'PACK_WITH_SIZE;
 				}
 
@@ -205,15 +203,6 @@ impl ImagePackerResult {
 	pub fn rects(&self) -> &Vec<Rect<u32>> {
 		&self.rects
 	}
-}
-
-#[derive(Debug, PartialEq, Eq, Error)]
-pub enum ImagePackerError {
-	#[error("No source images supplied")]
-	NoSourceImages,
-
-	#[error("Unable to fit all images in to packed image")]
-	UnableToFitImages,
 }
 
 /// Controls the initial size of the output packed image size, and how that image grows over time
@@ -417,6 +406,9 @@ mod test {
 			.size_policy(ImagePackerSizePolicy::Fixed(Vector2::new(4, 4)))
 			.pack(&[&img1, &img2]);
 
-		assert_eq!(ImagePackerError::UnableToFitImages, packed.unwrap_err());
+		assert!(matches!(
+			packed.unwrap_err(),
+			ImageError::Packing(ERR_UNABLE_TO_FIT_IMAGES)
+		));
 	}
 }

@@ -6,6 +6,13 @@ use riddle_math::*;
 use futures::{AsyncRead, AsyncReadExt};
 use std::io::{BufReader, Cursor, Read, Write};
 
+const ERR_PNG_ENCODE_FAILURE: &str = "Failed to encode Png";
+const ERR_BMP_ENCODE_FAILURE: &str = "Failed to encode Bmp";
+const ERR_JPEG_ENCODE_FAILURE: &str = "Failed to encode Jpeg";
+const ERR_PNG_DECODE_FAILURE: &str = "Failed to decode Png";
+const ERR_BMP_DECODE_FAILURE: &str = "Failed to decode Bmp";
+const ERR_JPEG_DECODE_FAILURE: &str = "Failed to decode Jpeg";
+
 /// A representation of an image stored in main memory. The image is stored
 /// as RGBA32.
 #[derive(Clone, Debug)]
@@ -66,28 +73,34 @@ impl Image {
 	pub fn save<W: Write>(&self, mut w: W, format: ImageFormat) -> Result<()> {
 		match format {
 			ImageFormat::Png => {
-				::image::png::PngEncoder::new(w).encode(
-					self.as_rgba8(),
-					self.width(),
-					self.height(),
-					::image::ColorType::Rgba8,
-				)?;
+				::image::png::PngEncoder::new(w)
+					.encode(
+						self.as_rgba8(),
+						self.width(),
+						self.height(),
+						::image::ColorType::Rgba8,
+					)
+					.map_err(|_| ImageError::Save(ERR_PNG_ENCODE_FAILURE))?;
 			}
 			ImageFormat::Bmp => {
-				::image::bmp::BmpEncoder::new(&mut w).encode(
-					self.as_rgba8(),
-					self.width(),
-					self.height(),
-					::image::ColorType::Rgba8,
-				)?;
+				::image::bmp::BmpEncoder::new(&mut w)
+					.encode(
+						self.as_rgba8(),
+						self.width(),
+						self.height(),
+						::image::ColorType::Rgba8,
+					)
+					.map_err(|_| ImageError::Save(ERR_BMP_ENCODE_FAILURE))?;
 			}
 			ImageFormat::Jpeg => {
-				::image::jpeg::JpegEncoder::new(&mut w).encode(
-					self.as_rgba8(),
-					self.width(),
-					self.height(),
-					::image::ColorType::Rgba8,
-				)?;
+				::image::jpeg::JpegEncoder::new(&mut w)
+					.encode(
+						self.as_rgba8(),
+						self.width(),
+						self.height(),
+						::image::ColorType::Rgba8,
+					)
+					.map_err(|_| ImageError::Save(ERR_JPEG_ENCODE_FAILURE))?;
 			}
 		}
 		Ok(())
@@ -106,15 +119,15 @@ impl Image {
 	pub fn from_bytes(bytes: &[u8], format: ImageFormat) -> Result<Self> {
 		let buf_reader = BufReader::new(Cursor::new(bytes));
 		let img = match format {
-			ImageFormat::Png => {
-				::image::DynamicImage::from_decoder(::image::png::PngDecoder::new(buf_reader)?)?
-			}
-			ImageFormat::Bmp => {
-				::image::DynamicImage::from_decoder(::image::bmp::BmpDecoder::new(buf_reader)?)?
-			}
-			ImageFormat::Jpeg => {
-				::image::DynamicImage::from_decoder(::image::jpeg::JpegDecoder::new(buf_reader)?)?
-			}
+			ImageFormat::Png => ::image::png::PngDecoder::new(buf_reader)
+				.and_then(::image::DynamicImage::from_decoder)
+				.map_err(|_| ImageError::Load(ERR_PNG_DECODE_FAILURE))?,
+			ImageFormat::Bmp => ::image::bmp::BmpDecoder::new(buf_reader)
+				.and_then(::image::DynamicImage::from_decoder)
+				.map_err(|_| ImageError::Load(ERR_BMP_DECODE_FAILURE))?,
+			ImageFormat::Jpeg => ::image::jpeg::JpegDecoder::new(buf_reader)
+				.and_then(::image::DynamicImage::from_decoder)
+				.map_err(|_| ImageError::Load(ERR_JPEG_DECODE_FAILURE))?,
 		};
 		Ok(Image {
 			img: img.into_rgba8(),

@@ -75,11 +75,9 @@ where
 	/// })?;
 	/// # Ok(()) }
 	/// ```
-	pub fn render<R, F>(&self, f: F) -> std::result::Result<R, RendererError>
+	pub fn render<R, F>(&self, f: F) -> Result<R>
 	where
-		F: FnOnce(
-			&mut BufferedRenderer<Device, &SpriteRenderTarget<Device>>,
-		) -> std::result::Result<R, RendererError>,
+		F: FnOnce(&mut BufferedRenderer<Device, &SpriteRenderTarget<Device>>) -> Result<R>,
 	{
 		let encoder = self.renderer.wgpu_device().with_device_info(|info| {
 			Ok(info

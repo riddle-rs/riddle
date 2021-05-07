@@ -4,11 +4,17 @@ use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum ImageError {
-	#[error("Unknown Image Error")]
-	Unknown,
+	#[error("Image decoding error: {0}")]
+	Load(&'static str),
+
+	#[error("Image encoding error: {0}")]
+	Save(&'static str),
+
+	#[error("Image packing error: {0}")]
+	Packing(&'static str),
 
 	#[error(transparent)]
-	CommonError(#[from] CommonError),
+	Common(#[from] CommonError),
 }
 
 impl From<ImageError> for CommonError {
@@ -17,21 +23,8 @@ impl From<ImageError> for CommonError {
 	}
 }
 
-impl From<::image::ImageError> for ImageError {
-	fn from(err: ::image::ImageError) -> Self {
-		match err {
-			::image::ImageError::Decoding(_) => ImageError::Unknown,
-			::image::ImageError::Encoding(_) => ImageError::Unknown,
-			::image::ImageError::Parameter(_) => ImageError::Unknown,
-			::image::ImageError::Limits(_) => ImageError::Unknown,
-			::image::ImageError::Unsupported(_) => ImageError::Unknown,
-			::image::ImageError::IoError(e) => CommonError::IoError(e).into(),
-		}
-	}
-}
-
 impl From<std::io::Error> for ImageError {
 	fn from(err: std::io::Error) -> Self {
-		ImageError::CommonError(CommonError::IoError(err))
+		ImageError::Common(CommonError::Io(err))
 	}
 }

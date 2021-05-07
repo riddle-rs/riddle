@@ -39,10 +39,8 @@ impl AudioSystem {
 
 impl ext::AudioSystemExt for AudioSystem {
 	fn new_system_pair() -> Result<(AudioSystem, AudioMainThreadState)> {
-		let (stream, stream_handle) =
-			rodio::OutputStream::try_default().map_err(|_| AudioError::InitFailed {
-				cause: "Failed to get rodio output device",
-			})?;
+		let (stream, stream_handle) = rodio::OutputStream::try_default()
+			.map_err(|_| AudioError::InitFailed("Failed to get rodio output device"))?;
 		let main_thread_state = AudioMainThreadState { _stream: stream };
 		let internal = AudioSystemInternal {
 			stream_handle,

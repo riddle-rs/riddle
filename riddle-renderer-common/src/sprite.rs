@@ -5,7 +5,11 @@ use crate::*;
 pub trait CommonSprite<R: CommonRenderer>: Sized + Clone {
 	/// Construct a new sprite from an image. The image contents are copied to a texture
 	/// in RGBA8 format. The entire image will be used
-	fn new_from_image(renderer: &R, img: &Image, init_args: &SpriteInitArgs) -> Result<Self>;
+	fn new_from_image(
+		renderer: &R,
+		img: &Image,
+		init_args: &SpriteInitArgs,
+	) -> Result<Self, R::Error>;
 
 	/// Build a sprite that shares the same underlying texture but represents a different portion
 	/// of the texture.
@@ -71,14 +75,14 @@ pub trait CommonSprite<R: CommonRenderer>: Sized + Clone {
 		render_ctx: &mut Ctx,
 		args: &SpriteRenderArgs,
 		parts: &[(Rect<f32>, Vector2<f32>)],
-	) -> Result<()>;
+	) -> Result<(), R::Error>;
 
 	/// Render the entire sprite.
 	fn render<Ctx: RenderContext<R> + ?Sized>(
 		&self,
 		render_ctx: &mut Ctx,
 		args: &SpriteRenderArgs,
-	) -> Result<()> {
+	) -> Result<(), R::Error> {
 		self.render_regions(
 			render_ctx,
 			args,
@@ -96,7 +100,7 @@ pub trait CommonSprite<R: CommonRenderer>: Sized + Clone {
 		&self,
 		render_ctx: &mut Ctx,
 		location: Vector2<f32>,
-	) -> Result<()> {
+	) -> Result<(), R::Error> {
 		self.render(
 			render_ctx,
 			&SpriteRenderArgs {

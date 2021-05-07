@@ -77,7 +77,7 @@ impl<Device: WgpuDevice> CommonSprite<Renderer<Device>> for Sprite<Device> {
 		renderer: &Renderer<Device>,
 		img: &image::Image,
 		init_args: &SpriteInitArgs,
-	) -> std::result::Result<Self, RendererError> {
+	) -> Result<Self> {
 		let texture = renderer.wgpu_device().with_device_info(|info| {
 			Ok(Texture::from_image(
 				info.device,
@@ -88,7 +88,7 @@ impl<Device: WgpuDevice> CommonSprite<Renderer<Device>> for Sprite<Device> {
 				TextureType::Plain,
 			))
 		})?;
-		Ok(Self::from_texture(renderer, &texture)?)
+		Self::from_texture(renderer, &texture)
 	}
 
 	fn subsprite(&self, source_rect: &Rect<f32>) -> Self {
@@ -114,7 +114,7 @@ impl<Device: WgpuDevice> CommonSprite<Renderer<Device>> for Sprite<Device> {
 		render_ctx: &mut Ctx,
 		args: &SpriteRenderArgs,
 		parts: &[(Rect<f32>, Vector2<f32>)],
-	) -> std::result::Result<(), RendererError> {
+	) -> Result<()> {
 		let rot: glam::Mat2 = glam::Mat2::from_angle(args.angle);
 		let scale: glam::Mat2 = glam::Mat2::from_diagonal(args.scale.into());
 		let origin: glam::Vec2 = args.location.into();

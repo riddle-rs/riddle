@@ -41,9 +41,7 @@ impl ClipPlayer {
 
 	fn play(&mut self, mode: PlayMode, paused: bool) -> Result<()> {
 		let sink: Arc<Sink> = Sink::try_new(&self.audio.internal.stream_handle)
-			.map_err(|_| AudioError::PlayError {
-				cause: "Error making rodio Sink",
-			})?
+			.map_err(|_| AudioError::Playback("Error making rodio Sink"))?
 			.into();
 
 		if paused {
@@ -54,7 +52,7 @@ impl ClipPlayer {
 		}
 
 		let source = Decoder::new(Cursor::new(self.clip.data.clone()))
-			.map_err(|_| AudioError::ClipDecodeError)?;
+			.map_err(|_| AudioError::ClipDecode)?;
 
 		match mode {
 			PlayMode::OneShot => sink.append(source),

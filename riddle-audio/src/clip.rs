@@ -24,7 +24,7 @@ pub struct Clip {
 impl Clip {
 	/// Reads the entirety of the data reader in to memory.
 	///
-	/// An [`AudioError::ClipDecodeError`] value will be returned if the data isn't a known format.
+	/// An [`AudioError::ClipDecode`] value will be returned if the data isn't a known format.
 	pub fn load<R>(mut data: R, format: ClipFormat) -> Result<Clip>
 	where
 		R: Read,
@@ -36,7 +36,7 @@ impl Clip {
 
 	/// Reads the entirety of the data reader in to memory, asynchronously.
 	///
-	/// An [`AudioError::ClipDecodeError`] value will be returned if the data isn't a known format.
+	/// An [`AudioError::ClipDecode`] value will be returned if the data isn't a known format.
 	///
 	/// # Example
 	///
@@ -66,7 +66,7 @@ impl Clip {
 			#[cfg(feature = "riddle-mp3")]
 			ClipFormat::Mp3 => Decoder::new_mp3(cursor),
 		}
-		.map_err(|_| AudioError::ClipDecodeError)?;
+		.map_err(|_| AudioError::ClipDecode)?;
 
 		let duration = source.total_duration();
 

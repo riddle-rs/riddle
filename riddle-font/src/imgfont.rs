@@ -1,5 +1,5 @@
 use riddle_common::Color;
-use riddle_image::{packer::ImagePackerSizePolicy, Image, ImageError, ImagePacker};
+use riddle_image::{packer::ImagePackerSizePolicy, Image, ImagePacker};
 use riddle_math::{Rect, SpacialNumericConversion, Vector2};
 use std::collections::{HashMap, HashSet};
 
@@ -366,8 +366,7 @@ impl ImgFontGenerator {
 		let packer = ImagePacker::new()
 			.padding(2)
 			.size_policy(self.packing_size_policy.clone())
-			.pack(&img_list[..])
-			.map_err(|_| ImageError::Unknown)?;
+			.pack(&img_list[..])?;
 
 		let mut img_font_builder = ImgFontBuilder::new();
 		img_font_builder.vertical_spacing(vertical_spacing as u32);

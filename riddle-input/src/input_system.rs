@@ -369,7 +369,7 @@ impl ext::InputSystemExt for InputSystem {
 		let event_sub = EventSub::new_with_filter(Self::event_filter);
 		sys_events.attach(&event_sub);
 
-		let gilrs = gilrs::Gilrs::new().map_err(|_| InputError::InitError("Gilrs init failure"))?;
+		let gilrs = gilrs::Gilrs::new().map_err(|_| InputError::Init("Gilrs init failure"))?;
 
 		let internal = InputSystemInternal {
 			window_states: Mutex::new(HashMap::new()),

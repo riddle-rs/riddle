@@ -58,7 +58,7 @@ impl<'a> PlatformContext<'a> {
 				let el = el_ref.deref();
 				match el {
 					Some(el) => f(el),
-					None => Err(PlatformError::InvalidContextState),
+					None => Err(PlatformError::InvalidContext),
 				}
 			}
 		}
@@ -76,7 +76,7 @@ impl<'a> PlatformContext<'a> {
 			.lock()
 			.unwrap()
 			.send_event(InternalEvent::QuitRequested)
-			.map_err(|_| PlatformError::MessageDispatchError)
+			.map_err(|_| PlatformError::MessageDispatch)
 	}
 
 	/// Get the event associated with the context.
