@@ -58,14 +58,15 @@ impl<Device: WgpuDevice> CommonRenderer for Renderer<Device> {
 	type Texture = Texture;
 	type Shader = Shader;
 	type SpriteFont = SpriteFont<Self>;
+	type Error = WgpuRendererError;
 
 	fn dimensions(&self) -> Vector2<f32> {
 		self.internal.wgpu_device.viewport_dimensions()
 	}
 
-	fn render<R, F>(&self, f: F) -> std::result::Result<R, RendererError>
+	fn render<R, F>(&self, f: F) -> Result<R>
 	where
-		F: FnOnce(&mut Self::RenderContext) -> std::result::Result<R, RendererError>,
+		F: FnOnce(&mut Self::RenderContext) -> Result<R>,
 	{
 		let encoder = self.internal.wgpu_device.with_device_info(|info| {
 			Ok(info

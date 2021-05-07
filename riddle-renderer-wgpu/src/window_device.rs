@@ -35,9 +35,7 @@ impl WindowWgpuDevice {
 				power_preference: wgpu::PowerPreference::HighPerformance,
 				compatible_surface: Some(&surface),
 			}))
-			.ok_or(WgpuRendererError::ApiInitError(
-				"Failed to get WGPU adapter",
-			))?;
+			.ok_or(WgpuRendererError::ApiInit("Failed to get WGPU adapter"))?;
 
 		log::debug!("Initializing WGPU device...");
 		let (device, queue) = futures::executor::block_on(adapter.request_device(
@@ -46,7 +44,7 @@ impl WindowWgpuDevice {
 			},
 			None,
 		))
-		.map_err(|_| WgpuRendererError::ApiInitError("Failed to create WGPU device"))?;
+		.map_err(|_| WgpuRendererError::ApiInit("Failed to create WGPU device"))?;
 
 		let (width, height) = window.physical_size();
 		let sc_desc = wgpu::SwapChainDescriptor {
@@ -102,7 +100,7 @@ impl WindowWgpuDevice {
 
 		let new_frame = swap_chain
 			.get_current_frame()
-			.map_err(|_| WgpuRendererError::BeginRenderError("Error getting swap chain frame"))?;
+			.map_err(|_| WgpuRendererError::BeginRender("Error getting swap chain frame"))?;
 
 		*frame = Some(new_frame);
 

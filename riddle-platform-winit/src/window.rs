@@ -79,7 +79,7 @@ impl Window {
 		let winit_window = ctx.with_event_loop(|el| {
 			winit_builder
 				.build(el)
-				.map_err(|_| PlatformError::WindowInitFailure)
+				.map_err(|_| PlatformError::WindowInit)
 		})?;
 
 		#[cfg(target_arch = "wasm32")]

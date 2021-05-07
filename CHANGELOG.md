@@ -29,6 +29,8 @@
 * **breaking**: Fix clippy naming errors relating to capitalized acronyms, amongst others. Wide spread
     API compat breakages.
 * renderer: Sprite implements Clone.
+* **breaking**: Improve error enums throughout. Remove all `Unknown` error values, and dropped
+    redundant Error suffix on enum variants.
 
 ## 0.2.0
 

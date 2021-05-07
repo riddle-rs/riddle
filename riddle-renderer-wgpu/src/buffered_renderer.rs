@@ -196,10 +196,7 @@ where
 	Device: WgpuDevice,
 	R: WgpuRenderTargetDesc<Device>,
 {
-	fn set_transform(
-		&mut self,
-		transform: mint::ColumnMatrix4<f32>,
-	) -> std::result::Result<(), RendererError> {
+	fn set_transform(&mut self, transform: mint::ColumnMatrix4<f32>) -> Result<()> {
 		self.flush()?;
 		self.view_matrix = transform;
 		Ok(())
@@ -208,17 +205,13 @@ where
 	/// Set the clear color and mark the frame buffer for clearing. The actual clear operation
 	/// will be performed when the next batched render happens, or when `present` is called,
 	/// whichever comes first.
-	fn clear(&mut self, color: Color<f32>) -> std::result::Result<(), RendererError> {
+	fn clear(&mut self, color: Color<f32>) -> Result<()> {
 		self.flush()?;
 		self.pending_clear_color = Some(color.into());
 		Ok(())
 	}
 
-	fn fill_rect(
-		&mut self,
-		rect: &Rect<f32>,
-		color: Color<f32>,
-	) -> std::result::Result<(), RendererError> {
+	fn fill_rect(&mut self, rect: &Rect<f32>, color: Color<f32>) -> Result<()> {
 		let pos_topleft = glam::Vec2::from(rect.location);
 		let pos_topright = pos_topleft + glam::vec2(rect.dimensions.x, 0.0);
 		let pos_bottomleft = pos_topleft + glam::vec2(0.0, rect.dimensions.y);
@@ -234,17 +227,17 @@ where
 		];
 		let index_data: &[u16] = &[1, 2, 0, 2, 0, 3];
 
-		Ok(self.buffered_render(
+		self.buffered_render(
 			&BufferedRenderArgs {
 				texture: self.target_desc.standard_resources().white_tex.clone(),
 				shader: self.target_desc.standard_resources().default_shader.clone(),
 			},
 			&vertex_data[..],
 			index_data,
-		)?)
+		)
 	}
 
-	fn present(mut self) -> std::result::Result<(), RendererError> {
+	fn present(mut self) -> Result<()> {
 		self.flush()?;
 		if let Some(clear_color) = self.pending_clear_color {
 			self.clear_immediate(clear_color.into())?;
@@ -264,14 +257,11 @@ where
 		Ok(())
 	}
 
-	fn draw(
-		&mut self,
-		renderable: &Renderable<'_, Renderer<Device>>,
-	) -> std::result::Result<(), RendererError> {
-		Ok(self.buffered_render(
+	fn draw(&mut self, renderable: &Renderable<'_, Renderer<Device>>) -> Result<()> {
+		self.buffered_render(
 			&BufferedRenderArgs::new(renderable),
 			renderable.verts,
 			renderable.indices,
-		)?)
+		)
 	}
 }

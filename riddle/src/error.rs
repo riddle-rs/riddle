@@ -6,25 +6,22 @@ use thiserror::Error;
 pub enum RiddleError {
 	#[cfg(feature = "riddle-audio")]
 	#[error(transparent)]
-	AudioError(#[from] audio::AudioError),
+	Audio(#[from] audio::AudioError),
 
 	#[cfg(feature = "riddle-font")]
 	#[error(transparent)]
-	FontError(#[from] font::FontError),
+	Font(#[from] font::FontError),
 
 	#[error(transparent)]
-	ImageError(#[from] image::ImageError),
+	Image(#[from] image::ImageError),
 
 	#[error(transparent)]
-	InputError(#[from] input::InputError),
-
-	#[error(transparent)]
-	RendererError(#[from] renderer::RendererError),
+	Input(#[from] input::InputError),
 
 	#[cfg(feature = "riddle-renderer-wgpu")]
 	#[error(transparent)]
-	WgpuRendererError(#[from] renderer::WgpuRendererError),
+	WgpuRenderer(#[from] renderer::WgpuRendererError),
 
 	#[error(transparent)]
-	WindowError(#[from] platform::PlatformError),
+	Window(#[from] platform::PlatformError),
 }

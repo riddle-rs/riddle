@@ -44,7 +44,7 @@ pub struct SpriteFont<R: CommonRenderer> {
 impl<R: CommonRenderer> SpriteFont<R> {
 	/// Build a SpriteFont from the ImgFont given. The ImgFont's image will get loaded in to a
 	/// texture, and its glyph information will be used for layout.
-	pub fn new(renderer: &R, font: ImgFont) -> Result<Self> {
+	pub fn new(renderer: &R, font: ImgFont) -> Result<Self, R::Error> {
 		let sprite = R::Sprite::new_from_image(
 			renderer,
 			font.image(),
@@ -62,7 +62,7 @@ impl<R: CommonRenderer> SpriteFont<R> {
 		render_ctx: &mut Ctx,
 		render_args: &SpriteRenderArgs,
 		text: &str,
-	) -> std::result::Result<(), RendererError> {
+	) -> std::result::Result<(), R::Error> {
 		let mut parts: Vec<(Rect<f32>, Vector2<f32>)> = Vec::with_capacity(text.len());
 		self.font.layout(text, |_, rect, location| {
 			parts.push((rect.clone().convert(), location.convert()));
