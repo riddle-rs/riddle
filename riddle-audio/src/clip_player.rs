@@ -183,13 +183,13 @@ impl ClipPlayer {
 		);
 	}
 
-	// Resumes playback if paused.
-	//
-	// Immediately starts playback and performs a quick fade back up to the players
-	// nominal volume.
-	//
-	// The nominal volume of the player won't change, but the observed volume with fade
-	// from 0 to the nominal value over time.
+	/// Resumes playback if paused.
+	///
+	/// Immediately starts playback and performs a quick fade back up to the players
+	/// nominal volume.
+	///
+	/// The nominal volume of the player won't change, but the observed volume with fade
+	/// from 0 to the nominal value over time.
 	///
 	/// # Example
 	///
@@ -224,6 +224,15 @@ impl ClipPlayer {
 					FadeType::Resume,
 				);
 			}
+		}
+	}
+
+	/// Returns whether the player is still consuming from its clip
+	pub fn is_finished(&self) -> bool {
+		if let Some(sink) = &self.sink {
+			sink.empty()
+		} else {
+			true
 		}
 	}
 
