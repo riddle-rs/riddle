@@ -2,6 +2,7 @@ use crate::{vertex::Vertex, CommonSprite};
 use riddle_common::Color;
 use riddle_image::ImageError;
 use riddle_math::{Rect, Vector2};
+use riddle_platform_common::WindowId;
 
 /// The root object of a renderer implementation, associated with a single display.
 pub trait CommonRenderer: Sized {
@@ -13,6 +14,7 @@ pub trait CommonRenderer: Sized {
 	type Error: std::error::Error + std::convert::From<ImageError>;
 
 	fn dimensions(&self) -> Vector2<f32>;
+	fn window_id(&self) -> WindowId;
 
 	fn render<R, F>(&self, f: F) -> Result<R, Self::Error>
 	where

@@ -71,7 +71,7 @@ fn convert_winit_window_event(
 	}
 }
 
-fn winit_vkey_to_vkey(vk: winit::event::VirtualKeyCode) -> Option<VirtualKey> {
+pub(crate) fn winit_vkey_to_vkey(vk: winit::event::VirtualKeyCode) -> Option<VirtualKey> {
 	match vk {
 		winit::event::VirtualKeyCode::Key1 => Some(VirtualKey::One),
 		winit::event::VirtualKeyCode::Key2 => Some(VirtualKey::Two),
@@ -153,6 +153,16 @@ fn winit_vkey_to_vkey(vk: winit::event::VirtualKeyCode) -> Option<VirtualKey> {
 		winit::event::VirtualKeyCode::LShift => Some(VirtualKey::LeftShift),
 		winit::event::VirtualKeyCode::RShift => Some(VirtualKey::RightShift),
 		winit::event::VirtualKeyCode::LControl => Some(VirtualKey::LeftControl),
+		winit::event::VirtualKeyCode::LBracket => Some(VirtualKey::LeftBrace),
+		winit::event::VirtualKeyCode::RBracket => Some(VirtualKey::RightBrace),
+		winit::event::VirtualKeyCode::Minus => Some(VirtualKey::Minus),
+		winit::event::VirtualKeyCode::Equals => Some(VirtualKey::Equal),
+		winit::event::VirtualKeyCode::Semicolon => Some(VirtualKey::Semicolon),
+		winit::event::VirtualKeyCode::Apostrophe => Some(VirtualKey::Apostrope),
+		winit::event::VirtualKeyCode::Grave => Some(VirtualKey::Grave),
+		winit::event::VirtualKeyCode::Comma => Some(VirtualKey::Comma),
+		winit::event::VirtualKeyCode::Period => Some(VirtualKey::Dot),
+		winit::event::VirtualKeyCode::Slash => Some(VirtualKey::Slash),
 		_ => None,
 	}
 }

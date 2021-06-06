@@ -32,6 +32,9 @@
 * **breaking**: Improve error enums throughout. Remove all `Unknown` error values, and dropped
     redundant Error suffix on enum variants.
 * audio: Add ClipPlayer::is_finished.
+* font: Add ImgFont::layout_dimensions.
+* **breaking** renderer: CommonRenderer trait gained window_id fn.
+* input, platform: TextInput events added and simulated for winit.
 
 ## 0.2.0
 

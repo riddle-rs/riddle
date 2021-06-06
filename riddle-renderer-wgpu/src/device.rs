@@ -1,3 +1,5 @@
+use platform::common::WindowId;
+
 use crate::{math::*, *};
 
 /// A [`Renderer`] compatible WGPU device.
@@ -12,7 +14,7 @@ use crate::{math::*, *};
 ///
 /// ```no_run
 /// use std::sync::Arc;
-/// use riddle::{common::Color, platform::*, renderer::*, *};
+/// use riddle::{common::Color, platform::{common::WindowId, *}, renderer::*, *};
 ///
 /// #[derive(Clone)]
 /// struct ACustomRendererHandle {
@@ -34,6 +36,7 @@ use crate::{math::*, *};
 /// #   fn viewport_dimensions(&self) -> math::Vector2<f32>  { todo!() }
 /// #   fn with_device_info<R, F: FnOnce(&WgpuDeviceInfo) -> Result<R, WgpuRendererError>>(&self, f: F) -> Result<R, WgpuRendererError> { todo!() }
 /// #   fn with_frame<R, F: FnOnce(&wgpu::SwapChainFrame) -> Result<R, WgpuRendererError>>(&self, f: F) -> Result<R, WgpuRendererError> { todo!() }
+/// #   fn window_id(&self) -> WindowId { todo!() }
 /// }
 ///
 /// fn main() -> Result<(), RiddleError> {
@@ -83,6 +86,8 @@ pub trait WgpuDevice {
 	/// Provide a reference to the current swap chain frame for use by the
 	/// renderer.
 	fn with_frame<R, F: FnOnce(&wgpu::SwapChainFrame) -> Result<R>>(&self, f: F) -> Result<R>;
+
+	fn window_id(&self) -> WindowId;
 }
 
 pub struct WgpuDeviceInfo<'a> {

@@ -1,5 +1,6 @@
 use riddle_common::Color;
 use riddle_image::{packer::ImagePackerSizePolicy, Image, ImagePacker};
+use riddle_math::vec2;
 use riddle_math::{Rect, SpacialNumericConversion, Vector2};
 use std::collections::{HashMap, HashSet};
 
@@ -8,6 +9,7 @@ use crate::*;
 
 /// Represents an image font, which is an Image containing glyphs, glyph information
 /// specifying which parts of the image map to which glyph, and layout information.
+#[derive(Clone)]
 pub struct ImgFont {
 	img: Image,
 	glyphs: HashMap<char, ImgFontGlyph>,
@@ -116,8 +118,10 @@ impl ImgFont {
 			}
 		}
 
-		self.layout(text, |_, source_rect, location| {
-			output_image.blit_rect(&self.img, source_rect, location.convert());
+		self.layout(text, |_, glyph, location| {
+			if let Some(source_rect) = &glyph.rect {
+				output_image.blit_rect(&self.img, source_rect, location.convert());
+			}
 		});
 
 		Ok(output_image)
@@ -142,10 +146,12 @@ impl ImgFont {
 	/// let mut total_width = 0;
 	/// let mut string = String::from("");
 	///
-	/// img_font.layout("AABCA", |c, rect, location| {
+	/// img_font.layout("AABCA", |c, glyph, location| {
 	///     assert!(location.x >= last_x);
 	///     last_x = location.x;
-	///     total_width += rect.dimensions.x;
+	///     if let Some(rect) = &glyph.rect {
+	///         total_width += rect.dimensions.x;
+	///     }
 	///     string += c.to_string().as_str();
 	/// });
 	///
@@ -154,19 +160,47 @@ impl ImgFont {
 	/// assert_eq!("AABCA", string);
 	/// # Ok(()) }
 	/// ```
-	pub fn layout<F: FnMut(char, &Rect<u32>, Vector2<u32>)>(&self, text: &str, mut f: F) {
+	pub fn layout<F: FnMut(char, &ImgFontGlyph, Vector2<u32>)>(&self, text: &str, mut f: F) {
 		let mut current_x = 0_u32;
 
 		for c in text.chars() {
 			if let Some(glyph) = self.glyphs.get(&c) {
-				if let Some(source_rect) = &glyph.rect {
-					let position: Vector2<u32> =
-						Vector2::new(current_x, 0) + glyph.placement_offset.convert();
-					f(c, &source_rect, position);
-				}
+				let position = Vector2::new(current_x, 0)
+					+ if glyph.rect.is_some() {
+						glyph.placement_offset.convert()
+					} else {
+						vec2(0, 0)
+					};
+
+				f(c, &glyph, position);
 				current_x += glyph.horizontal_spacing;
 			}
 		}
+	}
+
+	/// Calculate the dimensions of the laid out string.
+	///
+	/// # Example
+	///
+	/// ```
+	/// # use riddle_font::*;
+	/// # fn main() -> Result<(), FontError> {
+	/// # let font_bytes = include_bytes!("../../example_assets/Roboto-Regular.ttf");
+	/// let ttf_font = TtFont::load(&font_bytes[..])?;
+	/// let img_font = ImgFontGenerator::new("ABCDEF", 32).generate(&ttf_font)?;
+	///
+	/// let dims = img_font.layout_dimensions("AABCA");
+	///
+	/// assert!(dims.x > 0);
+	/// assert!(dims.y > 0);
+	/// # Ok(()) }
+	/// ```
+	pub fn layout_dimensions(&self, text: &str) -> Vector2<u32> {
+		let mut max = vec2(0, self.vertical_spacing);
+		self.layout(text, |_, glyph, pos| {
+			max.x = max.x.max(pos.x + glyph.horizontal_spacing);
+		});
+		max
 	}
 }
 
