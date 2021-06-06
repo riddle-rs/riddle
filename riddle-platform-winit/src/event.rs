@@ -67,6 +67,10 @@ fn convert_winit_window_event(
 				vkey: virtual_keycode.and_then(winit_vkey_to_vkey),
 			}),
 		},
+		winit::event::WindowEvent::ReceivedCharacter(c) => Some(PlatformEvent::TextInput {
+			window: window.id(),
+			text: c.into(),
+		}),
 		_ => None,
 	}
 }
