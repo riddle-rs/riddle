@@ -57,6 +57,14 @@ impl<R: CommonRenderer> SpriteFont<R> {
 		Ok(Self { sprite, font })
 	}
 
+	/// Build a SpriteFont from the ImgFont given and a sprite which contains the ImgFont atlas.
+	///
+	/// This method is to allow the use of SpriteFonts when the font atlas is stored in a larger
+	/// atlas texture.
+	pub fn new_from_sprite(font: ImgFont, sprite: R::Sprite) -> Self {
+		Self { sprite, font }
+	}
+
 	pub fn render<Ctx: RenderContext<R> + ?Sized>(
 		&self,
 		render_ctx: &mut Ctx,
