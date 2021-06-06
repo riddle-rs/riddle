@@ -271,6 +271,9 @@ fn main() -> Result<(), RiddleError> {
 		Event::Input(InputEvent::KeyUp { vkey, .. }) => {
 			println!("KeyUp: {:?}", vkey);
 		}
+		Event::Input(InputEvent::TextInput { text, .. }) => {
+			println!("Text Input: {:?}", text);
+		}
 		Event::Input(InputEvent::GamePadButtonDown { button, .. }) => {
 			println!("Gamepad Down {:?}", button);
 		}

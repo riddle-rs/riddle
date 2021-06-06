@@ -30,6 +30,11 @@ pub enum PlatformEvent {
 		vkey: Option<VirtualKey>,
 	},
 
+	TextInput {
+		window: WindowId,
+		text: String,
+	},
+
 	EventQueueEmpty,
 	Unknown,
 }

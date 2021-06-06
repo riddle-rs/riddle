@@ -8,6 +8,7 @@
 //! - Implement WGPUDevice for CustomRenderer is the main piece of work
 //!   needed to adapt the riddle renderer to a custom device.
 
+use platform::common::WindowId;
 use riddle::{common::Color, math::*, platform::*, renderer::*, *};
 
 use anyhow::Result;
@@ -52,6 +53,7 @@ impl WGPURendererDemo {
 			.build(&rdl.context())?;
 
 		let custom_renderer = CustomRendererHandle {
+			window: window.id(),
 			renderer: std::rc::Rc::new(std::cell::RefCell::new(CustomRenderer::new(&window)?)),
 		};
 		let rdl_renderer = Renderer::new_from_device(custom_renderer.clone())?;
@@ -116,6 +118,7 @@ impl WGPURendererDemo {
 
 #[derive(Clone)]
 struct CustomRendererHandle {
+	window: WindowId,
 	renderer: std::rc::Rc<std::cell::RefCell<CustomRenderer>>,
 }
 
@@ -151,5 +154,9 @@ impl WgpuDevice for CustomRendererHandle {
 	{
 		let renderer = self.renderer.borrow();
 		f(renderer.current_frame.as_ref().unwrap())
+	}
+
+	fn window_id(&self) -> WindowId {
+		self.window.clone()
 	}
 }

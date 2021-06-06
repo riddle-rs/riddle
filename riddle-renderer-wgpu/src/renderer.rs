@@ -1,5 +1,5 @@
 use math::Vector2;
-use platform::Window;
+use platform::{common::WindowId, Window};
 
 use crate::*;
 
@@ -62,6 +62,10 @@ impl<Device: WgpuDevice> CommonRenderer for Renderer<Device> {
 
 	fn dimensions(&self) -> Vector2<f32> {
 		self.internal.wgpu_device.viewport_dimensions()
+	}
+
+	fn window_id(&self) -> WindowId {
+		self.internal.wgpu_device.window_id()
 	}
 
 	fn render<R, F>(&self, f: F) -> Result<R>

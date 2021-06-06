@@ -64,8 +64,10 @@ impl<R: CommonRenderer> SpriteFont<R> {
 		text: &str,
 	) -> std::result::Result<(), R::Error> {
 		let mut parts: Vec<(Rect<f32>, Vector2<f32>)> = Vec::with_capacity(text.len());
-		self.font.layout(text, |_, rect, location| {
-			parts.push((rect.clone().convert(), location.convert()));
+		self.font.layout(text, |_, glyph, location| {
+			if let Some(rect) = &glyph.rect {
+				parts.push((rect.clone().convert(), location.convert()));
+			}
 		});
 		self.sprite
 			.render_regions(render_ctx, render_args, &parts[..])

@@ -1,4 +1,5 @@
 use math::Vector2;
+use platform::common::WindowId;
 
 use crate::{
 	eventpub::EventSub,
@@ -146,5 +147,9 @@ impl WgpuDevice for WindowWgpuDevice {
 	{
 		let frame = self.current_frame.lock().unwrap();
 		f(frame.as_ref().unwrap())
+	}
+
+	fn window_id(&self) -> WindowId {
+		self.window.id()
 	}
 }

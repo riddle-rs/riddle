@@ -326,7 +326,7 @@ impl InputSystem {
 			scancode,
 			vkey,
 			modifiers,
-		})
+		});
 	}
 
 	fn key_up(&self, window: WindowId, scancode: Scancode, vkey: Option<VirtualKey>) {
@@ -342,6 +342,10 @@ impl InputSystem {
 		})
 	}
 
+	fn text_input(&self, window: WindowId, text: String) {
+		self.send_input_event(InputEvent::TextInput { window, text });
+	}
+
 	fn event_filter(event: &PlatformEvent) -> bool {
 		matches!(
 			event,
@@ -350,6 +354,7 @@ impl InputSystem {
 				| PlatformEvent::MouseButtonDown { .. }
 				| PlatformEvent::KeyUp { .. }
 				| PlatformEvent::KeyDown { .. }
+				| PlatformEvent::TextInput { .. }
 		)
 	}
 
@@ -510,6 +515,9 @@ impl InputMainThreadState {
 					..
 				} => {
 					self.system.key_down(window, scancode, vkey);
+				}
+				PlatformEvent::TextInput { window, text } => {
+					self.system.text_input(window, text);
 				}
 				_ => (),
 			}

@@ -30,6 +30,11 @@ pub enum InputEvent {
 		modifiers: KeyboardModifiers,
 	},
 
+	TextInput {
+		window: WindowId,
+		text: String,
+	},
+
 	GamePadConnected(GamePadId),
 	GamePadDisconnected(GamePadId),
 	GamePadButtonDown {
