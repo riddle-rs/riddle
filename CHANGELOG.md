@@ -36,6 +36,7 @@
 * **breaking** renderer: CommonRenderer trait gained window_id fn.
 * input, platform: TextInput events added and simulated for winit.
 * renderer: Add SpriteFont::new_from_sprite.
+* platform: Use winit ReceivedCharacter instead of faking it based on KeyDown.
 
 ## 0.2.0
 
