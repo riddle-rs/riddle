@@ -37,6 +37,7 @@
 * input, platform: TextInput events added and simulated for winit.
 * renderer: Add SpriteFont::new_from_sprite.
 * platform: Use winit ReceivedCharacter instead of faking it based on KeyDown.
+* platform: Add PlatformSystem::quit.
 
 ## 0.2.0
 

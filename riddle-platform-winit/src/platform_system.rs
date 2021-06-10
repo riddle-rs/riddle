@@ -77,6 +77,17 @@ impl PlatformSystem {
 			window.update()
 		}
 	}
+
+	pub fn quit(&self) {
+		let proxy = self
+			.internal
+			.event_proxy
+			.lock()
+			.expect("Failed to lock EventLoop for quit request");
+		proxy
+			.send_event(InternalEvent::QuitRequested)
+			.expect("EventProxy unable to accept quit message");
+	}
 }
 
 impl ext::PlatformSystemExt for PlatformSystem {
