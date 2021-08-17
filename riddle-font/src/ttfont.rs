@@ -95,7 +95,7 @@ impl TtFont {
 			for glyph in layout {
 				let bb = glyph.pixel_bounding_box().unwrap_or_default();
 				glyph.draw(|x, y, v| {
-					let b = (color.a * v) as u8;
+					let b = (color.a * v * 255.0) as u8;
 					img.set_pixel(
 						[
 							(bb.min.x + x as i32) as u32,
