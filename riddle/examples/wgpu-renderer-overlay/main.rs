@@ -73,7 +73,7 @@ impl WGPURendererDemo {
 			let font_bytes = include_bytes!("../../../example_assets/Roboto-Regular.ttf");
 			font::TtFont::load(&font_bytes[..])?
 		};
-		let label = font.render_simple("Riddle Label", 24)?;
+		let label = font.render_simple("Riddle Label", 24, Color::WHITE)?;
 		let label_sprite = Sprite::new_from_image(&rdl_renderer, &label, &SpriteInitArgs::new())?;
 
 		Ok(Self {

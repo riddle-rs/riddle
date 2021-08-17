@@ -50,7 +50,7 @@ impl DemoState {
 			audio::Clip::load(&music_bytes[..], audio::ClipFormat::Vorbis)?
 		};
 
-		let label = font.render_simple("Hello World", 30)?;
+		let label = font.render_simple("Hello World", 30, Color::WHITE)?;
 
 		let mut label_sprite = None;
 		let mut sprite = None;
