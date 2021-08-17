@@ -71,7 +71,7 @@ impl TtFont {
 	/// let image = font.render_simple("A String", 24)?;
 	/// # Ok (()) }
 	/// ```
-	pub fn render_simple(&self, text: &str, pixel_height: u32) -> Result<Image> {
+	pub fn render_simple(&self, text: &str, pixel_height: u32, color: Color<f32>) -> Result<Image> {
 		let scale = rusttype::Scale::uniform(pixel_height as f32);
 		let layout: Vec<rusttype::PositionedGlyph> = self
 			.font
@@ -94,13 +94,18 @@ impl TtFont {
 			for glyph in layout {
 				let bb = glyph.pixel_bounding_box().unwrap_or_default();
 				glyph.draw(|x, y, v| {
-					let b = (255.0 * v) as u8;
+					let b = (color.a * v) as u8;
 					img.set_pixel(
 						[
 							(bb.min.x + x as i32) as u32,
 							(base_line + bb.min.y + (y as i32)) as u32,
 						],
-						Color::rgba(255, 255, 255, b),
+						Color::rgba(
+    						(255.0 * color.r) as u8,
+    						(255.0 * color.b) as u8,
+    						(255.0 * color.g) as u8,
+    						b
+						),
 					);
 				})
 			}
