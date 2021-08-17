@@ -8,13 +8,14 @@
 //!
 //! ```
 //! # use riddle_font::*;
+//! # use riddle_common::Color;
 //! # fn main() -> Result<(), FontError> {
 //! // Load font from TTF file
 //! let ttf_bytes = include_bytes!("../../example_assets/Roboto-Regular.ttf");
 //! let font = TtFont::load(&ttf_bytes[..])?;
 //!
 //! // Render the loaded font to a Riddle image
-//! let image = font.render_simple("Simple String", 24)?;
+//! let image = font.render_simple("Simple String", 24, Color::BLACK)?;
 //! # Ok(())
 //! # }
 //! ```
