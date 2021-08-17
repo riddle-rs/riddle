@@ -65,10 +65,11 @@ impl TtFont {
 	///
 	/// ```
 	/// # use riddle_font::*;
+	/// # use riddle_common::Color;
 	/// # fn main() -> Result<(), FontError> {
 	/// # let ttf_bytes = include_bytes!("../../example_assets/Roboto-Regular.ttf");
 	/// let font = TtFont::load(&ttf_bytes[..])?;
-	/// let image = font.render_simple("A String", 24)?;
+	/// let image = font.render_simple("A String", 24, Color::BLACK)?;
 	/// # Ok (()) }
 	/// ```
 	pub fn render_simple(&self, text: &str, pixel_height: u32, color: Color<f32>) -> Result<Image> {
